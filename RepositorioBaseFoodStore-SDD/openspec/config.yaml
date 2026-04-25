@@ -1,0 +1,55 @@
+schema: spec-driven
+
+context: |
+  Tech Stack: FastAPI (Python 3.11+) · SQLModel · PostgreSQL · React · TypeScript · Vite
+  
+  Backend Architecture: Layered (Router → Service → UoW → Repository → Model)
+  - Feature-first modules: auth, usuarios, categorias, productos, pedidos, pagos, admin, direcciones
+  - Database migrations: Alembic
+  - Auth: JWT + refresh tokens, RBAC with 5 roles (Cliente, Admin, Gestor Stock, Gestor Pedidos, Sistema)
+  - Integration: MercadoPago SDK, IPN webhooks, order FSM with state transitions
+  
+  Frontend Architecture: Feature-Sliced Design (app → pages → widgets → features → entities → shared)
+  - State management: TanStack Query (server), Zustand (client UI + cart), TanStack Form (validation)
+  - HTTP: Axios with JWT interceptor + transparent token refresh
+  - Styling: Tailwind CSS · Admin metrics with Recharts
+  
+  Domain: E-commerce for food products. Actors: Cliente, Admin, Gestor Stock, Gestor Pedidos, Sistema (automation)
+  Key features: hierarchical categories, product ingredients + allergens, order audit trail, MercadoPago checkout
+  
+  Conventions: Conventional commits (feat/fix/refactor/test/docs) · .env for secrets · requirements.txt/package.json
+  
+  Strict TDD: Disabled (test infrastructure not yet scaffolded). Enable after backend/frontend setup with pytest/vitest.
+  
+  Documentation source: docs/Descripcion.txt, docs/Integrador.txt, docs/Historias_de_usuario.txt (649+ lines)
+  Order of delivery: us-000 (setup) → us-001 (auth) → us-002..008 (features)
+
+rules:
+  proposal:
+    - Include rollback plan for database migrations
+    - Identify affected modules and dependencies
+    - Mention MercadoPago integration if payment-related
+  specs:
+    - Use Given/When/Then format for scenarios
+    - Reference the relevant Historias_de_usuario.txt requirement
+    - Include RBAC constraints for authorization
+  design:
+    - Show state transitions for order FSM or auth flows
+    - Document UoW transaction boundaries
+    - Include Entity-Relationship patterns for products/categories/orders
+  tasks:
+    - Group by backend service / frontend feature
+    - Keep chunks under 2 hours; database migrations are separate tasks
+    - Note if changes touch Router, Service, or Repository layers
+  apply:
+    - Follow SQLModel + Pydantic patterns (shared schema + model)
+    - Use existing error handling (exceptions → HTTP responses)
+    - Load relevant coding skills for the stack
+    - Run type checking: mypy (backend), tsc (frontend) — but NOT tests yet
+  verify:
+    - Manual verification only (Strict TDD disabled)
+    - Compare implementation against spec scenarios
+    - Verify migrations are reversible
+  archive:
+    - Sync delta specs to main specs in docs/
+    - Archive to changes/archive/ with summary report
