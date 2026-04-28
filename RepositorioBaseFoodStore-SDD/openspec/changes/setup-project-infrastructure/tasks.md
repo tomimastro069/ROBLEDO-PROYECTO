@@ -1,50 +1,54 @@
-## 1. Backend Initialization
+# Sprint 0 — Implementation Tasks
 
-- [x] 1.1 Set up virtual environment and install FastAPI dependencies.
-- [x] 1.2 Create project structure with layered architecture (Router → Service → UoW → Repository).
-- [x] 1.3 Configure Alembic for PostgreSQL migrations.
-- [ ] 1.4 Integrate SQLModel for ORM and database schema.
-- [ ] 1.5 Implement JWT-based authentication (access/refresh tokens).
-- [ ] 1.6 Set up RBAC roles and enforce in service-layer entry points.
+> Ordered by execution blocks. A block only starts when the previous one is complete.
+> Backend tasks were completed on 2026-04-27.
 
-## 2. Frontend Initialization
+---
 
-- [ ] 2.1 Bootstrap frontend with Vite, React, and TypeScript.
-- [ ] 2.2 Configure Tailwind CSS for styling and Recharts for metrics.
-- [ ] 2.3 Set up TanStack Query for server-side state management.
-- [ ] 2.4 Initialize Zustand for client-side state (e.g., cart management).
-- [ ] 2.5 Implement Axios client with JWT interception.
+## BACKEND — Bloque único (✅ Completo)
 
-## 3. Payment Gateway Integration
+- [x] B1 · Estructura feature-first (9 módulos: auth, users, categories, products, orders, payments, admin, addresses, shared)
+- [x] B2 · FastAPI + CORS + rate limiting (slowapi)
+- [x] B3 · SQLModel + Alembic configurados
+- [x] B4 · `seed.py` con datos iniciales
+- [x] B5 · `BaseRepository[T]` genérico → `backend/shared/base_repository.py`
+- [x] B6 · Unit of Work con context manager → `backend/uow/unit_of_work.py`
+- [x] B7 · `get_current_user()` + `require_role()` → `backend/auth/dependencies.py`
 
-- [ ] 3.1 Add MercadoPago SDK to backend for IPN webhook handling.
-- [ ] 3.2 Implement payment state machine for order lifecycle management.
-- [ ] 3.3 Test MercadoPago sandbox environment for E2E validation.
+---
 
-## 4. CI/CD Setup
+## FRONTEND — Bloque 1: Fundación (✅ Completo)
 
-- [ ] 4.1 Configure GitHub Actions for backend pytest workflows.
-- [ ] 4.2 Add Vitest workflows for frontend testing.
-- [ ] 4.3 Automate schema validation and Alembic migration runs.
-- [ ] 4.4 Set up .env management and security scans.
+- [x] F1 · Bootstrap Vite + React + TypeScript strict
+- [x] F2 · Crear estructura FSD (6 capas)
 
-## 5. Priority tasks for the first sprint
+---
 
- Backend
- B1 · Crear estructura feature-first (9 módulos: auth, usuarios, categorias, productos, pedidos, pagos, admin, direcciones, shared)
- B2 · Configurar FastAPI con CORS y rate limiting
- B3 · Instalar y configurar SQLModel + Alembic
- B4 · Crear seed.py con datos iniciales
- B5 · Implementar BaseRepository[T] genérico
- B6 · Implementar Unit of Work con context manager
- B7 · Implementar get_current_user() y require_role()
-🟡 Frontend
- F1 · Bootstrap Vite + React + TypeScript strict
- F2 · Crear estructura FSD (6 capas: app, pages, widgets, features, entities, shared)
- F3 · Configurar Tailwind CSS + React Router
- F4 · Configurar TanStack Query + Axios con interceptors JWT
- F5 · Crear authStore con Zustand
- F6 · Crear cartStore con Zustand
- F7 · Crear paymentStore con Zustand
- F8 · Crear uiStore con Zustand
- F9 · Implementar ProtectedRoute HOC por rol
+## FRONTEND — Bloque 2: Infraestructura (✅ Completo)
+
+- [x] F3 · Tailwind CSS + React Router
+- [x] F4 · TanStack Query + Axios con interceptors JWT
+
+---
+
+## FRONTEND — Bloque 3: Stores (✅ Completo)
+
+- [x] F5 · `authStore` (Zustand)
+- [x] F6 · `cartStore` (Zustand)
+- [x] F7 · `paymentStore` (Zustand)
+- [x] F8 · `uiStore` (Zustand)
+
+---
+
+## FRONTEND — Bloque 4: Composición (✅ Completo)
+
+- [x] F9 · `ProtectedRoute` HOC por rol
+
+---
+
+## Criterios de salida del Sprint 0
+
+- [ ] Backend corriendo en `:8000` con docs en `/docs`
+- [ ] Frontend corriendo en `:5173`
+- [ ] BD inicializada con seed
+- [x] Scaffold completo: `feat(setup): scaffold backend FFA + frontend FSD + UoW + stores`

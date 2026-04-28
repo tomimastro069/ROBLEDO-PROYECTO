@@ -52,3 +52,58 @@ The project infrastructure requires a robust setup to support the domain of e-co
 - Should we optimize JWTs for embedded claims, or retain minimal payloads?
 - Do we need finer-grained RBAC distinctions beyond the 5-role schema?
 - How do we handle multi-language support in shared components for orders/users?
+
+---
+
+## Frontend Execution Strategy — Task Prioritization
+
+Tasks are grouped into dependency-aware blocks. A block can only start when
+all tasks in the previous block are complete.
+
+### Block 1 — Foundation *(blocks everything)*
+
+| # | Task | Reason |
+|---|------|--------|
+| F1 | Vite + React + TypeScript strict | Entry point — no other task can exist without this |
+| F2 | FSD folder structure (6 layers) | Defines where every future file lives |
+
+### Block 2 — Infrastructure *(depends on F1+F2, parallel)*
+
+| # | Task | Reason |
+|---|------|--------|
+| F3 | Tailwind CSS + React Router | Styling system and routing — needed before any page |
+| F4 | TanStack Query + Axios JWT interceptors | HTTP layer — needed before any data fetching |
+
+### Block 3 — Stores *(depends on F1, parallel among themselves)*
+
+| # | Task | Reason |
+|---|------|--------|
+| F5 | `authStore` (Zustand) | Auth state — needed for ProtectedRoute (F9) |
+| F6 | `cartStore` (Zustand) | Cart state — independent of auth |
+| F7 | `paymentStore` (Zustand) | Payment state — independent of auth |
+| F8 | `uiStore` (Zustand) | Global UI state (modals, toasts, loading) |
+
+### Block 4 — Composition *(depends on F3 + F5)*
+
+| # | Task | Reason |
+|---|------|--------|
+| F9 | `ProtectedRoute` HOC by role | Needs router (F3) + authStore (F5) to check role |
+
+### Dependency Tree
+
+```
+F1 → F2 → F3 ──────────────────────────┐
+          └──► F4                        │
+F1 → F5 ────────────────────────────────┴──► F9
+     F6, F7, F8  (no downstream deps in Sprint 0)
+```
+
+### Decision: Zustand over Redux
+
+Zustand chosen for client state because:
+- Zero boilerplate vs Redux Toolkit
+- Compatible with TanStack Query (server state stays in Query, UI state in Zustand)
+- `authStore` exposes `user`, `token`, `setAuth()`, `clearAuth()` — enough for Sprint 0
+
+TanStack Query owns **all server state** (products, orders, categories).
+Zustand owns **client-only state** (cart items, payment intent, UI flags).
