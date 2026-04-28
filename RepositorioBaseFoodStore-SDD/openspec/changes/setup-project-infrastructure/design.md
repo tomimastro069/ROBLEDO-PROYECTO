@@ -107,3 +107,8 @@ Zustand chosen for client state because:
 
 TanStack Query owns **all server state** (products, orders, categories).
 Zustand owns **client-only state** (cart items, payment intent, UI flags).
+
+### Backend Refinements
+- **Lifespan Pattern**: Migrated from deprecated `on_event` to `lifespan` context manager.
+- **Middleware State**: Explicitly bound `SlowAPI` limiter to `app.state.limiter`.
+- **Strict Endpoint Typing**: Enforced `fastapi.Request` typing on rate-limited endpoints.
