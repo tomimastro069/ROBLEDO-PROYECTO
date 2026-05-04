@@ -2,7 +2,9 @@ from sqlmodel import SQLModel, Session, create_engine
 from models import User
 
 # Define the database URL or file path (update if needed)
-DATABASE_URL = "sqlite:///database.db"
+import os
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATABASE_URL = f"sqlite:///{os.path.join(BASE_DIR, 'database.db')}"
 engine = create_engine(DATABASE_URL)
 
 # Seed data for the 'User' table

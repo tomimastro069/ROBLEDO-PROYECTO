@@ -21,7 +21,10 @@ from __future__ import annotations
 from sqlmodel import Session, create_engine
 
 # Motor compartido — en producción se leerá de config/env
-_DATABASE_URL = "sqlite:///database.db"
+import os
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# La base de datos está un nivel arriba, en la carpeta backend/
+_DATABASE_URL = f"sqlite:///{os.path.join(BASE_DIR, '..', 'database.db')}"
 _engine = create_engine(_DATABASE_URL, echo=False)
 
 

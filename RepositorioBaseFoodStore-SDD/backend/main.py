@@ -11,7 +11,9 @@ sys.path.append("C:/Users/tomim/OneDrive/Escritorio/Robledo-parcial/ROBLEDO-PROY
 from backend.models import User
 
 # Configuration
-DATABASE_URL = "sqlite:///database.db"
+import os
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATABASE_URL = f"sqlite:///{os.path.join(BASE_DIR, 'database.db')}"
 engine = create_engine(DATABASE_URL)
 limiter = Limiter(key_func=lambda: "default-key")
 
