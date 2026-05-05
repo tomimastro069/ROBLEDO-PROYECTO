@@ -12,7 +12,7 @@
 
 ---
 
-### 3. `dockerization-setup`  []
+### 3. `dockerization-setup`  [X]
 - Funcionalidad: Dockerfile para backend/frontend, docker-compose.yml, variables de entorno para contenedores.
 - Dependencias: `backend-core-setup`
 

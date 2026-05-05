@@ -1,7 +1,9 @@
 fastapi
 uvicorn
-SQLModel
+sqlmodel
 psycopg2-binary
-python-jose
+python-jose[cryptography]
 python-dotenv
 passlib[bcrypt]
+slowapi
+python-multipart
