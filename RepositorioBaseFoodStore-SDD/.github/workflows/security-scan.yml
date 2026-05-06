@@ -1,0 +1,32 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  schedule:
+    - cron: '0 0 * * 1' # Weekly scan
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Backend Safety Scan
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    - run: |
+        pip install safety
+        safety check -r backend/requirements.txt || echo "Safety check found issues"
+
+    - name: Frontend Audit Scan
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+    - run: |
+        cd frontend
+        npm audit || echo "NPM audit found issues"

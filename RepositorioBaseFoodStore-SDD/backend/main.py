@@ -8,6 +8,7 @@ from slowapi.middleware import SlowAPIMiddleware
 # Imports locales
 from app.core.database import init_db
 from app.core.auth import router as auth_router
+from app.api.webhook_mercadopago import router as mp_webhook_router
 from models import User
 
 # Configuration
@@ -46,6 +47,8 @@ app.add_middleware(SlowAPIMiddleware)
 
 # Include authentication routes
 app.include_router(auth_router, prefix="/auth", tags=["auth"])
+# Include MercadoPago webhook router
+app.include_router(mp_webhook_router, tags=["webhooks"])
 
 @app.get("/")
 @limiter.limit("5/minute")

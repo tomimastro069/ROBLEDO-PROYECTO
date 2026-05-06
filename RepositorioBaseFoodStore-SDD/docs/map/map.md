@@ -18,7 +18,7 @@
 
 ---
 
-### 4. `frontend-core-setup`  []
+### 4. `frontend-core-setup`  [X]
 - Funcionalidad: React + TS + Vite, Router, Zustand, Query, Tailwind.
 - Dependencias: `repo-scaffold-monorepo`
 

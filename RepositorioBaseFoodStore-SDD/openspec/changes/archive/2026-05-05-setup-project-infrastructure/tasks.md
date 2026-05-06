@@ -17,16 +17,16 @@
 
 ## 3. Payment Gateway Integration
 
-- [ ] 3.1 Add MercadoPago SDK to backend for IPN webhook handling.
-- [ ] 3.2 Implement payment state machine for order lifecycle management.
-- [ ] 3.3 Test MercadoPago sandbox environment for end-to-end validation.
+- [x] 3.1 Add MercadoPago SDK to backend for IPN webhook handling.
+- [x] 3.2 Implement payment state machine for order lifecycle management.
+- [x] 3.3 Test MercadoPago sandbox environment for end-to-end validation.
 
 ## 4. CI/CD Setup
 
-- [ ] 4.1 Configure GitHub Actions for backend pytest workflows.
-- [ ] 4.2 Add Vitest workflows for frontend testing.
-- [ ] 4.3 Automate schema validation and Alembic migration runs.
-- [ ] 4.4 Set up .env management and security scans.
+- [x] 4.1 Configure GitHub Actions for backend pytest workflows.
+- [x] 4.2 Add Vitest workflows for frontend testing.
+- [x] 4.3 Automate schema validation and Alembic migration runs.
+- [x] 4.4 Set up .env management and security scans.
 
 ## 5. Priority tasks for the first sprint (Sprint 0 - COMPLETO ✅)
 

@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+sqlmodel
+psycopg2-binary
+python-jose[cryptography]
+passlib[bcrypt]
+slowapi
+python-multipart
+httpx
+python-dotenv
+pytest
+python-jose[cryptography]
