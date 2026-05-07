@@ -1,6 +1,7 @@
 import os
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi import Limiter
 from slowapi.middleware import SlowAPIMiddleware
@@ -9,7 +10,7 @@ from slowapi.middleware import SlowAPIMiddleware
 from app.core.database import init_db
 from app.core.auth import router as auth_router
 from app.api.webhook_mercadopago import router as mp_webhook_router
-from models import User
+from app.core.exceptions import DomainException, domain_exception_handler, validation_exception_handler
 
 # Configuration
 limiter = Limiter(key_func=lambda: "default-key")
@@ -44,6 +45,10 @@ app.add_middleware(
     allow_headers=["*"]
 )
 app.add_middleware(SlowAPIMiddleware)
+
+# Register Exception Handlers
+app.add_exception_handler(DomainException, domain_exception_handler)
+app.add_exception_handler(RequestValidationError, validation_exception_handler)
 
 # Include authentication routes
 app.include_router(auth_router, prefix="/auth", tags=["auth"])
