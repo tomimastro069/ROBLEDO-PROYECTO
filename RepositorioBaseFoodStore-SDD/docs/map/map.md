@@ -42,7 +42,7 @@
 
 ---
 
-### 8. `backend-error-handling`
+### 8. `backend-error-handling` [X]
 - Funcionalidad: Manejo de errores (RFC7807).
 - Dependencias: `backend-core-setup`
 
