@@ -19,6 +19,7 @@ if config.config_file_name is not None:
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 from app.core.models import SQLModel, Role, User, Category, Product, Order, OrderItem, Payment, Address, ProductIngredient, ProductAllergen
+from app.core.config import settings
 
 target_metadata = SQLModel.metadata
 
@@ -40,7 +41,7 @@ def run_migrations_offline() -> None:
     script output.
 
     """
-    url = config.get_main_option("sqlalchemy.url")
+    url = str(settings.DB_URL)
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -60,8 +61,11 @@ def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
+    configuration = config.get_section(config.config_ini_section, {})
+    configuration["sqlalchemy.url"] = str(settings.DB_URL)
+    
     connectable = engine_from_config(
-        config.get_section(config.config_ini_section, {}),
+        configuration,
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )

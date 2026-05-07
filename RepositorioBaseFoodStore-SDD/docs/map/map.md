@@ -24,13 +24,13 @@
 
 ---
 
-### 5. `domain-models-definition`
+### 5. `domain-models-definition`  [X]
 - Funcionalidad: Entidades de dominio (User, Product, Category, Order, OrderItem).
 - Dependencias: `backend-core-setup`
 
 ---
 
-### 6. `database-migrations-and-seed`
+### 6. `database-migrations-and-seed`  [X]
 - Funcionalidad: PostgreSQL + Alembic, tablas basadas en dominio, seed inicial.
 - Dependencias: `domain-models-definition`
 
