@@ -18,19 +18,14 @@ para garantizar atomicidad — todos operan dentro de la misma transacción.
 
 from __future__ import annotations
 
-from sqlmodel import Session, create_engine
-
-# Motor compartido — en producción se leerá de config/env
-import os
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-# La base de datos está un nivel arriba, en la carpeta backend/
-_DATABASE_URL = f"sqlite:///{os.path.join(BASE_DIR, '..', 'database.db')}"
-_engine = create_engine(_DATABASE_URL, echo=False)
-
+from sqlmodel import Session
+from app.core.database import engine as global_engine
+from app.core.repositories.user_repository import UserRepository
+from app.core.repositories.role_repository import RoleRepository
 
 def get_engine():
     """Devuelve el engine global. Reemplazar en tests con uno in-memory."""
-    return _engine
+    return global_engine
 
 
 class UnitOfWork:
@@ -76,3 +71,13 @@ class UnitOfWork:
     def rollback(self) -> None:
         """Rollback explícito ante errores de negocio."""
         self.session.rollback()
+
+class AppUnitOfWork(UnitOfWork):
+    def __enter__(self) -> "AppUnitOfWork":
+        super().__enter__()
+        self.users = UserRepository(self.session)
+        self.roles = RoleRepository(self.session)
+        return self
+
+def get_uow() -> AppUnitOfWork:
+    return AppUnitOfWork()

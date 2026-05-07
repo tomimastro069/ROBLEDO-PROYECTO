@@ -36,7 +36,7 @@
 
 ---
 
-### 7. `backend-uow-and-repositories`
+### 7. `backend-uow-and-repositories` [X]
 - Funcionalidad: Repositorios + Unit of Work (acceso a datos).
 - Dependencias: `database-migrations-and-seed`
 
