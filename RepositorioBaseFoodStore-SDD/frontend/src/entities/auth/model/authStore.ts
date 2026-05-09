@@ -11,8 +11,9 @@ interface User {
 interface AuthState {
   user: User | null;
   token: string | null;
+  refreshToken: string | null;
   isAuthenticated: boolean;
-  setAuth: (user: User, token: string) => void;
+  setAuth: (user: User, token: string, refreshToken: string) => void;
   clearAuth: () => void;
 }
 
@@ -21,14 +22,13 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       user: null,
       token: null,
+      refreshToken: null,
       isAuthenticated: false,
-      setAuth: (user, token) => {
-        localStorage.setItem('auth-token', token); // Sincronizado con axios placeholder
-        set({ user, token, isAuthenticated: true });
+      setAuth: (user, token, refreshToken) => {
+        set({ user, token, refreshToken, isAuthenticated: true });
       },
       clearAuth: () => {
-        localStorage.removeItem('auth-token');
-        set({ user: null, token: null, isAuthenticated: false });
+        set({ user: null, token: null, refreshToken: null, isAuthenticated: false });
       },
     }),
     {

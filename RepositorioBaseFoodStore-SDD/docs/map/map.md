@@ -63,7 +63,7 @@
 
 ---
 
-## 🔐 AUTENTICACIÓN
+## 🔐 AUTENTICACIÓN   [X]
 
 ### 10. `auth-service` [X]
 
@@ -75,7 +75,7 @@
 - Funcionalidad: Endpoints REST de auth.
 - Dependencias: `auth-service`
 
-### 12. `auth-frontend`
+### 12. `auth-frontend` [X]
 
 - Funcionalidad: UI + Zustand para sesión.
 - Dependencias: `frontend-core-setup`, `auth-api`
