@@ -48,7 +48,7 @@
 
 ---
 
-### 9. `backend-validation`
+### 9. `backend-validation` [X]
 - Funcionalidad: Validación y sanitización de inputs.
 - Dependencias: `backend-core-setup`
 
