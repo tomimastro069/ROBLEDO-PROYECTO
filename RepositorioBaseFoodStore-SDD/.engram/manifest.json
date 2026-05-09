@@ -24,6 +24,14 @@
       "sessions": 1,
       "memories": 1,
       "prompts": 0
+    },
+    {
+      "id": "a111857f",
+      "created_by": "cristian",
+      "created_at": "2026-05-09T16:31:32Z",
+      "sessions": 1,
+      "memories": 2,
+      "prompts": 0
     }
   ]
 }
