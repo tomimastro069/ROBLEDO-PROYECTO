@@ -14,3 +14,20 @@ class TokenData(BaseModel):
     sub: str                    # user_id como string (estándar JWT)
     role: Role
     email: Optional[str] = None
+
+from pydantic import EmailStr
+
+class UserCreate(BaseModel):
+    email: EmailStr
+    password: str
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
+
+class Token(BaseModel):
+    access_token: str
+    refresh_token: str
+    token_type: str = "bearer"

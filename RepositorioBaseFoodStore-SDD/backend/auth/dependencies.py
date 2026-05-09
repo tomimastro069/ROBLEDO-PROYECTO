@@ -94,3 +94,15 @@ def require_role(*allowed_roles: Role):
         return current_user
 
     return _check_role
+
+# ------------------------------------------------------------------
+# get_auth_service
+# ------------------------------------------------------------------
+from app.core.uow.unit_of_work import AppUnitOfWork, get_uow
+from auth.service import AuthService
+
+def get_auth_service(uow: AppUnitOfWork = Depends(get_uow)) -> AuthService:
+    """
+    Inyecta la capa de servicio de autenticación instanciada con el UnitOfWork activo.
+    """
+    return AuthService(uow)
