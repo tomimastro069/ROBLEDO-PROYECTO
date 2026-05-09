@@ -22,6 +22,7 @@ from sqlmodel import Session
 from app.core.database import engine as global_engine
 from app.core.repositories.user_repository import UserRepository
 from app.core.repositories.role_repository import RoleRepository
+from app.core.repositories.category_repository import CategoryRepository
 
 def get_engine():
     """Devuelve el engine global. Reemplazar en tests con uno in-memory."""
@@ -77,6 +78,7 @@ class AppUnitOfWork(UnitOfWork):
         super().__enter__()
         self.users = UserRepository(self.session)
         self.roles = RoleRepository(self.session)
+        self.categories = CategoryRepository(self.session)
         return self
 
 def get_uow() -> AppUnitOfWork:

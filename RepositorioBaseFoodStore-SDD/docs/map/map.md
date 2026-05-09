@@ -84,7 +84,7 @@
 
 ## 📂 CATEGORÍAS
 
-### 13. `categories-service`
+### 13. `categories-service` [X]
 
 - Funcionalidad: Lógica CRUD jerárquica.
 - Dependencias: `backend-uow-and-repositories`
