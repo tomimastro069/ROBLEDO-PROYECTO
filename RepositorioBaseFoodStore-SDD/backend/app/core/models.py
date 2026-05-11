@@ -1,5 +1,6 @@
 from typing import Optional, List
 from datetime import datetime
+from decimal import Decimal
 from sqlmodel import SQLModel, Field, Relationship
 from enum import Enum
 
@@ -42,13 +43,14 @@ class ProductAllergen(Base, table=True):
 class Product(Base, table=True):
     name: str
     description: Optional[str] = None
-    price: float
+    price: Decimal
     stock: int = Field(default=0)
     category_id: Optional[int] = Field(default=None, foreign_key="category.id")
     category: Optional[Category] = Relationship(back_populates="products")
     ingredients: List[ProductIngredient] = Relationship(back_populates="product")
     allergens: List[ProductAllergen] = Relationship(back_populates="product")
     order_items: List["OrderItem"] = Relationship(back_populates="product")
+    deleted_at: Optional[datetime] = Field(default=None, description="Soft delete timestamp")
 
 class OrderStatus(str, Enum):
     PENDING = "PENDING"

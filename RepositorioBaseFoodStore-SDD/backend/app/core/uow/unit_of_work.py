@@ -23,6 +23,9 @@ from app.core.database import engine as global_engine
 from app.core.repositories.user_repository import UserRepository
 from app.core.repositories.role_repository import RoleRepository
 from app.core.repositories.category_repository import CategoryRepository
+from app.core.repositories.products_repository import ProductsRepository
+from app.core.repositories.product_ingredient_repository import ProductIngredientRepository
+from app.core.repositories.product_allergen_repository import ProductAllergenRepository
 
 def get_engine():
     """Devuelve el engine global. Reemplazar en tests con uno in-memory."""
@@ -79,6 +82,9 @@ class AppUnitOfWork(UnitOfWork):
         self.users = UserRepository(self.session)
         self.roles = RoleRepository(self.session)
         self.categories = CategoryRepository(self.session)
+        self.products = ProductsRepository(self.session)
+        self.product_ingredients = ProductIngredientRepository(self.session)
+        self.product_allergens = ProductAllergenRepository(self.session)
         return self
 
 def get_uow() -> AppUnitOfWork:
