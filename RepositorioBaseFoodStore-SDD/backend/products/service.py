@@ -71,19 +71,9 @@ class ProductsService:
             return product
 
     def get_all(self, limit: int = 50, offset: int = 0) -> Tuple[List[Product], int]:
-        """Get all products with pagination.
-        
-        Returns:
-            Tuple of (products, total_count)
-        """
+        """Get all products with DB-level pagination."""
         with self.uow as uow:
-            # Get count
-            all_products = uow.products.get_all()
-            total = len(all_products)
-            
-            # Apply pagination
-            products = all_products[offset:offset + limit]
-            return products, total
+            return uow.products.get_all_paginated(offset=offset, limit=limit)
 
     def get_by_id(self, product_id: int) -> Product:
         """Get product by ID.

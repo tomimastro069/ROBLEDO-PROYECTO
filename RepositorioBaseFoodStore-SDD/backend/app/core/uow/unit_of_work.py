@@ -50,7 +50,7 @@ class UnitOfWork:
         self._engine = engine or get_engine()
 
     def __enter__(self) -> "UnitOfWork":
-        self.session = Session(self._engine)
+        self.session = Session(self._engine, expire_on_commit=False)
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb) -> bool:

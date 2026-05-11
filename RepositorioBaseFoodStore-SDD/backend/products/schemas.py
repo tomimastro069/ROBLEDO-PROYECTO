@@ -13,7 +13,7 @@ class ProductBase(BaseModel):
     """Base schema for product data."""
     name: str = Field(..., min_length=1, max_length=200, description="Product name")
     description: Optional[str] = Field(None, max_length=1000, description="Product description")
-    price: Decimal = Field(..., decimal_places=2, description="Product price (Decimal with 2 decimal places)")
+    price: Decimal = Field(..., gt=0, decimal_places=2, description="Product price (Decimal with 2 decimal places)")
     stock: int = Field(default=0, ge=0, description="Available stock quantity")
     category_id: Optional[int] = Field(None, description="Category ID")
 

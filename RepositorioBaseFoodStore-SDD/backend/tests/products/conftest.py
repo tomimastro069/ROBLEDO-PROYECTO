@@ -1,5 +1,11 @@
 """Fixtures for product service tests."""
 
+import sys
+import os
+_backend_dir = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
+if _backend_dir not in sys.path:
+    sys.path.insert(0, _backend_dir)
+
 import pytest
 from decimal import Decimal
 from sqlmodel import Session, create_engine, SQLModel
@@ -37,21 +43,21 @@ def service_fixture(session: Session):
     """Create a ProductsService instance with test UnitOfWork."""
     class TestAppUnitOfWork(AppUnitOfWork):
         def __enter__(self):
-            # Return self with the test session already set
-            self.users = None  # Not needed for product tests
+            self.session = session
+            self.users = None
             self.roles = None
-            self.categories = None
+            from app.core.repositories.category_repository import CategoryRepository
             from app.core.repositories.products_repository import ProductsRepository
             from app.core.repositories.product_ingredient_repository import ProductIngredientRepository
             from app.core.repositories.product_allergen_repository import ProductAllergenRepository
-            
+            self.categories = CategoryRepository(session)
+
             self.products = ProductsRepository(session)
             self.product_ingredients = ProductIngredientRepository(session)
             self.product_allergens = ProductAllergenRepository(session)
             return self
-        
+
         def __exit__(self, exc_type, exc_val, exc_tb):
-            # Don't close the test session
             if exc_type is None:
                 session.commit()
             else:

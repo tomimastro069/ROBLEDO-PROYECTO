@@ -28,6 +28,17 @@ class ProductsRepository(BaseRepository[Product]):
         statement = select(Product).where(Product.deleted_at.is_(None))
         return list(self._session.exec(statement).all())
 
+    def get_all_paginated(self, offset: int = 0, limit: int = 50) -> Tuple[List[Product], int]:
+        """Get all non-deleted products with DB-level pagination."""
+        count_stmt = select(func.count(Product.id)).where(Product.deleted_at.is_(None))
+        total = self._session.exec(count_stmt).one()
+
+        stmt = select(Product).where(
+            Product.deleted_at.is_(None)
+        ).offset(offset).limit(limit)
+        products = list(self._session.exec(stmt).all())
+        return products, total
+
     # Specialized queries (KISS approach)
 
     def get_by_category(self, category_id: int, limit: int = 50, offset: int = 0) -> Tuple[List[Product], int]:
