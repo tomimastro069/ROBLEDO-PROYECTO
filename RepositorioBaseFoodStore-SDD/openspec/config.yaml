@@ -19,10 +19,12 @@ context: |
   
   Conventions: Conventional commits (feat/fix/refactor/test/docs) · .env for secrets · requirements.txt/package.json
   
-  Strict TDD: Disabled (test infrastructure not yet scaffolded). Enable after backend/frontend setup with pytest/vitest.
+  Strict TDD: ✅ Enabled (pytest + vitest detected, full test infrastructure active as of 2026-05-11)
   
   Documentation source: docs/Descripcion.txt, docs/Integrador.txt, docs/Historias_de_usuario.txt (649+ lines)
   Order of delivery: us-000 (setup) → us-001 (auth) → us-002..008 (features)
+  
+  Progress: 15 of 21 changes archived (71% complete)
 
 rules:
   proposal:
@@ -33,10 +35,12 @@ rules:
     - Use Given/When/Then format for scenarios
     - Reference the relevant Historias_de_usuario.txt requirement
     - Include RBAC constraints for authorization
+    - Write test scenarios for Strict TDD (tests before implementation)
   design:
     - Show state transitions for order FSM or auth flows
     - Document UoW transaction boundaries
     - Include Entity-Relationship patterns for products/categories/orders
+    - Include test architecture and mock strategy
   tasks:
     - Group by backend service / frontend feature
     - Keep chunks under 2 hours; database migrations are separate tasks
@@ -45,11 +49,59 @@ rules:
     - Follow SQLModel + Pydantic patterns (shared schema + model)
     - Use existing error handling (exceptions → HTTP responses)
     - Load relevant coding skills for the stack
-    - Run type checking: mypy (backend), tsc (frontend) — but NOT tests yet
+    - Run type checking: mypy (backend), tsc (frontend)
+    - **STRICT TDD**: Write tests BEFORE implementation code
+    - Run tests: `pytest backend/tests` (backend), `npm test` (frontend)
   verify:
-    - Manual verification only (Strict TDD disabled)
-    - Compare implementation against spec scenarios
+    - **Strict TDD enforcement**: All tests must pass before archival
+    - Compare implementation against every spec scenario
     - Verify migrations are reversible
+    - Confirm test coverage for new functionality
   archive:
     - Sync delta specs to main specs in docs/
     - Archive to changes/archive/ with summary report
+    - Verify all tests pass in archived state
+
+testing:
+  strict_tdd: true
+  
+  backend:
+    framework: pytest
+    command: pytest backend/tests
+    config: pytest.ini
+    installed:
+      - pytest
+      - python-multipart
+      - httpx
+    missing:
+      - pytest-cov (recommended for coverage reports)
+      - pytest-asyncio (recommended for async tests)
+  
+  frontend:
+    framework: vitest
+    command: npm test
+    watch: npm run test:watch
+    config: vite.config.ts
+    installed:
+      - vitest@4.1.5
+      - "@testing-library/react"@16.3.2
+      - jsdom@29.1.1
+    missing:
+      - vitest coverage plugin (recommended)
+  
+  quality_tools:
+    linting:
+      backend: "missing (recommended: pylint)"
+      frontend: "missing (recommended: eslint)"
+    formatting:
+      backend: "missing (recommended: black)"
+      frontend: "missing (recommended: prettier)"
+    type_checking:
+      backend: "missing (recommended: mypy)"
+      frontend: "available (tsc --noEmit)"
+  
+  next_steps:
+    - pip install pytest-cov (backend coverage)
+    - pip install pytest-asyncio (async test support)
+    - npm install --save-dev @vitest/coverage-v8 (frontend coverage)
+    - Optional: Add linting/formatting for code quality gate

@@ -1,0 +1,35 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(openspec instructions *)",
+      "Bash(openspec status *)",
+      "Bash(python -m pytest tests/products/test_products_router.py -x -q)",
+      "Bash(python -m pytest tests/api/test_categories_integration.py -x -q)",
+      "Bash(pip list *)",
+      "Bash(pip install *)",
+      "Bash(python -m pytest tests/products/test_products_router.py -x -q --rootdir=.)",
+      "Bash(python -m pytest tests/products/test_service.py -x -q)",
+      "Bash(PYTHONPATH=. python -m pytest tests/products/test_service.py -x -q)",
+      "Bash(python -c \"import sys; sys.path.insert\\(0, '.'\\); from products.service import ProductsService; print\\('OK'\\)\")",
+      "Bash(python -m pytest --version)",
+      "Bash(python -c \"import pytest; print\\(pytest.__file__\\)\")",
+      "Bash(python -m pytest tests/products/test_products_router.py -x -q --co)",
+      "Bash(python -m pytest tests/products/test_products_router.py -x -q --collect-only)",
+      "Bash(python -m pytest tests/products/test_products_router.py --co -v)",
+      "Bash(python -c ' *)",
+      "Bash(python -c \"import tests.products.conftest\")",
+      "Bash(python -m pytest tests/products/test_products_router.py -x -s)",
+      "Bash(python -m pytest tests/products/test_products_router.py -v --tb=short)",
+      "Bash(python -m pytest tests/ -v --tb=short)",
+      "Bash(python -m pytest tests/products/ tests/api/test_categories_integration.py -v --tb=short)",
+      "Bash(python -m pytest tests/products/test_service.py::TestProductAllergens::test_add_allergen -v --tb=long)",
+      "Bash(python -m pytest tests/api/test_categories_integration.py::TestGetEndpoints::test_list_categories_empty -v --tb=short)",
+      "Bash(python -m pytest tests/products/ -v --tb=short)",
+      "Bash(python -m pytest tests/products/test_service.py::TestProductsCRUD::test_create_product -v --tb=long)",
+      "Bash(python -m pytest tests/products/ -q)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(openspec list *)"
+    ]
+  }
+}

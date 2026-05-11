@@ -89,7 +89,7 @@
 - Funcionalidad: Lógica CRUD jerárquica.
 - Dependencias: `backend-uow-and-repositories`
 
-### 14. `categories-api`
+### 14. `categories-api` [X]
 
 - Funcionalidad: Endpoints categorías.
 - Dependencias: `categories-service`
@@ -98,7 +98,7 @@
 
 ## 🛒 PRODUCTOS
 
-### 15. `products-service`
+### 15. `products-service` [X]
 
 - Funcionalidad: Lógica CRUD + stock + relaciones.
 - Dependencias: `categories-service`, `backend-uow-and-repositories`
