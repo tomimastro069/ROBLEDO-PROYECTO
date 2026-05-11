@@ -9,6 +9,7 @@ from slowapi.middleware import SlowAPIMiddleware
 # Imports locales
 from app.core.database import init_db
 from auth.router import router as auth_router
+from categories.router import router as categories_router
 from app.api.webhook_mercadopago import router as mp_webhook_router
 from app.core.exceptions import DomainException, domain_exception_handler, validation_exception_handler
 
@@ -52,6 +53,8 @@ app.add_exception_handler(RequestValidationError, validation_exception_handler)
 
 # Include authentication routes
 app.include_router(auth_router, prefix="/auth", tags=["auth"])
+# Include categories routes
+app.include_router(categories_router, prefix="/categories", tags=["categories"])
 # Include MercadoPago webhook router
 app.include_router(mp_webhook_router, tags=["webhooks"])
 

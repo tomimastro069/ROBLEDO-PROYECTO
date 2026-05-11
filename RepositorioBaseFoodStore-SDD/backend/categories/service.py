@@ -5,10 +5,12 @@ Responsabilidades:
   - CRUD de categorías.
   - Validación de reglas de dominio: unicidad de nombre, ciclos jerárquicos.
   - Coordinación de transacciones vía UoW.
+  - Soft delete: marcar categorías como eliminadas (no borrar física).
 
 No contiene lógica HTTP. El router del change #14 lo consume vía DI.
 """
 
+from datetime import datetime
 from fastapi import HTTPException, status
 
 from categories.schemas import CategoryCreate, CategoryUpdate, CategoryRead
@@ -97,6 +99,12 @@ class CategoriesService:
             return category
 
     def delete(self, category_id: int) -> None:
+        """
+        Soft-delete a category by marking it as deleted.
+        
+        The category is not physically removed from the database,
+        but marked with a deleted_at timestamp for auditing and recovery.
+        """
         with self.uow as uow:
             category = uow.categories.get_by_id(category_id)
             if not category:
@@ -113,5 +121,7 @@ class CategoriesService:
                     detail="No se puede eliminar una categoría que tiene subcategorías. Eliminá primero las subcategorías.",
                 )
 
-            uow.categories.delete(category)
+            # Soft delete: marcar con timestamp
+            category.deleted_at = datetime.utcnow()
+            uow.categories.update(category)
             uow.commit()

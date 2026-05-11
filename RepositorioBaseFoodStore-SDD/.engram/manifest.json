@@ -32,6 +32,22 @@
       "sessions": 1,
       "memories": 2,
       "prompts": 0
+    },
+    {
+      "id": "07ce6b52",
+      "created_by": "lauti",
+      "created_at": "2026-05-10T20:01:03Z",
+      "sessions": 1,
+      "memories": 0,
+      "prompts": 2
+    },
+    {
+      "id": "7b4a8e9a",
+      "created_by": "lauti",
+      "created_at": "2026-05-11T02:28:43Z",
+      "sessions": 7,
+      "memories": 3,
+      "prompts": 10
     }
   ]
 }

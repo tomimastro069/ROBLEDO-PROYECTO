@@ -27,6 +27,7 @@ class Category(Base, table=True):
     parent: Optional["Category"] = Relationship(back_populates="subcategories", sa_relationship_kwargs=dict(remote_side="Category.id"))
     subcategories: List["Category"] = Relationship(back_populates="parent")
     products: List["Product"] = Relationship(back_populates="category")
+    deleted_at: Optional[datetime] = Field(default=None, description="Soft delete timestamp")
 
 class ProductIngredient(Base, table=True):
     product_id: Optional[int] = Field(default=None, foreign_key="product.id")
