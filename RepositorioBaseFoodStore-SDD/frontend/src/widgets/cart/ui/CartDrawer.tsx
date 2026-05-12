@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useCartStore } from '@/entities/cart/model/cartStore';
 import { CartItemUI } from '@/entities/cart/ui/CartItemUI';
 import { RemoveButton } from '@/features/cart/RemoveFromCart/ui/RemoveButton';
@@ -11,6 +12,7 @@ interface CartDrawerProps {
 
 const CartDrawer: React.FC<CartDrawerProps> = ({ open, onClose }) => {
   const { items, total, clearCart } = useCartStore();
+  const navigate = useNavigate();
 
   if (!open) return null;
 
@@ -41,7 +43,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ open, onClose }) => {
               <strong>Subtotal:</strong> ${total}
             </div>
             <button onClick={clearCart}>Vaciar carrito</button>
-            <button className="checkout-btn">Finalizar compra</button>
+            <button className="checkout-btn" onClick={() => { onClose(); navigate('/checkout'); }}>Finalizar compra</button>
           </>
         )}
         <button onClick={onClose} className="close-btn">Cerrar</button>
