@@ -112,7 +112,7 @@
 
 ## 🧺 CARRITO
 
-### 17. `cart-service`
+### 17. `cart-service` [X]
 
 - Funcionalidad: Validación de carrito (precios, stock, consistencia).
 - Dependencias: `products-service`
