@@ -63,7 +63,7 @@
 
 ---
 
-## 🔐 AUTENTICACIÓN   [X]
+## 🔐 AUTENTICACIÓN [X]
 
 ### 10. `auth-service` [X]
 
@@ -103,7 +103,7 @@
 - Funcionalidad: Lógica CRUD + stock + relaciones.
 - Dependencias: `categories-service`, `backend-uow-and-repositories`
 
-### 16. `products-api`
+### 16. `products-api` [X]
 
 - Funcionalidad: Endpoints productos.
 - Dependencias: `products-service`
