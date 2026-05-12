@@ -50,10 +50,10 @@ rules:
     - Use existing error handling (exceptions → HTTP responses)
     - Load relevant coding skills for the stack
     - Run type checking: mypy (backend), tsc (frontend)
-    - **STRICT TDD**: Write tests BEFORE implementation code
-    - Run tests: `pytest backend/tests` (backend), `npm test` (frontend)
+    - "**STRICT TDD**: Write tests BEFORE implementation code"
+    - "Run tests: `pytest backend/tests` (backend), `npm test` (frontend)"
   verify:
-    - **Strict TDD enforcement**: All tests must pass before archival
+    - "**Strict TDD enforcement**: All tests must pass before archival"
     - Compare implementation against every spec scenario
     - Verify migrations are reversible
     - Confirm test coverage for new functionality
@@ -84,7 +84,7 @@ testing:
     config: vite.config.ts
     installed:
       - vitest@4.1.5
-      - "@testing-library/react"@16.3.2
+      - "@testing-library/react@16.3.2"
       - jsdom@29.1.1
     missing:
       - vitest coverage plugin (recommended)

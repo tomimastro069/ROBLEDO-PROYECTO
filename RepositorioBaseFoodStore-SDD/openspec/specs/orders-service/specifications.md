@@ -63,4 +63,28 @@
 2. Service validates FSM transition.
 3. System logs the change and notifies the user.
 
+#### Scenario 1.2: Successful Order Creation with Validation (UPDATED)
+The system SHALL validate the provided order items against the database (pricing and availability) using the CartValidationService before creating an order record.
+
+**Steps**:
+1. User sends `POST /orders` with product IDs and quantities.
+2. Orders Service invokes CartValidationService to validate stock and prices.
+3. Upon successful validation, Orders Service creates the order and transitions to initial state (e.g., PENDING).
+4. Service responds with `201 Created` and the order details.
+5. Publish event `OrderCreated`.
+
+**Constraints**:
+- Validation using CartValidationService must complete within 100ms.
+
+#### Scenario 1.3: Order Creation fails Validation (NEW)
+**Steps**:
+1. User sends `POST /orders` with product IDs and quantities.
+2. Orders Service invokes CartValidationService.
+3. CartValidationService detects a price mismatch or insufficient stock.
+4. Orders Service returns `400 Bad Request` or `409 Conflict` with validation error details.
+5. The order is NOT created.
+
+**Constraints**:
+- Order creation only succeeds after CartValidationService passes all checks.
+
 ---
