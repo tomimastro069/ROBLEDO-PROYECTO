@@ -21,9 +21,7 @@ from fastapi import APIRouter, Depends, Query, status
 
 from products.schemas import (
     ProductCreate, ProductUpdate, ProductRead,
-    ProductWithIngredientsAndAllergens, PaginatedProductResponse,
-    ProductIngredientCreate, ProductIngredientRead,
-    ProductAllergenCreate, ProductAllergenRead,
+    ProductWithIngredients, PaginatedProductResponse,
 )
 from products.service import ProductsService
 from products.dependencies import get_products_service
@@ -66,7 +64,7 @@ def list_products(
 
 @router.get(
     "/{product_id}",
-    response_model=ProductWithIngredientsAndAllergens,
+    response_model=ProductWithIngredients,
     status_code=status.HTTP_200_OK,
     summary="Get product by ID",
 )
@@ -75,12 +73,10 @@ def get_product(
     service: ProductsService = Depends(get_products_service),
 ):
     product = service.get_by_id(product_id)
-    ingredients = service.get_ingredients(product_id)
-    allergens = service.get_allergens(product_id)
-    return ProductWithIngredientsAndAllergens(
+    ingredientes = service.get_ingredients(product_id)
+    return ProductWithIngredients(
         **product.model_dump(),
-        ingredients=ingredients,
-        allergens=allergens,
+        ingredientes=ingredientes,
     )
 
 
@@ -138,93 +134,5 @@ def delete_product(
     service.delete(product_id)
 
 
-# ============================================================================
-# Ingredients sub-resource
-# ============================================================================
-
-@router.get(
-    "/{product_id}/ingredients",
-    response_model=List[ProductIngredientRead],
-    status_code=status.HTTP_200_OK,
-    summary="List product ingredients",
-)
-def list_ingredients(
-    product_id: int,
-    service: ProductsService = Depends(get_products_service),
-):
-    return service.get_ingredients(product_id)
-
-
-@router.post(
-    "/{product_id}/ingredients",
-    response_model=ProductIngredientRead,
-    status_code=status.HTTP_201_CREATED,
-    summary="Add ingredient to product",
-)
-def add_ingredient(
-    product_id: int,
-    ingredient_in: ProductIngredientCreate,
-    current_user: TokenData = Depends(require_role(*_WRITE_ROLES)),
-    service: ProductsService = Depends(get_products_service),
-):
-    return service.add_ingredient(product_id, ingredient_in.name)
-
-
-@router.delete(
-    "/{product_id}/ingredients/{ingredient_id}",
-    status_code=status.HTTP_204_NO_CONTENT,
-    summary="Remove ingredient from product",
-)
-def remove_ingredient(
-    product_id: int,
-    ingredient_id: int,
-    current_user: TokenData = Depends(require_role(*_WRITE_ROLES)),
-    service: ProductsService = Depends(get_products_service),
-):
-    service.remove_ingredient(product_id, ingredient_id)
-
-
-# ============================================================================
-# Allergens sub-resource
-# ============================================================================
-
-@router.get(
-    "/{product_id}/allergens",
-    response_model=List[ProductAllergenRead],
-    status_code=status.HTTP_200_OK,
-    summary="List product allergens",
-)
-def list_allergens(
-    product_id: int,
-    service: ProductsService = Depends(get_products_service),
-):
-    return service.get_allergens(product_id)
-
-
-@router.post(
-    "/{product_id}/allergens",
-    response_model=ProductAllergenRead,
-    status_code=status.HTTP_201_CREATED,
-    summary="Add allergen to product",
-)
-def add_allergen(
-    product_id: int,
-    allergen_in: ProductAllergenCreate,
-    current_user: TokenData = Depends(require_role(*_WRITE_ROLES)),
-    service: ProductsService = Depends(get_products_service),
-):
-    return service.add_allergen(product_id, allergen_in.name)
-
-
-@router.delete(
-    "/{product_id}/allergens/{allergen_id}",
-    status_code=status.HTTP_204_NO_CONTENT,
-    summary="Remove allergen from product",
-)
-def remove_allergen(
-    product_id: int,
-    allergen_id: int,
-    current_user: TokenData = Depends(require_role(*_WRITE_ROLES)),
-    service: ProductsService = Depends(get_products_service),
-):
-    service.remove_allergen(product_id, allergen_id)
+# --- Sub-recursos de ingredientes y alérgenos eliminados. 
+# La gestión se realiza a través de /api/v1/ingredientes ---

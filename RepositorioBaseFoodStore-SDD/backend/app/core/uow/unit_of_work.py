@@ -78,6 +78,8 @@ class UnitOfWork:
         """Rollback explícito ante errores de negocio."""
         self.session.rollback()
 
+from orders.repository import OrderRepository
+
 class AppUnitOfWork(UnitOfWork):
     def __enter__(self) -> "AppUnitOfWork":
         super().__enter__()
@@ -89,6 +91,7 @@ class AppUnitOfWork(UnitOfWork):
         self.product_allergens = ProductAllergenRepository(self.session)
         self.addresses = AddressRepository(self.session)
         self.ingredientes = IngredienteRepository(self.session)
+        self.orders = OrderRepository(self.session)
         return self
 
 def get_uow() -> AppUnitOfWork:

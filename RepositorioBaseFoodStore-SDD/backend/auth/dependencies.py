@@ -30,11 +30,9 @@ from jose import JWTError, jwt
 
 from auth.roles import Role
 from auth.schemas import TokenData
+from app.core.config import settings
 
-# ------------------------------------------------------------------
-# Configuración JWT (sobreescribir vía variables de entorno)
-# ------------------------------------------------------------------
-SECRET_KEY: str = os.getenv("AUTH_SECRET_KEY", "CHANGE_ME_IN_PRODUCTION")
+SECRET_KEY: str = settings.SECRET_KEY
 ALGORITHM: str = os.getenv("AUTH_ALGORITHM", "HS256")
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")

@@ -18,7 +18,7 @@ class OrderItem(SQLModel, table=True):
     order_id: int = Field(foreign_key="orders.id", index=True)
     product_id: int = Field(foreign_key="product.id", index=True)
     quantity: int
-    price: Decimal
+    price_snapshot: Decimal
     exclusions: List[int] = Field(default=[], sa_type=JSON)
     
     # Relaciones

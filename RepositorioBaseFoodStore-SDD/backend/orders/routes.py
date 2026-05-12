@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Request
-from sqlmodel import Session as SQLSession
 from typing import List, Optional
 from auth.schemas import TokenData
 from auth.dependencies import get_current_user, require_role
@@ -7,18 +6,18 @@ from auth.roles import Role
 from .schemas import OrderCreate, OrderRead, OrderAdminRead, StateChangeRequest
 from .service import OrderService
 from .exceptions import OrderNotFoundException, InvalidStateTransitionException
-from app.core.database import get_session
+from app.core.uow.unit_of_work import AppUnitOfWork, get_uow
 import uuid
 
 router = APIRouter()
 
-# Dependency Factory for OrderService
+# Dependency Factory for OrderService using Unit of Work
 def get_order_service(
-    session: SQLSession = Depends(get_session),
+    uow: AppUnitOfWork = Depends(get_uow),
     request: Request = None
 ):
-    correlation_id = request.headers.get('x-correlation-id', str(uuid.uuid4()))
-    return OrderService(session, correlation_id=correlation_id)
+    correlation_id = request.headers.get('x-correlation-id', str(uuid.uuid4())) if request else str(uuid.uuid4())
+    return OrderService(uow, correlation_id=correlation_id)
 
 # Customer Endpoints
 @router.post("/", response_model=OrderRead, status_code=status.HTTP_201_CREATED)
@@ -27,11 +26,18 @@ def create_order(
     service: OrderService = Depends(get_order_service),
     current_user: TokenData = Depends(get_current_user)
 ):
-    # En un caso real, buscaríamos los precios actuales de los productos aquí
-    # Para esta fase, los pasamos como dicts
-    items_data = [item.dict() for item in payload.items]
-    order = service.create_order(user_id=int(current_user.sub), items=items_data)
-    return order
+    try:
+        items_data = [item.dict() for item in payload.items]
+        order = service.create_order(
+            user_id=int(current_user.sub), 
+            shipping_address_id=payload.shipping_address_id,
+            items=items_data
+        )
+        return order
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Error interno al procesar el pedido.")
 
 @router.get("/", response_model=List[OrderRead])
 def list_my_orders(
@@ -62,7 +68,6 @@ def cancel_order(
 ):
     order = service.get_order(order_id)
     
-    # RBAC Dinámico (RN-RB08 / RN-FS08)
     if order.user_id != int(current_user.sub) and current_user.role not in [Role.ADMIN, Role.GESTOR_PEDIDOS]:
         raise HTTPException(status_code=403, detail="No autorizado para cancelar este pedido.")
     

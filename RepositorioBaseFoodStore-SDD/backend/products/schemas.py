@@ -86,10 +86,11 @@ class ProductAllergenRead(ProductAllergenBase):
 # Composite Schemas (for responses with nested data)
 # ====================================================================
 
-class ProductWithIngredientsAndAllergens(ProductRead):
-    """Schema for product with nested ingredients and allergens."""
-    ingredients: List[ProductIngredientRead] = []
-    allergens: List[ProductAllergenRead] = []
+from ingredientes.schemas import IngredienteRead
+
+class ProductWithIngredients(ProductRead):
+    """Schema for product with nested modular ingredients."""
+    ingredientes: List[IngredienteRead] = []
     
     model_config = ConfigDict(from_attributes=True)
 

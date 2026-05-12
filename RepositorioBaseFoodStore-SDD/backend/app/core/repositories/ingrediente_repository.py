@@ -26,10 +26,10 @@ class IngredienteRepository(BaseRepository[Ingrediente]):
         )
         return self._session.exec(stmt).first()
 
-    def get_by_product(self, product_id: int) -> List[Ingrediente]:
+    def get_por_producto(self, product_id: int) -> List[Ingrediente]:
         stmt = (
             select(Ingrediente)
-            .join(ProductIngrediente, ProductIngrediente.ingrediente_id == Ingrediente.id)
+            .join(ProductIngrediente, ProductIngrediente.inSgrediente_id == Ingrediente.id)
             .where(ProductIngrediente.product_id == product_id)
             .where(Ingrediente.deleted_at.is_(None))
         )

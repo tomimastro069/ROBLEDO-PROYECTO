@@ -19,7 +19,7 @@ from typing import List, Tuple, Optional
 from fastapi import HTTPException, status
 
 from app.core.uow.unit_of_work import AppUnitOfWork
-from app.core.models import Product, ProductIngredient, ProductAllergen
+from app.core.models import Product, ProductIngrediente, Ingrediente
 
 
 class ProductsService:
@@ -173,38 +173,11 @@ class ProductsService:
     # Ingredient Management
     # ====================================================================
 
-    def add_ingredient(self, product_id: int, ingredient_name: str) -> ProductIngredient:
-        """Add an ingredient to a product.
-        
-        Raises:
-            HTTPException(404): Product not found
-            HTTPException(400): Ingredient already exists
-        """
-        with self.uow as uow:
-            product = uow.products.get_by_id(product_id)
-            if not product:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Product with id={product_id} not found.",
-                )
-            
-            # Check for duplicate
-            existing = uow.product_ingredients.get_by_product_id_and_name(
-                product_id, ingredient_name
-            )
-            if existing:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=f"Ingredient '{ingredient_name}' already exists for this product.",
-                )
-            
-            ingredient = ProductIngredient(product_id=product_id, name=ingredient_name)
-            uow.product_ingredients.add(ingredient)
-            uow.commit()
-            return ingredient
+    # Los métodos add_ingredient y remove_ingredient fueron eliminados. 
+    # Use IngredientesService para gestionar la asociación de productos con el catálogo global.
 
-    def get_ingredients(self, product_id: int) -> List[ProductIngredient]:
-        """Get all ingredients for a product."""
+    def get_ingredients(self, product_id: int) -> List[Ingrediente]:
+        """Get all modular ingredients for a product (includes allergen flag)."""
         with self.uow as uow:
             product = uow.products.get_by_id(product_id)
             if not product:
@@ -213,101 +186,18 @@ class ProductsService:
                     detail=f"Product with id={product_id} not found.",
                 )
             
-            return uow.product_ingredients.get_by_product_id(product_id)
+            return uow.ingredientes.get_por_producto(product_id)
 
-    def remove_ingredient(self, product_id: int, ingredient_id: int) -> None:
-        """Remove an ingredient from a product.
-        
-        Raises:
-            HTTPException(404): Product or ingredient not found
-        """
-        with self.uow as uow:
-            product = uow.products.get_by_id(product_id)
-            if not product:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Product with id={product_id} not found.",
-                )
-            
-            ingredient = uow.product_ingredients.get_by_id(ingredient_id)
-            if not ingredient or ingredient.product_id != product_id:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Ingredient with id={ingredient_id} not found for this product.",
-                )
-            
-            uow.product_ingredients.delete(ingredient)
-            uow.commit()
 
     # ====================================================================
     # Allergen Management
     # ====================================================================
 
-    def add_allergen(self, product_id: int, allergen_name: str) -> ProductAllergen:
-        """Add an allergen to a product.
-        
-        Raises:
-            HTTPException(404): Product not found
-            HTTPException(400): Allergen already exists
-        """
-        with self.uow as uow:
-            product = uow.products.get_by_id(product_id)
-            if not product:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Product with id={product_id} not found.",
-                )
-            
-            # Check for duplicate
-            existing = uow.product_allergens.get_by_product_id_and_name(
-                product_id, allergen_name
-            )
-            if existing:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=f"Allergen '{allergen_name}' already exists for this product.",
-                )
-            
-            allergen = ProductAllergen(product_id=product_id, name=allergen_name)
-            uow.product_allergens.add(allergen)
-            uow.commit()
-            return allergen
+    # Los métodos add_allergen y remove_allergen fueron eliminados.
 
-    def get_allergens(self, product_id: int) -> List[ProductAllergen]:
-        """Get all allergens for a product."""
-        with self.uow as uow:
-            product = uow.products.get_by_id(product_id)
-            if not product:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Product with id={product_id} not found.",
-                )
-            
-            return uow.product_allergens.get_by_product_id(product_id)
+    # El método get_allergens fue eliminado.
+    # Los alérgenos ahora se manejan como un flag dentro de cada ingrediente.
 
-    def remove_allergen(self, product_id: int, allergen_id: int) -> None:
-        """Remove an allergen from a product.
-        
-        Raises:
-            HTTPException(404): Product or allergen not found
-        """
-        with self.uow as uow:
-            product = uow.products.get_by_id(product_id)
-            if not product:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Product with id={product_id} not found.",
-                )
-            
-            allergen = uow.product_allergens.get_by_id(allergen_id)
-            if not allergen or allergen.product_id != product_id:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Allergen with id={allergen_id} not found for this product.",
-                )
-            
-            uow.product_allergens.delete(allergen)
-            uow.commit()
 
     # ====================================================================
     # Stock Management & Validation
