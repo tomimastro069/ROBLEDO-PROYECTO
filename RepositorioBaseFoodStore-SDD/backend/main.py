@@ -8,6 +8,7 @@ from slowapi.middleware import SlowAPIMiddleware
 
 # Imports locales
 from app.core.database import init_db
+from app.core.seeder import run_seed
 from auth.router import router as auth_router
 from categories.router import router as categories_router
 from products.router import router as products_router
@@ -33,6 +34,12 @@ async def lifespan(app: FastAPI):
     
     # Inicializar base de datos
     init_db()
+    
+    # Ejecutar seeder automáticamente
+    try:
+        run_seed()
+    except Exception as e:
+        print(f"\n[SEEDER ERROR]: No se pudo completar el seeding: {e}\n")
     yield
 
 app = FastAPI(

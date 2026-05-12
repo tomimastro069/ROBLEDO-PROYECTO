@@ -74,29 +74,15 @@ class OrderStatus(str, Enum):
     SHIPPED = "SHIPPED"
     DELIVERED = "DELIVERED"
 
-class Order(Base, table=True):
-    status: OrderStatus = Field(default=OrderStatus.PENDING)
-    user_id: Optional[int] = Field(default=None, foreign_key="user.id")
-    user: Optional[User] = Relationship(back_populates="orders")
-    items: List["OrderItem"] = Relationship(back_populates="order")
-    payments: List["Payment"] = Relationship(back_populates="order")
-    addresses: List["Address"] = Relationship(back_populates="order")
-
-class OrderItem(Base, table=True):
-    order_id: Optional[int] = Field(default=None, foreign_key="order.id")
-    product_id: Optional[int] = Field(default=None, foreign_key="product.id")
-    quantity: int
-    historical_price: float
-    order: Optional[Order] = Relationship(back_populates="items")
-    product: Optional[Product] = Relationship(back_populates="order_items")
+# Eliminadas para evitar conflicto con backend/orders/models.py
 
 class Payment(Base, table=True):
     amount: float
     status: str
     user_id: Optional[int] = Field(default=None, foreign_key="user.id")
-    order_id: Optional[int] = Field(default=None, foreign_key="order.id")
+    order_id: Optional[int] = Field(default=None, foreign_key="orders.id")
     user: Optional[User] = Relationship(back_populates="payments")
-    order: Optional[Order] = Relationship(back_populates="payments")
+    order: Optional["Order"] = Relationship(back_populates="payments")
 
 class Address(Base, table=True):
     street: str
@@ -107,6 +93,6 @@ class Address(Base, table=True):
     zip_code: str
     is_default: bool = Field(default=False)
     user_id: Optional[int] = Field(default=None, foreign_key="user.id")
-    order_id: Optional[int] = Field(default=None, foreign_key="order.id")
+    order_id: Optional[int] = Field(default=None, foreign_key="orders.id")
     user: Optional[User] = Relationship(back_populates="addresses")
-    order: Optional[Order] = Relationship(back_populates="addresses")
+    order: Optional["Order"] = Relationship(back_populates="addresses")

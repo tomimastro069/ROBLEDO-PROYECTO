@@ -2,7 +2,8 @@ import os
 from sqlmodel import Session, select
 from app.core.database import engine
 from app.core.models import Role, User
-from app.core.auth import pwd_context
+from orders.models import Order
+from auth.utils import pwd_context
 
 ROLES = [
     {"name": "Admin", "description": "Administrador del sistema"},
@@ -13,7 +14,7 @@ ROLES = [
 ]
 
 ADMIN_EMAIL = os.getenv("DEFAULT_ADMIN_EMAIL", "admin@foodstore.local")
-ADMIN_PASSWORD = os.getenv("DEFAULT_ADMIN_PASSWORD", "admin123")
+ADMIN_PASSWORD = "admin123"
 
 def seed_roles(session: Session):
     for role_data in ROLES:

@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, status
+from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel
 
 from auth.schemas import UserCreate, UserLogin, Token, TokenData
@@ -22,8 +23,9 @@ def register(user_in: UserCreate, auth_service: AuthService = Depends(get_auth_s
     return user
 
 @router.post("/login", response_model=Token)
-def login(user_in: UserLogin, auth_service: AuthService = Depends(get_auth_service)):
-    return auth_service.login(user_in.email, user_in.password)
+def login(form_data: OAuth2PasswordRequestForm = Depends(), auth_service: AuthService = Depends(get_auth_service)):
+    # Swagger manda el email en el campo 'username' por estándar OAuth2
+    return auth_service.login(form_data.username, form_data.password)
 
 class RefreshRequest(BaseModel):
     refresh_token: str
