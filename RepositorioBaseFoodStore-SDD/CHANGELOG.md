@@ -41,3 +41,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - All repositories respect soft-delete pattern: queries filter `deleted_at IS NULL`
 - Service layer coordinates 3 repositories within UnitOfWork for transaction atomicity
 - Stock operations use explicit methods (decrease_stock, increase_stock) instead of direct updates for auditability
+
+
+
+
+# HAY QUE ACTUALIZAR ESTO, CON RESUEMNES DE TODOS LOS CHANGES Q HEMOS HECHO, ESTA DESACTUALIZADO.
