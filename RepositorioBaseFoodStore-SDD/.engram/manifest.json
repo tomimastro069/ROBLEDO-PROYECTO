@@ -72,6 +72,14 @@
       "sessions": 1,
       "memories": 0,
       "prompts": 1
+    },
+    {
+      "id": "1809d483",
+      "created_by": "cristian",
+      "created_at": "2026-05-12T03:56:21Z",
+      "sessions": 0,
+      "memories": 3,
+      "prompts": 0
     }
   ]
 }

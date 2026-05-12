@@ -1,5 +1,5 @@
 import React from 'react';
-import { useCartStore } from './cart/model/cartStore';
+import { AddToCartButton } from '@/features/cart/AddToCart/ui/AddToCartButton';
 
 interface ProductCardProps {
   id: number;
@@ -9,17 +9,14 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ id, name, price, imageUrl }) => {
-  const addItem = useCartStore((state) => state.addItem);
   return (
-    <div className="product-card">
-      <img src={imageUrl} alt={name} width={100} />
+    <div className="product-card" style={{ border: '1px solid #ccc', padding: '1rem', borderRadius: '8px' }}>
+      <img src={imageUrl || 'https://via.placeholder.com/100'} alt={name} width={100} height={100} style={{ objectFit: 'cover' }} />
       <h3>{name}</h3>
       <span>${price}</span>
-      <button
-        onClick={() => addItem({ id, name, price, imageUrl, quantity: 1 })}
-      >
-        Agregar al carrito
-      </button>
+      <div style={{ marginTop: '1rem' }}>
+        <AddToCartButton product={{ id, name, price, imageUrl }} />
+      </div>
     </div>
   );
 };

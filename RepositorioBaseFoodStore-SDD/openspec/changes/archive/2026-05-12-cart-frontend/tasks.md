@@ -19,6 +19,6 @@
 
 ## 4. Integration
 
-- [ ] 4.1 Mount `CartButton` in the main header/layout of the application.
-- [ ] 4.2 Verify the `CartDrawer` correctly displays globally over the layout.
-- [ ] 4.3 Add `AddToCart` buttons to the product listing components (if available) to ensure full flow functionality.
+- [x] 4.1 Mount `CartButton` in the main header/layout of the application.
+- [x] 4.2 Verify the `CartDrawer` correctly displays globally over the layout.
+- [x] 4.3 Add `AddToCart` buttons to the product listing components (if available) to ensure full flow functionality.
