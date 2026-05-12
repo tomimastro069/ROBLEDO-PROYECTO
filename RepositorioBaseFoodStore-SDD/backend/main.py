@@ -16,6 +16,7 @@ from direcciones.router import router as direcciones_router
 from perfil.router import router as perfil_router
 from admin.router import router as admin_router
 from pagos.router import router as pagos_router
+from ingredientes.router import router as ingredientes_router
 from app.core.exceptions import DomainException, domain_exception_handler, validation_exception_handler
 
 # Configuration
@@ -77,6 +78,8 @@ app.include_router(perfil_router, prefix="/api/v1/perfil", tags=["perfil"])
 app.include_router(admin_router, prefix="/api/v1/admin", tags=["admin"])
 # Include pagos routes
 app.include_router(pagos_router, prefix="/api/v1/pagos", tags=["pagos"])
+# Include ingredientes routes
+app.include_router(ingredientes_router, prefix="/api/v1/ingredientes", tags=["ingredientes"])
 # Include MercadoPago webhook router
 app.include_router(mp_webhook_router, tags=["webhooks"])
 

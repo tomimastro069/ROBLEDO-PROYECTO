@@ -1,28 +1,40 @@
 {
-    "version": 1,
-    "skills": {
-        "betterauth-fastapi-jwt-bridge": {
-            "source": "bilalmk/todo_correct",
-            "sourceType": "github",
-            "skillPath": ".claude/skills/custom/betterauth-fastapi-jwt-bridge/SKILL.md",
-            "computedHash": "461a18b3e91f2a21be1a0f24d51606c55fa17f005c31d1509577b496f3b8c29d"
-        },
-        "find-skills": {
-            "source": "vercel-labs/skills",
-            "sourceType": "github",
-            "computedHash": "9e1c8b3103f92fa8092568a44fe64858de7c5c9dc65ce4bea8f168080e889cfd"
-        },
-        "natural-language-postgres": {
-            "source": "eng0ai/eng0-template-skills",
-            "sourceType": "github",
-            "skillPath": "natural-language-postgres/SKILL.md",
-            "computedHash": "63fa98df285a6c6c6d14b7001634e7b32b264d521834a0853e925c85d74e4b9a"
-        },
-        "python-fastapi-development": {
-            "source": "sickn33/antigravity-awesome-skills",
-            "sourceType": "github",
-            "skillPath": "skills/python-fastapi-development/SKILL.md",
-            "computedHash": "6a10c81e0950222a80d56b187208ace22beef7b19fefacdc025115473c13f245"
-        }
+  "version": 1,
+  "skills": {
+    "betterauth-fastapi-jwt-bridge": {
+      "source": "bilalmk/todo_correct",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/custom/betterauth-fastapi-jwt-bridge/SKILL.md",
+      "computedHash": "461a18b3e91f2a21be1a0f24d51606c55fa17f005c31d1509577b496f3b8c29d"
+    },
+    "find-skills": {
+      "source": "vercel-labs/skills",
+      "sourceType": "github",
+      "computedHash": "9e1c8b3103f92fa8092568a44fe64858de7c5c9dc65ce4bea8f168080e889cfd"
+    },
+    "kb-creator": {
+      "source": "JuanCruzRobledo/kb-creator",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "4fa77cfeea64aa92a59fb61e35d15e272e1b461540bd0c467ea25396cbc09a6f"
+    },
+    "natural-language-postgres": {
+      "source": "eng0ai/eng0-template-skills",
+      "sourceType": "github",
+      "skillPath": "natural-language-postgres/SKILL.md",
+      "computedHash": "63fa98df285a6c6c6d14b7001634e7b32b264d521834a0853e925c85d74e4b9a"
+    },
+    "python-fastapi-development": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/python-fastapi-development/SKILL.md",
+      "computedHash": "6a10c81e0950222a80d56b187208ace22beef7b19fefacdc025115473c13f245"
+    },
+    "roadmap-generator": {
+      "source": "JuanCruzRobledo/roadmap-generator",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "7276fb6161a8ad0d6a3007c0ab12832fb4af8664a2faa4f6d6e1edae91f02456"
     }
+  }
 }

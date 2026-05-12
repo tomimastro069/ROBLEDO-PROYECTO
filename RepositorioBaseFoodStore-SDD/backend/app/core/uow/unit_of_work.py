@@ -27,6 +27,7 @@ from app.core.repositories.products_repository import ProductsRepository
 from app.core.repositories.product_ingredient_repository import ProductIngredientRepository
 from app.core.repositories.product_allergen_repository import ProductAllergenRepository
 from app.core.repositories.address_repository import AddressRepository
+from app.core.repositories.ingrediente_repository import IngredienteRepository
 
 def get_engine():
     """Devuelve el engine global. Reemplazar en tests con uno in-memory."""
@@ -87,6 +88,7 @@ class AppUnitOfWork(UnitOfWork):
         self.product_ingredients = ProductIngredientRepository(self.session)
         self.product_allergens = ProductAllergenRepository(self.session)
         self.addresses = AddressRepository(self.session)
+        self.ingredientes = IngredienteRepository(self.session)
         return self
 
 def get_uow() -> AppUnitOfWork:
