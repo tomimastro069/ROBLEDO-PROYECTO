@@ -131,7 +131,7 @@
 - Funcionalidad: Creación de órdenes, snapshots, reglas de negocio.
 - Dependencias: `cart-service`, `auth-service`, `products-service`
 
-### 20. `orders-api`
+### 20. `orders-api` [x]
 
 - Funcionalidad: Endpoints de órdenes.
 - Dependencias: `orders-service`
