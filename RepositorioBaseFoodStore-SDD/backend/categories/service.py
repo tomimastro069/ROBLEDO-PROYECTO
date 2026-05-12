@@ -10,7 +10,7 @@ Responsabilidades:
 No contiene lógica HTTP. El router del change #14 lo consume vía DI.
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from fastapi import HTTPException, status
 
 from categories.schemas import CategoryCreate, CategoryUpdate, CategoryRead
@@ -122,6 +122,6 @@ class CategoriesService:
                 )
 
             # Soft delete: marcar con timestamp
-            category.deleted_at = datetime.utcnow()
+            category.deleted_at = datetime.now(timezone.utc)
             uow.categories.update(category)
             uow.commit()

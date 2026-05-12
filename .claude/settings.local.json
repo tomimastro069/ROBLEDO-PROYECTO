@@ -13,7 +13,8 @@
       "Bash(python -m pytest tests/api/test_categories.py -q --tb=long)",
       "Bash(python -m pytest tests/api/test_categories_integration.py -q --tb=short)",
       "Bash(python -m pytest tests/api/test_categories_integration.py::TestGetEndpoints::test_list_categories_empty -q --tb=long)",
-      "Bash(python -m pytest \"tests/api/test_categories_integration.py::TestPostEndpoint::test_create_category_as_admin_success\" -q --tb=long)"
+      "Bash(python -m pytest \"tests/api/test_categories_integration.py::TestPostEndpoint::test_create_category_as_admin_success\" -q --tb=long)",
+      "Bash(python -c \"import main; print\\('OK'\\)\")"
     ]
   }
 }

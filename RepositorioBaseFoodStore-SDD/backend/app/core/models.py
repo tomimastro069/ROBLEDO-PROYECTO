@@ -33,6 +33,17 @@ class Category(Base, table=True):
     products: List["Product"] = Relationship(back_populates="category")
     deleted_at: Optional[datetime] = Field(default=None, description="Soft delete timestamp")
 
+class Ingrediente(Base, table=True):
+    nombre: str = Field(unique=True, index=True)
+    es_alergeno: bool = Field(default=False)
+    deleted_at: Optional[datetime] = Field(default=None)
+
+class ProductIngrediente(Base, table=True):
+    product_id: Optional[int] = Field(default=None, foreign_key="product.id", index=True)
+    ingrediente_id: Optional[int] = Field(default=None, foreign_key="ingrediente.id", index=True)
+    product: Optional["Product"] = Relationship(back_populates="ingredientes")
+    ingrediente: Optional["Ingrediente"] = Relationship()
+
 class ProductIngredient(Base, table=True):
     product_id: Optional[int] = Field(default=None, foreign_key="product.id")
     name: str
@@ -52,6 +63,7 @@ class Product(Base, table=True):
     category: Optional[Category] = Relationship(back_populates="products")
     ingredients: List[ProductIngredient] = Relationship(back_populates="product")
     allergens: List[ProductAllergen] = Relationship(back_populates="product")
+    ingredientes: List["ProductIngrediente"] = Relationship(back_populates="product")
     order_items: List["OrderItem"] = Relationship(back_populates="product")
     deleted_at: Optional[datetime] = Field(default=None, description="Soft delete timestamp")
 
