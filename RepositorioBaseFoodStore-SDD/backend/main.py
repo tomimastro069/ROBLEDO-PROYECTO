@@ -12,6 +12,10 @@ from auth.router import router as auth_router
 from categories.router import router as categories_router
 from products.router import router as products_router
 from app.api.webhook_mercadopago import router as mp_webhook_router
+from direcciones.router import router as direcciones_router
+from perfil.router import router as perfil_router
+from admin.router import router as admin_router
+from pagos.router import router as pagos_router
 from app.core.exceptions import DomainException, domain_exception_handler, validation_exception_handler
 
 # Configuration
@@ -40,11 +44,14 @@ app = FastAPI(
 app.state.limiter = limiter
 
 # Middlewares
+import os as _os
+_cors_origins = _os.getenv("CORS_ORIGINS", "http://localhost:5173").split(",")
 app.add_middleware(
-    CORSMiddleware, 
-    allow_origins=["*"], 
-    allow_methods=["*"], 
-    allow_headers=["*"]
+    CORSMiddleware,
+    allow_origins=_cors_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 app.add_middleware(SlowAPIMiddleware)
 
@@ -57,11 +64,19 @@ app.add_exception_handler(DomainException, domain_exception_handler)
 app.add_exception_handler(RequestValidationError, validation_exception_handler)
 
 # Include authentication routes
-app.include_router(auth_router, prefix="/auth", tags=["auth"])
+app.include_router(auth_router, prefix="/api/v1/auth", tags=["auth"])
 # Include categories routes
-app.include_router(categories_router, prefix="/categories", tags=["categories"])
+app.include_router(categories_router, prefix="/api/v1/categories", tags=["categories"])
 # Include products routes
-app.include_router(products_router, prefix="/products", tags=["products"])
+app.include_router(products_router, prefix="/api/v1/products", tags=["products"])
+# Include direcciones routes
+app.include_router(direcciones_router, prefix="/api/v1/direcciones", tags=["direcciones"])
+# Include perfil routes
+app.include_router(perfil_router, prefix="/api/v1/perfil", tags=["perfil"])
+# Include admin routes
+app.include_router(admin_router, prefix="/api/v1/admin", tags=["admin"])
+# Include pagos routes
+app.include_router(pagos_router, prefix="/api/v1/pagos", tags=["pagos"])
 # Include MercadoPago webhook router
 app.include_router(mp_webhook_router, tags=["webhooks"])
 

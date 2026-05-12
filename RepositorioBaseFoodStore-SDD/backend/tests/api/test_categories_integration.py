@@ -82,7 +82,7 @@ class TestGetEndpoints:
 
     def test_list_categories_empty(self, client: TestClient):
         """GET /categories cuando no hay categorías debe retornar lista vacía."""
-        response = client.get("/categories")
+        response = client.get("/api/v1/categories")
         assert response.status_code == 200
         assert response.json() == []
 
@@ -95,7 +95,7 @@ class TestGetEndpoints:
         session.add(cat2)
         session.commit()
 
-        response = client.get("/categories")
+        response = client.get("/api/v1/categories")
         assert response.status_code == 200
         data = response.json()
         assert len(data) == 2
@@ -109,7 +109,7 @@ class TestGetEndpoints:
         session.commit()
         session.refresh(cat)
 
-        response = client.get(f"/categories/{cat.id}")
+        response = client.get(f"/api/v1/categories/{cat.id}")
         assert response.status_code == 200
         data = response.json()
         assert data["name"] == "Produce"
@@ -118,7 +118,7 @@ class TestGetEndpoints:
 
     def test_get_category_by_id_not_found(self, client: TestClient):
         """GET /categories/{id} debe retornar 404 si la categoría no existe."""
-        response = client.get("/categories/999")
+        response = client.get("/api/v1/categories/999")
         assert response.status_code == 404
         assert "no encontrada" in response.json()["detail"].lower()
 
@@ -134,7 +134,7 @@ class TestGetEndpoints:
         session.commit()
         session.refresh(child)
 
-        response = client.get(f"/categories/{parent.id}")
+        response = client.get(f"/api/v1/categories/{parent.id}")
         assert response.status_code == 200
         data = response.json()
         assert data["name"] == "Produce"
@@ -161,7 +161,7 @@ class TestPostEndpoint:
             "description": "Fresh vegetables and fruits",
             "parent_id": None
         }
-        response = client.post("/categories", json=payload)
+        response = client.post("/api/v1/categories", json=payload)
         assert response.status_code == 201
         data = response.json()
         assert data["name"] == "Produce"
@@ -181,7 +181,7 @@ class TestPostEndpoint:
             "description": "Fresh vegetables",
             "parent_id": None
         }
-        response = client.post("/categories", json=payload)
+        response = client.post("/api/v1/categories", json=payload)
         assert response.status_code == 403
         assert "denegado" in response.json()["detail"].lower()
 
@@ -197,7 +197,7 @@ class TestPostEndpoint:
             "description": "Fresh vegetables",
             "parent_id": None
         }
-        response = client.post("/categories", json=payload)
+        response = client.post("/api/v1/categories", json=payload)
         assert response.status_code == 422  # Validation error
 
         app.dependency_overrides.clear()
@@ -213,7 +213,7 @@ class TestPostEndpoint:
             "description": "A subcategory",
             "parent_id": 999  # No existe
         }
-        response = client.post("/categories", json=payload)
+        response = client.post("/api/v1/categories", json=payload)
         assert response.status_code == 404
 
         app.dependency_overrides.clear()
@@ -241,7 +241,7 @@ class TestPutEndpoint:
             "name": "Produce Updated",
             "description": "Updated description"
         }
-        response = client.put(f"/categories/{cat.id}", json=payload)
+        response = client.put(f"/api/v1/categories/{cat.id}", json=payload)
         assert response.status_code == 200
         data = response.json()
         assert data["name"] == "Produce Updated"
@@ -261,7 +261,7 @@ class TestPutEndpoint:
         app.dependency_overrides[get_current_user] = get_current_user_override
 
         payload = {"name": "Produce Updated"}
-        response = client.put(f"/categories/{cat.id}", json=payload)
+        response = client.put(f"/api/v1/categories/{cat.id}", json=payload)
         assert response.status_code == 200
 
         app.dependency_overrides.clear()
@@ -278,7 +278,7 @@ class TestPutEndpoint:
         app.dependency_overrides[get_current_user] = get_current_user_override
 
         payload = {"name": "Updated"}
-        response = client.put(f"/categories/{cat.id}", json=payload)
+        response = client.put(f"/api/v1/categories/{cat.id}", json=payload)
         assert response.status_code == 403
 
         app.dependency_overrides.clear()
@@ -290,7 +290,7 @@ class TestPutEndpoint:
         app.dependency_overrides[get_current_user] = get_current_user_override
 
         payload = {"name": "Updated"}
-        response = client.put("/categories/999", json=payload)
+        response = client.put("/api/v1/categories/999", json=payload)
         assert response.status_code == 404
 
         app.dependency_overrides.clear()
@@ -314,7 +314,7 @@ class TestDeleteEndpoint:
             return admin_token
         app.dependency_overrides[get_current_user] = get_current_user_override
 
-        response = client.delete(f"/categories/{cat.id}")
+        response = client.delete(f"/api/v1/categories/{cat.id}")
         assert response.status_code == 204
         assert response.content == b""  # No Content
 
@@ -331,7 +331,7 @@ class TestDeleteEndpoint:
             return stock_manager_token
         app.dependency_overrides[get_current_user] = get_current_user_override
 
-        response = client.delete(f"/categories/{cat.id}")
+        response = client.delete(f"/api/v1/categories/{cat.id}")
         assert response.status_code == 403
 
         app.dependency_overrides.clear()
@@ -342,7 +342,7 @@ class TestDeleteEndpoint:
             return admin_token
         app.dependency_overrides[get_current_user] = get_current_user_override
 
-        response = client.delete("/categories/999")
+        response = client.delete("/api/v1/categories/999")
         assert response.status_code == 404
 
         app.dependency_overrides.clear()
@@ -368,7 +368,7 @@ class TestBusinessRules:
         app.dependency_overrides[get_current_user] = get_current_user_override
 
         payload = {"name": "Produce", "description": "Duplicate"}
-        response = client.post("/categories", json=payload)
+        response = client.post("/api/v1/categories", json=payload)
         assert response.status_code == 400
         assert "ya existe" in response.json()["detail"].lower()
 
@@ -386,7 +386,7 @@ class TestBusinessRules:
         app.dependency_overrides[get_current_user] = get_current_user_override
 
         payload = {"parent_id": cat.id}  # Self-reference
-        response = client.put(f"/categories/{cat.id}", json=payload)
+        response = client.put(f"/api/v1/categories/{cat.id}", json=payload)
         assert response.status_code == 400
         assert "propio padre" in response.json()["detail"].lower()
 
@@ -407,7 +407,7 @@ class TestBusinessRules:
             return admin_token
         app.dependency_overrides[get_current_user] = get_current_user_override
 
-        response = client.delete(f"/categories/{parent.id}")
+        response = client.delete(f"/api/v1/categories/{parent.id}")
         assert response.status_code == 409  # Conflict
         assert "subcategorías" in response.json()["detail"].lower()
 

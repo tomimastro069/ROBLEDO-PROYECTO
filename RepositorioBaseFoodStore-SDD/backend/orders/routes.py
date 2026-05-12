@@ -63,7 +63,7 @@ def cancel_order(
     order = service.get_order(order_id)
     
     # RBAC Dinámico (RN-RB08 / RN-FS08)
-    if order.user_id != int(current_user.sub) and current_user.role not in [Role.ADMIN, Role.PEDIDOS]:
+    if order.user_id != int(current_user.sub) and current_user.role not in [Role.ADMIN, Role.GESTOR_PEDIDOS]:
         raise HTTPException(status_code=403, detail="No autorizado para cancelar este pedido.")
     
     try:
@@ -78,7 +78,7 @@ def list_all_orders(
     skip: int = 0,
     limit: int = 20,
     service: OrderService = Depends(get_order_service),
-    admin: TokenData = Depends(require_role([Role.ADMIN, Role.PEDIDOS]))
+    admin: TokenData = Depends(require_role(Role.ADMIN, Role.GESTOR_PEDIDOS))
 ):
     return service.list_orders(user_id=None, skip=skip, limit=limit)
 
@@ -87,7 +87,7 @@ def update_order_status(
     order_id: int,
     payload: StateChangeRequest,
     service: OrderService = Depends(get_order_service),
-    admin: TokenData = Depends(require_role([Role.ADMIN, Role.PEDIDOS]))
+    admin: TokenData = Depends(require_role(Role.ADMIN, Role.GESTOR_PEDIDOS))
 ):
     if not payload.new_status:
         raise HTTPException(status_code=400, detail="Debe especificar el nuevo estado.")

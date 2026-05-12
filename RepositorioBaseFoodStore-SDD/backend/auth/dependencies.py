@@ -37,7 +37,7 @@ from auth.schemas import TokenData
 SECRET_KEY: str = os.getenv("AUTH_SECRET_KEY", "CHANGE_ME_IN_PRODUCTION")
 ALGORITHM: str = os.getenv("AUTH_ALGORITHM", "HS256")
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 
 # ------------------------------------------------------------------
 # get_current_user

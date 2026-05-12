@@ -15,6 +15,9 @@ class Role(Base, table=True):
 class User(Base, table=True):
     email: str = Field(unique=True, index=True)
     hashed_password: str
+    name: Optional[str] = Field(default=None)
+    phone: Optional[str] = Field(default=None)
+    is_active: bool = Field(default=True)
     role_id: Optional[int] = Field(default=None, foreign_key="role.id")
     role: Optional[Role] = Relationship(back_populates="users")
     orders: List["Order"] = Relationship(back_populates="user")
@@ -85,9 +88,12 @@ class Payment(Base, table=True):
 
 class Address(Base, table=True):
     street: str
+    numero: Optional[str] = Field(default=None)
+    piso: Optional[str] = Field(default=None)
     city: str
     state: str
     zip_code: str
+    is_default: bool = Field(default=False)
     user_id: Optional[int] = Field(default=None, foreign_key="user.id")
     order_id: Optional[int] = Field(default=None, foreign_key="order.id")
     user: Optional[User] = Relationship(back_populates="addresses")

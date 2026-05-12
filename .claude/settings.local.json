@@ -3,7 +3,17 @@
     "allow": [
       "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\nacho\\\\Documents\\\\GitHub\\\\ROBLEDO-PROYECTO\" -Recurse -Directory)",
       "Bash(Select-Object -ExpandProperty FullName)",
-      "Bash(Sort-Object)"
+      "Bash(Sort-Object)",
+      "Bash(python -c \"import main; print\\('ALL OK'\\)\")",
+      "Bash(python -c ' *)",
+      "Bash(python -m pytest tests/ -x -q --tb=short)",
+      "Bash(python -m pytest tests/ -x -q --tb=short --ignore=tests/api/test_webhook_mercadopago.py)",
+      "Bash(python -m pytest tests/ -q --tb=short --ignore=tests/api/test_webhook_mercadopago.py --ignore=tests/orders/)",
+      "Bash(python -m pytest tests/api/test_categories.py tests/api/test_categories_integration.py tests/products/ -q --tb=short)",
+      "Bash(python -m pytest tests/api/test_categories.py -q --tb=long)",
+      "Bash(python -m pytest tests/api/test_categories_integration.py -q --tb=short)",
+      "Bash(python -m pytest tests/api/test_categories_integration.py::TestGetEndpoints::test_list_categories_empty -q --tb=long)",
+      "Bash(python -m pytest \"tests/api/test_categories_integration.py::TestPostEndpoint::test_create_category_as_admin_success\" -q --tb=long)"
     ]
   }
 }
