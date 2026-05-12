@@ -48,6 +48,10 @@ app.add_middleware(
 )
 app.add_middleware(SlowAPIMiddleware)
 
+# Register Orders service at /api/v1/orders
+from orders import router as orders_router
+app.include_router(orders_router, prefix="/api/v1/orders", tags=["orders"])
+
 # Register Exception Handlers
 app.add_exception_handler(DomainException, domain_exception_handler)
 app.add_exception_handler(RequestValidationError, validation_exception_handler)

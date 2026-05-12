@@ -126,7 +126,7 @@
 
 ## 📦 ÓRDENES
 
-### 19. `orders-service`
+### 19. `orders-service` [X]
 
 - Funcionalidad: Creación de órdenes, snapshots, reglas de negocio.
 - Dependencias: `cart-service`, `auth-service`, `products-service`
