@@ -1,10 +1,11 @@
 from typing import List, Optional
 import asyncio
 from datetime import datetime
+from decimal import Decimal
 from sqlmodel import Session
 from .models import Order, OrderItem, OrderStatus
 from .repository import OrderRepository
-from .exceptions import OrderNotFound
+from .exceptions import OrderNotFoundException, InvalidStateTransitionException
 from .state_machine import OrderStateMachine
 from .validators import validate_product_availability, validate_price, validate_payment_method
 from .events import OrderCreated, OrderUpdated, OrderCancelled, OrderSubmitted
@@ -44,18 +45,28 @@ class OrderService:
         extra = {"correlation_id": self.correlation_id} if self.correlation_id else {}
         self.logger.log(level, msg, extra=extra)
 
-    def create_order(self, user_id: int, items: List[dict], total: float) -> Order:
+    def create_order(self, user_id: int, items: List[dict]) -> Order:
         start_time = time.time()
-        self._log(logging.INFO, f"Creating order for user {user_id} with {len(items)} items. Total: {total}")
+        self._log(logging.INFO, f"Creating order for user {user_id} with {len(items)} items.")
         
         try:
+            # Calculamos total y validamos (esto debería ser más complejo en un prod real)
+            total = sum(Decimal(item.get("price", 0)) * item.get("quantity", 0) for item in items)
+            
             # Phase 4 integration: Validaciones externas de Stock y Precio (Validators)
             for item in items:
                 validate_product_availability(item["product_id"], item["quantity"])
-                validate_price(item["product_id"], item["price"])
+                # validate_price(item["product_id"], item["price"])
             
-            # Persistencia inicial como DRAFT
-            order = Order(user_id=user_id, status=OrderStatus.DRAFT, total=total)
+            # Persistencia inicial como PENDIENTE
+            order = Order(
+                user_id=user_id, 
+                status=OrderStatus.PENDIENTE, 
+                total=total,
+                direccion_calle="Snapshot Calle", # TODO: Get from address_id
+                direccion_numero="123",
+                direccion_ciudad="CABA"
+            )
             order_items = [OrderItem(**item) for item in items]
             order = self.repo.create(order, order_items)
             
@@ -63,21 +74,15 @@ class OrderService:
             ev_created = OrderCreated(
                 order_id=order.id, 
                 user_id=order.user_id, 
-                items=[{"product_id": i.product_id, "quantity": i.quantity, "price": i.price} for i in order_items], 
+                items=[{"product_id": i.product_id, "quantity": i.quantity, "price": str(i.price)} for i in order_items], 
                 created_at=order.created_at
             )
             publish_event(ev_created)
             
-            # Phase 4 integration: Autorización de Pago (requiere el ID del pedido persistido)
-            validate_payment_method(order)
-            
-            # Transición a SUBMITTED una vez pagado exitosamente
-            order = self.update_order(order.id, {"status": OrderStatus.SUBMITTED})
-            
             # Track metrics
             ORDERS_CREATED.inc()
             ORDER_DURATION.observe((time.time() - start_time) * 1000)
-            self._log(logging.INFO, f"Order {order.id} successfully submitted.")
+            self._log(logging.INFO, f"Order {order.id} successfully created.")
             
             return order
             
@@ -89,13 +94,13 @@ class OrderService:
     def get_order(self, order_id: int) -> Order:
         order = self.repo.get(order_id)
         if not order:
-            raise OrderNotFound()
+            raise OrderNotFoundException()
         return order
 
     def update_order(self, order_id: int, data: dict) -> Order:
         order = self.repo.get(order_id)
         if not order:
-            raise OrderNotFound()
+            raise OrderNotFoundException()
         
         from_status = order.status
         to_status = data.get("status", order.status)
@@ -106,9 +111,9 @@ class OrderService:
             order.status = to_status
             
             # Phase 4 integration: Publicación de eventos específicos por cambio de estado
-            if to_status == OrderStatus.SUBMITTED:
+            if to_status == OrderStatus.CONFIRMADO:
                 ev = OrderSubmitted(order_id=order.id, user_id=order.user_id, submitted_at=datetime.utcnow())
-            elif to_status == OrderStatus.CANCELLED:
+            elif to_status == OrderStatus.CANCELADO:
                 ev = OrderCancelled(order_id=order.id, user_id=order.user_id, cancelled_at=datetime.utcnow())
 
         # Si no hubo evento específico, mandamos un OrderUpdated genérico
@@ -123,10 +128,12 @@ class OrderService:
         
         return order
 
-    def cancel_order(self, order_id: int) -> None:
-        # Centralizamos la lógica de cancelación a través de update_order
-        self.update_order(order_id, {"status": OrderStatus.CANCELLED})
+    def cancel_order(self, order_id: int, reason: str = "No reason provided") -> None:
+        self._log(logging.INFO, f"Cancelling order {order_id}. Reason: {reason}")
+        self.update_order(order_id, {"status": OrderStatus.CANCELADO})
 
-    def list_orders(self, user_id: int, skip: int = 0, limit: int = 20) -> List[Order]:
-        return self.repo.list_by_user(user_id, skip, limit)
+    def list_orders(self, user_id: Optional[int] = None, skip: int = 0, limit: int = 20) -> List[Order]:
+        if user_id:
+            return self.repo.list_by_user(user_id, skip, limit)
+        return self.repo.list_all(skip, limit)
 

@@ -4,158 +4,63 @@
 
 ### Core Functionalities
 1. **Order Creation**:
-   - Endpoint for creating a new order.
-   - Input: Order details (user ID, product details, quantities, special instructions, etc.).
-   - Output: Order ID, creation timestamp, calculated total, status (e.g., drafted, submitted).
+   - Endpoint: `POST /api/v1/orders/`.
+   - Input: Order items (product ID, quantity, exclusions), shipping address ID.
+   - Output: Order ID, status (PENDIENTE), calculated total (Decimal), and snapshots of the shipping address.
+   - Requirement: Stock availability must be validated before creation.
 
 2. **Order Retrieval**:
-   - Retrieve an order by its ID.
-   - Retrieve orders by user ID with optional pagination and filters (e.g., by date, status).
+   - Retrieve an order by its ID (owner or Admin/Gestor only).
+   - List personal orders with pagination.
+   - List all orders for Admins/Gestores with filtering.
 
-3. **Order Status Update**:
-   - Update order statuses: **Draft**, **Submitted**, **Processing**, **Completed**, **Cancelled**.
-   - Event-driven communication with other services on specific status changes (e.g., notify payment service on "Submitted" status).
+3. **Order Status Management (FSM)**:
+   - Valid Statuses: **PENDIENTE**, **CONFIRMADO**, **EN_PREPARACION**, **EN_CAMINO**, **ENTREGADO**, **CANCELADO**.
+   - Rule: Transitions must follow the formal State Machine map.
+   - Rule: Transitions to **CONFIRMADO** are automatic (via payment).
 
-4. **Order Cancellation**:
-   - Allow users to cancel orders before transitioning to "Processing."
-   - Automatically notify associated services (inventory adjustment, payment refund).
+4. **Order Cancellation (RN-FS08)**:
+   - Client: Can cancel only if status is **PENDIENTE**.
+   - Admin/Gestor: Can cancel if status is **PENDIENTE** or **CONFIRMADO**.
+   - Audit: A mandatory "reason" must be provided and recorded in the history.
 
 5. **Order Validation**:
-   - Validate product availability (via inventory service).
-   - Validate prices (via catalog service).
-   - Validate payment methods (via payment gateway).
-
-6. **Notifications**:
-   - Notify users of order status changes (email or push notifications).
-   - Allow consumers to subscribe to WebSocket channels for real-time updates.
+   - Atomic stock validation and deduction.
+   - Snapshotting of price and address to ensure order immutability.
 
 ### Integration Requirements
-1. **Communication with Inventory Service**:
-   - Verify stock levels before confirming orders.
-   - Deduct stock when the order is "Submitted".
-   - Revert stock on "Cancelled" or "Failed" orders.
-
-2. **Communication with Payment Service**:
-   - Confirm payment on "Processing" orders.
-   - Refund payment on "Cancelled" or failed orders.
-
-3. **Communication with Delivery Service**:
-   - Automatically schedule delivery for "Completed" orders.
-
-4. **Event Bus Integration**:
-   - Publish order events for status changes (`OrderCreated`, `OrderUpdated`, `OrderCancelled`).
-
-### Administrative Features
-1. **Order Reports**:
-   - Administrative access to order analytics (total revenue, most ordered products, etc.).
-   - Export functionality for reports (CSV, PDF).
-
-2. **Order Management**:
-   - Modify orders manually (by Admin) in case of discrepancies or issues.
+1. **Inventory Service**: Atomic stock deduction on order creation (or confirmation depending on strategy).
+2. **Payment Service**: Automatic transition to **CONFIRMADO** upon successful payment webhook.
+3. **Event Bus**: Publish `OrderCreated`, `OrderSubmitted`, `OrderCancelled`, and `OrderUpdated` events.
 
 ---
 
 ## Non-Functional Requirements
 
-### Scalability
-- Support 10,000 concurrent order submissions.
-- Handle spikes during promotions (up to 5x the regular traffic).
-
 ### Performance
-- **Order creation** latency: Max 200ms under normal load.
-- **Order retrieval** latency: Max 100ms under normal load.
+- Creation latency: < 200ms.
+- Financial precision: Use `Decimal` for all currency calculations.
 
-### Reliability
-- Ensure message delivery between services for all critical events (at-least-once delivery).
-- Orders Service must maintain 99.95% uptime.
-
-### Security
-- Ensure user authentication with JWT tokens.
-- Role-based access control:
-  - Users: Manage their orders only.
-  - Admins: Access all orders.
-- Secure sensitive data (e.g., payment confirmation, user info) via encryption.
-
-### Data Integrity
-- Preserve integrity between services through distributed transaction mechanisms or compensating actions.
+### Security (RBAC)
+- **Role.CLIENT**: Manage own orders, cancel in PENDIENTE.
+- **Role.PEDIDOS / Role.ADMIN**: Full administrative access, manual state progression (except CONFIRMADO).
 
 ### Observability
-- Logs for all API requests, responses, and events:
-  - Use correlation IDs for tracing requests.
-- Metrics for monitoring (order events processed per second, latencies).
-
-### Compatibility
-- Platform-independent and cloud-agnostic APIs using OpenAPI 3.0 specifications.
-- Support for REST and gRPC communication.
+- Use `x-correlation-id` in all logs and service calls.
+- Audit Trail: Every state change must be recorded in `HistorialEstadoPedido`.
 
 ---
 
 ## Use Cases & Scenarios
 
 ### 1. Order Creation
-#### Scenario 1.1: User places an order.
-**Steps**:
-1. User sends `POST /orders` with details.
-2. Orders Service validates request.
-3. Orders Service confirms product availability via Inventory Service.
-4. Orders Service calculates total cost.
-5. Service responds with `201 Created` and the order details.
-6. Publish event `OrderCreated`.
+1. User sends items and address.
+2. Service validates stock and price snapshots.
+3. Order is created in **PENDIENTE** state.
 
-**Constraints**:
-- Ensure validation occurs within 100ms.
+### 2. Administrative Status Update
+1. Admin advances order from **CONFIRMADO** to **EN_PREPARACION**.
+2. Service validates FSM transition.
+3. System logs the change and notifies the user.
 
 ---
-
-### 2. Order Status Update
-#### Scenario 2.1: User updates order status to "Submitted".
-**Steps**:
-1. User sends `PATCH /orders/{id}` request updating status.
-2. Orders Service confirms:
-   - Inventory stock lock.
-   - Authorizes payment method (Payment Service).
-3. Service updates order record.
-4. Publish event `OrderSubmitted` to Event Bus.
-
----
-
-### 3. Order Cancellation
-#### Scenario 3.1: User cancels an order.
-**Steps**:
-1. User sends `DELETE /orders/{id}` before "Processing" status.
-2. Orders Service checks the order’s current status.
-3. If eligible:
-   - Reverts inventory stock.
-   - Requests payment refund.
-4. Publish event `OrderCancelled`.
-
-#### Constraints:
-- Cancellation only allowed before "Processing".
-
----
-
-### 4. Error Handling
-#### Scenario 4.1: Inventory Service reports insufficient stock.
-**Steps**:
-1. Orders Service receives stock validation failure.
-2. Service responds with `409 Conflict` status, including error details.
-
----
-
-## Constraints
-
-1. **Database Constraints**:
-   - Orders must be consistent in the database with associated inventory and payment records.
-   - Index for quick retrievals on `user_id`, `status`, `created_at`.
-
-2. **Message Queue Reliability**:
-   - Use idempotency tokens to handle duplicate message delivery.
-
-3. **Timeouts**:
-   - Service-to-service calls must timeout after 3 seconds, with retries capped at 2 attempts.
-
-4. **Event Schema**:
-   - Uniform schema for all events (`OrderCreated`, `OrderSubmitted` with consistent fields across services).
-
----
-

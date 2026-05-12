@@ -1,45 +1,47 @@
 from typing import List, Optional
-from pydantic import BaseModel, Field as PydanticField
+from pydantic import BaseModel, ConfigDict
 from datetime import datetime
+from decimal import Decimal
 from .models import OrderStatus
 
-class OrderItemCreate(BaseModel):
+class OrderItemBase(BaseModel):
     product_id: int
     quantity: int
-    price: float
+    exclusions: List[int] = []
+
+class OrderItemCreate(OrderItemBase):
+    pass
+
+class OrderItemRead(OrderItemBase):
+    id: int
+    price_snapshot: Decimal
+    
+    model_config = ConfigDict(from_attributes=True)
 
 class OrderCreate(BaseModel):
-    user_id: int
     items: List[OrderItemCreate]
-    total: float
+    shipping_address_id: int
 
-class OrderUpdate(BaseModel):
-    status: Optional[OrderStatus]
-    items: Optional[List[OrderItemCreate]]
-    total: Optional[float]
-
-class OrderItemResponse(OrderItemCreate):
-    id: int
-
-class OrderResponse(BaseModel):
+class OrderRead(BaseModel):
     id: int
     user_id: int
     status: OrderStatus
-    total: float
+    total: Decimal
     created_at: datetime
     updated_at: datetime
-    items: List[OrderItemResponse] = []
+    items: List[OrderItemRead]
+    
+    # Snapshots de dirección
+    direccion_calle: str
+    direccion_numero: str
+    direccion_ciudad: str
+    
+    model_config = ConfigDict(from_attributes=True)
 
-    @classmethod
-    def from_orm(cls, order):
-        return cls(
-            id=order.id,
-            user_id=order.user_id,
-            status=order.status,
-            total=order.total,
-            created_at=order.created_at,
-            updated_at=order.updated_at,
-            items=[OrderItemResponse(
-                id=i.id, product_id=i.product_id, quantity=i.quantity, price=i.price
-            ) for i in getattr(order, 'items', [])]
-        )
+class OrderAdminRead(OrderRead):
+    user_email: Optional[str] = None
+    # Aquí podríamos agregar el historial de estados si fuera necesario
+
+class StateChangeRequest(BaseModel):
+    new_status: Optional[OrderStatus] = None
+    reason: str

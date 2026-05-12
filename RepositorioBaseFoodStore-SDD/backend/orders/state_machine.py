@@ -1,17 +1,18 @@
 from enum import Enum
 from .models import OrderStatus
-from .exceptions import InvalidStatusTransition
+from .exceptions import InvalidStateTransitionException
 
 class OrderStateMachine:
     allowed_transitions = {
-        OrderStatus.DRAFT: {OrderStatus.SUBMITTED},
-        OrderStatus.SUBMITTED: {OrderStatus.PROCESSING, OrderStatus.CANCELLED},
-        OrderStatus.PROCESSING: {OrderStatus.COMPLETED, OrderStatus.CANCELLED},
-        OrderStatus.COMPLETED: set(),
-        OrderStatus.CANCELLED: set(),
+        OrderStatus.PENDIENTE: {OrderStatus.CONFIRMADO, OrderStatus.CANCELADO},
+        OrderStatus.CONFIRMADO: {OrderStatus.EN_PREPARACION, OrderStatus.CANCELADO},
+        OrderStatus.EN_PREPARACION: {OrderStatus.EN_CAMINO, OrderStatus.CANCELADO},
+        OrderStatus.EN_CAMINO: {OrderStatus.ENTREGADO},
+        OrderStatus.ENTREGADO: set(),
+        OrderStatus.CANCELADO: set(),
     }
 
     @classmethod
     def validate_transition(cls, from_status: OrderStatus, to_status: OrderStatus):
-        if to_status not in cls.allowed_transitions[from_status]:
-            raise InvalidStatusTransition(f"Invalid transition: {from_status} -> {to_status}")
+        if to_status not in cls.allowed_transitions.get(from_status, set()):
+            raise InvalidStateTransitionException(f"Transición inválida: {from_status} -> {to_status}")

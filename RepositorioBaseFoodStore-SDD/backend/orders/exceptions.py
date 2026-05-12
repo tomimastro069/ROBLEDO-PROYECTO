@@ -1,8 +1,8 @@
-class OrderNotFound(Exception):
+class OrderNotFoundException(Exception):
     pass
 
-class InvalidStatusTransition(Exception):
+class InvalidStateTransitionException(Exception):
     pass
 
-class InsufficientStock(Exception):
+class InsufficientStockException(Exception):
     pass
