@@ -1,19 +1,24 @@
-## ADDED Requirements
+# Specification: Product Catalog (Service)
 
-### Requirement: CRUD Operations for Products
-The system SHALL provide Create, Read, Update, and Delete operations for products, with soft-delete semantics (never hard-delete).
+## Purpose
+Manage the core product business logic, including lifecycle (CRUD), stock validation, and metadata associations.
+
+## Requirements
+
+### R1: Product Lifecycle Management
+The system SHALL provide Create, Read, Update, and Delete operations for products, with soft-delete semantics.
 
 #### Scenario: Create a new product
-- **WHEN** ProductsService.create() is called with valid ProductCreate data (name, description, price, category_id)
-- **THEN** a new Product is persisted to the database with an auto-generated ID and created_at timestamp
+- **WHEN** ProductsService.create() is called with valid ProductCreate data
+- **THEN** a new Product is persisted with an auto-generated ID.
 
 #### Scenario: Read a single product by ID
 - **WHEN** ProductsService.read(product_id=123) is called
-- **THEN** the Product with id=123 is returned, or None if not found or soft-deleted
+- **THEN** the Product is returned, or None if not found or soft-deleted.
 
 #### Scenario: Read all products (paginated)
 - **WHEN** ProductsService.read_all(skip=0, limit=20) is called
-- **THEN** returns tuple(items: list[Product], total_count: int) with up to 20 non-deleted products and total count for pagination
+- **THEN** returns a paginated list of non-deleted products.
 
 #### Scenario: Update a product
 - **WHEN** ProductsService.update(product_id=123, data=ProductUpdate(...)) is called with new name/price/description

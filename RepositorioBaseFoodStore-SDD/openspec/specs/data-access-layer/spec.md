@@ -1,21 +1,26 @@
-## ADDED Requirements
+# Specification: Data Access Layer (Repository & UoW)
 
-### Requirement: Centralized PostgreSQL UoW
-The system MUST instantiate the Unit of Work using the PostgreSQL engine defined in `app.core.database` without overriding it with hardcoded SQLite configurations.
+## Purpose
+Define the patterns and requirements for data persistence, ensuring a decoupled architecture using the Repository and Unit of Work patterns.
+
+## Requirements
+
+### R1: Centralized Unit of Work (UoW)
+The system MUST instantiate the Unit of Work using the global database engine.
 
 #### Scenario: Running transactions
 - **WHEN** a service enters a `with AppUnitOfWork() as uow:` block
-- **THEN** it executes queries against the PostgreSQL database configured via `.env`
+- **THEN** it executes queries against the configured database.
 
-### Requirement: Concrete Repositories
-The system MUST provide concrete repositories that extend `BaseRepository` to encapsulate domain-specific queries without leaking SQL alchemy statements into the business logic.
+### R2: Concrete Repositories
+The system MUST provide concrete repositories that extend `BaseRepository` to encapsulate domain-specific queries.
 
-#### Scenario: Querying user by email
-- **WHEN** the service calls `uow.users.get_by_email("test@test.com")`
-- **THEN** the concrete `UserRepository` executes the specific SQLModel select query and returns the user object or `None`
+#### Scenario: Querying entities
+- **WHEN** the service calls a repository method (e.g., `uow.users.get_by_email`)
+- **THEN** the concrete repository executes the specific query and returns domain objects.
 
-### Requirement: Soft-Delete Filtering in Repositories
-Repositories for entities with soft-delete support (e.g., Category) MUST override query methods to automatically filter soft-deleted records (where deleted_at IS NULL).
+### R3: Soft-Delete Filtering
+Repositories for entities with soft-delete support MUST automatically filter soft-deleted records.
 
 #### Scenario: Category queries exclude soft-deleted records
 - **WHEN** a service calls `uow.categories.get_by_id(id)` or `uow.categories.get_all()`

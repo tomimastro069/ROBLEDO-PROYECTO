@@ -1,12 +1,11 @@
-# api-validation Specification
+# Specification: API Validation
 
 ## Purpose
-
 Define strict input validation requirements for incoming API requests using dedicated Pydantic schemas (DTOs). This ensures data integrity, proper type casting, and sanitization before data reaches the application controllers and database models.
 
-## ADDED Requirements
+## Requirements
 
-### Requirement: User input validation
+### R1: User Input Validation
 The system SHALL validate incoming user registration and update data. Passwords MUST meet minimum security criteria and emails MUST be correctly formatted.
 
 #### Scenario: User registration with invalid email
@@ -20,7 +19,7 @@ The system SHALL validate incoming user registration and update data. Passwords 
 - **WHEN** the password is less than 8 characters long
 - **THEN** the system MUST reject the request with a 422 validation error
 
-### Requirement: Product input validation
+### R2: Product Input Validation
 The system SHALL ensure product creation and update requests have semantically correct values. Prices MUST be strictly greater than zero and stock MUST be zero or greater.
 
 #### Scenario: Create product with negative or zero price

@@ -1,19 +1,24 @@
-## ADDED Requirements
+# Specification: Product Repository
 
-### Requirement: ProductsRepository Base CRUD
-The ProductsRepository SHALL extend BaseRepository[Product] and provide all standard CRUD operations.
+## Purpose
+Define the data access requirements for products, ingredients, and allergens, ensuring consistent CRUD operations and specialized domain queries.
+
+## Requirements
+
+### R1: Product Base CRUD
+The ProductsRepository SHALL extend BaseRepository and provide all standard CRUD operations.
 
 #### Scenario: Get product by ID
 - **WHEN** ProductsRepository.get_by_id(product_id=123) is called
-- **THEN** returns the Product with id=123, or None if not found
+- **THEN** returns the Product with id=123, or None if not found.
 
 #### Scenario: Get all products (excluding soft-deleted)
 - **WHEN** ProductsRepository.get_all() is called
-- **THEN** returns all products WHERE deleted_at IS NULL
+- **THEN** returns all products where deleted_at IS NULL.
 
 #### Scenario: Add product to database
-- **WHEN** ProductsRepository.add(product_entity) is called with a new Product instance
-- **THEN** the product is persisted, flushed (ID assigned), and returned with populated fields
+- **WHEN** ProductsRepository.add(product_entity) is called
+- **THEN** the product is persisted and returned with an assigned ID.
 
 #### Scenario: Update existing product
 - **WHEN** ProductsRepository.update(product_entity) is called with modified fields

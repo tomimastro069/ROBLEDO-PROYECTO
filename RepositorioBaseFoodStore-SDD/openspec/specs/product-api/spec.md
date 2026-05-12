@@ -1,11 +1,16 @@
-## ADDED Requirements
+# Specification: Product API
 
-### Requirement: Listar productos paginados
-El sistema SHALL exponer `GET /products` retornando una lista paginada de productos activos (no soft-deleted), soportando filtros opcionales por `category_id` y `search` (búsqueda por nombre).
+## Purpose
+Expose the Product Catalog functionalities via REST HTTP endpoints, allowing clients to browse, search, and manage products and their associated metadata (ingredients, allergens).
 
-#### Scenario: Listar productos sin filtros
-- **WHEN** `GET /products` es llamado sin parámetros de query
-- **THEN** retorna HTTP 200 con `{ items: [...], total: int, limit: int, offset: int }` con hasta 20 productos
+## Requirements
+
+### R1: Paginated Product Listing
+The system SHALL expose `GET /products` returning a paginated list of active products (not soft-deleted), supporting optional filters by `category_id` and `search`.
+
+#### Scenario: List products without filters
+- **WHEN** `GET /products` is called without query parameters
+- **THEN** returns HTTP 200 with `{ items: [...], total: int, limit: int, offset: int }` with up to 20 products
 
 #### Scenario: Listar productos paginados
 - **WHEN** `GET /products?skip=20&limit=10` es llamado
