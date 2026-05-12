@@ -117,7 +117,7 @@
 - Funcionalidad: Validación de carrito (precios, stock, consistencia).
 - Dependencias: `products-service`
 
-### 18. `cart-frontend`
+### 18. `cart-frontend` [X]
 
 - Funcionalidad: Carrito en cliente (Zustand).
 - Dependencias: `frontend-core-setup`, `products-api`
@@ -131,7 +131,7 @@
 - Funcionalidad: Creación de órdenes, snapshots, reglas de negocio.
 - Dependencias: `cart-service`, `auth-service`, `products-service`
 
-### 20. `orders-api` [x]
+### 20. `orders-api` [X]
 
 - Funcionalidad: Endpoints de órdenes.
 - Dependencias: `orders-service`

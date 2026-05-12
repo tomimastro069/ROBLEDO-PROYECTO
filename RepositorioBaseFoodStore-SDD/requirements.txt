@@ -1,12 +1,43 @@
-fastapi
-uvicorn
-sqlmodel
-psycopg2-binary
-python-jose[cryptography]
-passlib[bcrypt]
-slowapi
-python-multipart
-httpx
-python-dotenv
-pytest
-python-jose[cryptography]
+# --- Core Framework ---
+fastapi==0.136.1
+uvicorn==0.46.0
+pydantic==2.13.3
+python-multipart==0.0.20
+
+# --- Database & Persistence ---
+sqlmodel==0.0.22
+alembic==1.13.1
+psycopg2-binary==2.9.9
+
+# --- Security & Auth ---
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+slowapi==0.1.9
+
+# --- Integrations & Utilities ---
+mercadopago==2.4.0
+requests==2.33.1
+python-dotenv==1.0.1
+
+# --- Testing ---
+pytest==9.0.3
+
+# --- Dependencies of dependencies (pinned) ---
+annotated-doc==0.0.4
+annotated-types==0.7.0
+anyio==4.13.0
+certifi==2026.4.22
+charset-normalizer==3.4.7
+click==8.3.3
+colorama==0.4.6
+h11==0.16.0
+idna==3.13
+iniconfig==2.3.0
+packaging==26.2
+pluggy==1.6.0
+pydantic_core==2.46.3
+Pygments==2.20.0
+starlette==1.0.0
+typing-inspection==0.4.2
+typing_extensions==4.15.0
+urllib3==2.6.3
