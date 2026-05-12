@@ -29,6 +29,12 @@
       "sourceType": "github",
       "skillPath": "skills/python-fastapi-development/SKILL.md",
       "computedHash": "6a10c81e0950222a80d56b187208ace22beef7b19fefacdc025115473c13f245"
+    },
+    "roadmap-generator": {
+      "source": "JuanCruzRobledo/roadmap-generator",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "7276fb6161a8ad0d6a3007c0ab12832fb4af8664a2faa4f6d6e1edae91f02456"
     }
   }
 }
