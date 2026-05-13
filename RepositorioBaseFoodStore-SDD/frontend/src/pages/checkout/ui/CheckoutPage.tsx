@@ -38,11 +38,16 @@ export const CheckoutPage = () => {
   const handleConfirm = () => {
     if (!selected) { setError('Seleccioná una dirección de entrega.'); return; }
     setError(null);
+
+    // El payload ahora coincide con el esquema seguro del backend
     createOrder.mutate({
-      items: items.map((i) => ({ product_id: i.id, quantity: i.quantity, price: i.price })),
-      direccion_calle: selected.street,
-      direccion_numero: selected.numero ?? '',
-      direccion_ciudad: selected.city,
+      items: items.map((i) => ({
+        product_id: i.id,
+        quantity: i.quantity
+        // Ya no enviamos el precio (el backend lo busca en DB por seguridad)
+        // Ni la dirección manual (enviamos el ID)
+      })),
+      shipping_address_id: selected.id,
     });
   };
 
@@ -50,7 +55,6 @@ export const CheckoutPage = () => {
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-8">Confirmar pedido</h1>
 
-      {/* Layout 2 columnas en desktop */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
         {/* Columna izquierda — Dirección */}
@@ -105,17 +109,17 @@ export const CheckoutPage = () => {
                 <li key={item.id} className="py-3 flex justify-between items-center">
                   <div>
                     <p className="text-sm font-medium text-gray-800">{item.name}</p>
-                    <p className="text-xs text-gray-400">x{item.quantity} · ${item.price.toFixed(2)} c/u</p>
+                    <p className="text-xs text-gray-400">x{item.quantity} · ${Number(item.price).toFixed(2)} c/u</p>
                   </div>
                   <span className="text-sm font-semibold text-gray-700">
-                    ${(item.price * item.quantity).toFixed(2)}
+                    ${(Number(item.price) * item.quantity).toFixed(2)}
                   </span>
                 </li>
               ))}
             </ul>
             <div className="border-t border-gray-200 pt-4 mt-4 flex justify-between">
               <span className="font-bold text-gray-800">Total</span>
-              <span className="font-bold text-xl text-orange-500">${total.toFixed(2)}</span>
+              <span className="font-bold text-xl text-orange-500">${Number(total).toFixed(2)}</span>
             </div>
           </div>
 

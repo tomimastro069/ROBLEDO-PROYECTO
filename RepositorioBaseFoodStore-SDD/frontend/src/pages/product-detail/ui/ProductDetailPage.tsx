@@ -17,8 +17,10 @@ export const ProductDetailPage = () => {
   if (isLoading) return <div className="p-8 text-gray-500">Cargando...</div>;
   if (isError || !product) return <div className="p-8 text-red-500">Producto no encontrado.</div>;
 
-  const allergens = product.allergens ?? [];
-  const ingredients = product.ingredients ?? [];
+  // Filtrar ingredientes y alérgenos de la lista modular única
+  const ingredientesList = product.ingredientes ?? [];
+  const allergens = ingredientesList.filter(i => i.es_alergeno);
+  const ingredients = ingredientesList.filter(i => !i.es_alergeno);
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8">
@@ -48,7 +50,7 @@ export const ProductDetailPage = () => {
               <div className="flex flex-wrap gap-2">
                 {ingredients.map((ing) => (
                   <span key={ing.id} className="bg-gray-100 text-gray-600 text-xs px-3 py-1 rounded-full">
-                    {ing.name}
+                    {ing.nombre}
                   </span>
                 ))}
               </div>
@@ -61,7 +63,7 @@ export const ProductDetailPage = () => {
               <div className="flex flex-wrap gap-2">
                 {allergens.map((a) => (
                   <span key={a.id} className="bg-red-100 text-red-600 text-xs px-3 py-1 rounded-full font-medium">
-                    {a.name}
+                    {a.nombre}
                   </span>
                 ))}
               </div>

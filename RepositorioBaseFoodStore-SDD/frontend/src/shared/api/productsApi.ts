@@ -9,9 +9,14 @@ export interface Product {
   category_id: number | null;
 }
 
+export interface Ingrediente {
+  id: number;
+  nombre: string;
+  es_alergeno: boolean;
+}
+
 export interface ProductDetail extends Product {
-  ingredients: { id: number; name: string }[];
-  allergens: { id: number; name: string }[];
+  ingredientes: Ingrediente[];
 }
 
 export interface PaginatedProducts {

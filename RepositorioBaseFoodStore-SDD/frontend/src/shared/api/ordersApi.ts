@@ -3,10 +3,11 @@ import axiosInstance from './axios';
 export type OrderStatus = 'PENDIENTE' | 'CONFIRMADO' | 'EN_PREPARACION' | 'EN_CAMINO' | 'ENTREGADO' | 'CANCELADO';
 
 export interface OrderItem {
+  id: number;
   product_id: number;
   quantity: number;
-  price: number;
-  exclusions?: number[];
+  price_snapshot: number;
+  exclusions: number[];
 }
 
 export interface Order {
@@ -23,10 +24,8 @@ export interface Order {
 }
 
 export interface CreateOrderPayload {
-  items: { product_id: number; quantity: number; price: number; exclusions?: number[] }[];
-  direccion_calle: string;
-  direccion_numero: string;
-  direccion_ciudad: string;
+  items: { product_id: number; quantity: number; exclusions?: number[] }[];
+  shipping_address_id: number;
 }
 
 export const ordersApi = {
@@ -45,7 +44,7 @@ export const ordersApi = {
     return data;
   },
 
-  cancel: async (id: number, reason?: string) => {
+  cancel: async (id: number, reason: string) => {
     const { data } = await axiosInstance.patch<Order>(`/orders/${id}/cancel`, { reason });
     return data;
   },
@@ -55,7 +54,7 @@ export const ordersApi = {
     return data;
   },
 
-  updateStatus: async (id: number, new_status: OrderStatus, reason?: string) => {
+  updateStatus: async (id: number, new_status: OrderStatus, reason: string) => {
     const { data } = await axiosInstance.patch<Order>(`/orders/admin/orders/${id}/status`, {
       new_status,
       reason,

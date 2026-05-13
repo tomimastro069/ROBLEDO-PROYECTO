@@ -12,18 +12,21 @@ export interface CartItemUIProps {
  */
 export const CartItemUI: React.FC<CartItemUIProps> = ({ item, actions }) => {
   return (
-    <div className="cart-item-row">
+    <div className="flex items-start gap-4">
       <img
         src={item.imageUrl}
         alt={item.name}
-        className="cart-item-img"
-        style={{ width: 64, height: 64, objectFit: 'cover' }}
+        className="w-16 h-16 object-cover rounded-md border border-gray-200"
       />
-      <div className="cart-item-details">
-        <div className="cart-item-title">{item.name}</div>
-        <div className="cart-item-price">${item.price.toFixed(2)}</div>
+      <div className="flex-1 flex flex-col">
+        <div className="flex justify-between font-medium text-gray-900">
+          <h3>{item.name}</h3>
+          <p className="ml-4">${Number(item.price).toFixed(2)}</p>
+        </div>
+        <div className="mt-2 flex-1 flex items-end justify-between text-sm">
+          {actions}
+        </div>
       </div>
-      <div className="cart-item-actions">{actions}</div>
     </div>
   );
 };

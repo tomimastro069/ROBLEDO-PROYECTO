@@ -26,7 +26,7 @@ class AuthService:
             new_user = User(
                 email=user_in.email,
                 hashed_password=hashed_password,
-                # first_name and last_name not in models yet
+                name=user_in.name
             )
             
             uow.users.add(new_user)
@@ -45,7 +45,7 @@ class AuthService:
                 )
             
             # we need user.role but role might be None. we assume user.role.name for the token if role is loaded
-            role_name = user.role.name if user.role else "user"
+            role_name = user.role.name if user.role else "cliente"
 
             access_token = create_access_token(
                 data={"sub": str(user.id), "email": user.email, "role": role_name}
@@ -80,7 +80,7 @@ class AuthService:
             if user is None:
                 raise credentials_exception
             
-            role_name = user.role.name if user.role else "user"
+            role_name = user.role.name if user.role else "cliente"
             
             access_token = create_access_token(
                 data={"sub": str(user.id), "email": user.email, "role": role_name}

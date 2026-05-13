@@ -30,11 +30,20 @@ export interface MeResponse {
 
 export const authApi = {
   login: async (payload: LoginPayload): Promise<TokenResponse> => {
-    const { data } = await axiosInstance.post<TokenResponse>('/auth/login', payload);
+    // El backend usa OAuth2PasswordRequestForm, que requiere Form Data y el campo 'username'
+    const formData = new URLSearchParams();
+    formData.append('username', payload.email);
+    formData.append('password', payload.password);
+
+    const { data } = await axiosInstance.post<TokenResponse>('/auth/login', formData, {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    });
     return data;
   },
 
-  register: async (payload: RegisterPayload): Promise<{ id: string; email: string; role_id: number }> => {
+  register: async (payload: RegisterPayload): Promise<{ id: string; email: string }> => {
     const { data } = await axiosInstance.post('/auth/register', payload);
     return data;
   },

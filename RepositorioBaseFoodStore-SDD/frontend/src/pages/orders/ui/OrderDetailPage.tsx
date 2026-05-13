@@ -64,7 +64,7 @@ export const OrderDetailPage = () => {
           {order.items?.map((item, i) => (
             <li key={i} className="py-2 flex justify-between text-sm">
               <span>Producto #{item.product_id} <span className="text-gray-400">x{item.quantity}</span></span>
-              <span className="font-medium">${(Number(item.price) * item.quantity).toFixed(2)}</span>
+              <span className="font-medium">${(Number(item.price_snapshot) * item.quantity).toFixed(2)}</span>
             </li>
           ))}
         </ul>
