@@ -78,11 +78,15 @@ class UnitOfWork:
         """Rollback explícito ante errores de negocio."""
         self.session.rollback()
 
-from orders.repository import OrderRepository
+
 
 class AppUnitOfWork(UnitOfWork):
     def __enter__(self) -> "AppUnitOfWork":
         super().__enter__()
+        # Imports locales dentro de __enter__ para evitar importaciones circulares.
+        # unit_of_work.py ← orders/__init__.py ← routes.py ← auth.dependencies ← unit_of_work.py
+        from orders.repository import OrderRepository as _OrderRepo
+        from pagos.repository import PagoRepository as _PagoRepo
         self.users = UserRepository(self.session)
         self.roles = RoleRepository(self.session)
         self.categories = CategoryRepository(self.session)
@@ -91,7 +95,8 @@ class AppUnitOfWork(UnitOfWork):
         self.product_allergens = ProductAllergenRepository(self.session)
         self.addresses = AddressRepository(self.session)
         self.ingredientes = IngredienteRepository(self.session)
-        self.orders = OrderRepository(self.session)
+        self.orders = _OrderRepo(self.session)
+        self.pagos = _PagoRepo(self.session)
         return self
 
 def get_uow() -> AppUnitOfWork:

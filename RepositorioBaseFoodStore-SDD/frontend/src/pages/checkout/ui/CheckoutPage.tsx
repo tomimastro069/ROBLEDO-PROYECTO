@@ -3,13 +3,19 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { direccionesApi } from '@/shared/api/direccionesApi';
 import { ordersApi } from '@/shared/api/ordersApi';
+import { pagosApi } from '@/shared/api/pagosApi';
 import { useCartStore } from '@/entities/cart/model/cartStore';
+import { initMercadoPago, Wallet } from '@mercadopago/sdk-react';
+
+// Initialize MercadoPago with a placeholder or env variable
+initMercadoPago(import.meta.env.VITE_MP_PUBLIC_KEY || 'TEST-public-key');
 
 export const CheckoutPage = () => {
   const navigate = useNavigate();
   const { items, total, clearCart } = useCartStore();
   const [selectedAddressId, setSelectedAddressId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [preferenceId, setPreferenceId] = useState<string | null>(null);
 
   const { data: addresses, isLoading: loadingAddr } = useQuery({
     queryKey: ['direcciones'],
@@ -18,11 +24,24 @@ export const CheckoutPage = () => {
 
   const createOrder = useMutation({
     mutationFn: ordersApi.create,
-    onSuccess: (order) => { clearCart(); navigate(`/pedidos/${order.id}`); },
+    onSuccess: async (order) => {
+      try {
+        const pago = await pagosApi.crear({ pedido_id: order.id });
+        if (pago.preference_id) {
+          setPreferenceId(pago.preference_id);
+          clearCart(); // Clear cart as order is already created
+        } else {
+          setError('No se pudo obtener la preferencia de pago.');
+        }
+      } catch (err) {
+        console.error(err);
+        setError('Error al iniciar el pago con MercadoPago.');
+      }
+    },
     onError: () => setError('Error al crear el pedido. Verificá el stock disponible.'),
   });
 
-  if (items.length === 0) {
+  if (items.length === 0 && !preferenceId) {
     return (
       <div className="max-w-xl mx-auto px-4 py-20 text-center">
         <p className="text-xl text-gray-400">Tu carrito está vacío.</p>
@@ -39,13 +58,10 @@ export const CheckoutPage = () => {
     if (!selected) { setError('Seleccioná una dirección de entrega.'); return; }
     setError(null);
 
-    // El payload ahora coincide con el esquema seguro del backend
     createOrder.mutate({
       items: items.map((i) => ({
         product_id: i.id,
         quantity: i.quantity
-        // Ya no enviamos el precio (el backend lo busca en DB por seguridad)
-        // Ni la dirección manual (enviamos el ID)
       })),
       shipping_address_id: selected.id,
     });
@@ -57,47 +73,55 @@ export const CheckoutPage = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-        {/* Columna izquierda — Dirección */}
+        {/* Columna izquierda — Dirección o MP Wallet */}
         <div className="space-y-6">
-          <div className="bg-white border border-gray-200 rounded-xl p-6">
-            <h2 className="font-semibold text-gray-800 text-lg mb-4">Dirección de entrega</h2>
-            {loadingAddr ? (
-              <p className="text-sm text-gray-400">Cargando...</p>
-            ) : addresses?.length === 0 ? (
-              <p className="text-sm text-gray-500">
-                No tenés direcciones.{' '}
-                <button onClick={() => navigate('/direcciones')} className="text-orange-500 hover:underline">
-                  Agregar una
-                </button>
-              </p>
-            ) : (
-              <div className="space-y-3">
-                {addresses?.map((addr) => (
-                  <label key={addr.id}
-                    className={`flex items-start gap-3 border rounded-xl p-4 cursor-pointer transition ${selectedAddressId === addr.id ? 'border-orange-400 bg-orange-50' : 'border-gray-200 hover:border-gray-300'}`}>
-                    <input
-                      type="radio" name="address"
-                      checked={selectedAddressId === addr.id}
-                      onChange={() => setSelectedAddressId(addr.id)}
-                      className="mt-0.5 accent-orange-500"
-                    />
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-800">
-                        {addr.street} {addr.numero}{addr.piso ? `, piso ${addr.piso}` : ''}
-                      </p>
-                      <p className="text-xs text-gray-500 mt-0.5">{addr.city}, {addr.state} — {addr.zip_code}</p>
-                      {addr.is_default && (
-                        <span className="text-xs text-orange-500 font-medium mt-1 inline-block">★ Predeterminada</span>
-                      )}
-                    </div>
-                  </label>
-                ))}
-                <button onClick={() => navigate('/direcciones')} className="text-sm text-orange-500 hover:underline mt-1">
-                  + Agregar nueva dirección
-                </button>
-              </div>
-            )}
-          </div>
+          {preferenceId ? (
+            <div className="bg-white border border-gray-200 rounded-xl p-6">
+               <h2 className="font-semibold text-gray-800 text-lg mb-4">Realizar Pago Seguro</h2>
+               <p className="text-sm text-gray-500 mb-4">Estás a un paso de confirmar tu pedido. Por favor, completá el pago de forma segura a través de MercadoPago.</p>
+               <Wallet initialization={{ preferenceId }} />
+            </div>
+          ) : (
+            <div className="bg-white border border-gray-200 rounded-xl p-6">
+              <h2 className="font-semibold text-gray-800 text-lg mb-4">Dirección de entrega</h2>
+              {loadingAddr ? (
+                <p className="text-sm text-gray-400">Cargando...</p>
+              ) : addresses?.length === 0 ? (
+                <p className="text-sm text-gray-500">
+                  No tenés direcciones.{' '}
+                  <button onClick={() => navigate('/direcciones')} className="text-orange-500 hover:underline">
+                    Agregar una
+                  </button>
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {addresses?.map((addr) => (
+                    <label key={addr.id}
+                      className={`flex items-start gap-3 border rounded-xl p-4 cursor-pointer transition ${selectedAddressId === addr.id ? 'border-orange-400 bg-orange-50' : 'border-gray-200 hover:border-gray-300'}`}>
+                      <input
+                        type="radio" name="address"
+                        checked={selectedAddressId === addr.id}
+                        onChange={() => setSelectedAddressId(addr.id)}
+                        className="mt-0.5 accent-orange-500"
+                      />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-800">
+                          {addr.street} {addr.numero}{addr.piso ? `, piso ${addr.piso}` : ''}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-0.5">{addr.city}, {addr.state} — {addr.zip_code}</p>
+                        {addr.is_default && (
+                          <span className="text-xs text-orange-500 font-medium mt-1 inline-block">★ Predeterminada</span>
+                        )}
+                      </div>
+                    </label>
+                  ))}
+                  <button onClick={() => navigate('/direcciones')} className="text-sm text-orange-500 hover:underline mt-1">
+                    + Agregar nueva dirección
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Columna derecha — Resumen + confirmar */}
@@ -129,17 +153,21 @@ export const CheckoutPage = () => {
             </div>
           )}
 
-          <button
-            onClick={handleConfirm}
-            disabled={createOrder.isPending}
-            className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 rounded-xl text-lg transition disabled:opacity-50 shadow-sm"
-          >
-            {createOrder.isPending ? 'Creando pedido...' : '✓ Confirmar pedido'}
-          </button>
+          {!preferenceId && (
+            <>
+              <button
+                onClick={handleConfirm}
+                disabled={createOrder.isPending}
+                className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 rounded-xl text-lg transition disabled:opacity-50 shadow-sm"
+              >
+                {createOrder.isPending ? 'Preparando pago...' : 'Proceder al pago'}
+              </button>
 
-          <button onClick={() => navigate(-1)} className="w-full text-gray-400 hover:text-gray-600 text-sm transition">
-            ← Volver al carrito
-          </button>
+              <button onClick={() => navigate(-1)} className="w-full text-gray-400 hover:text-gray-600 text-sm transition">
+                ← Volver al carrito
+              </button>
+            </>
+          )}
         </div>
       </div>
     </div>

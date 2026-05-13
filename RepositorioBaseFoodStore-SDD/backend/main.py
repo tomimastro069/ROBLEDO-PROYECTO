@@ -88,7 +88,7 @@ app.include_router(pagos_router, prefix="/api/v1/pagos", tags=["pagos"])
 # Include ingredientes routes
 app.include_router(ingredientes_router, prefix="/api/v1/ingredientes", tags=["ingredientes"])
 # Include MercadoPago webhook router
-app.include_router(mp_webhook_router, tags=["webhooks"])
+app.include_router(mp_webhook_router, prefix="/webhooks", tags=["webhooks"])
 
 @app.get("/")
 @limiter.limit("5/minute")

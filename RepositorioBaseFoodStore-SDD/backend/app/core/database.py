@@ -18,6 +18,7 @@ def init_db():
             # Importamos modelos aquí para asegurar que estén registrados en SQLModel.metadata
             from app.core.models import Role, User, Category, Product, Ingrediente, Address, Payment
             from orders.models import Order, OrderItem
+            from pagos.models import Pago  # noqa: F401 — register for create_all
             
             SQLModel.metadata.create_all(engine)
             print("✅ Database tables created successfully.")

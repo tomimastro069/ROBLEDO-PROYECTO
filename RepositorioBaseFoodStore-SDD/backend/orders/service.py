@@ -136,3 +136,37 @@ class OrderService:
 
     def cancel_order(self, order_id: int, reason: str = "No reason provided") -> None:
         self.update_order(order_id, {"status": OrderStatus.CANCELADO})
+
+    def confirm_by_payment(self, order_id: int, uow) -> Order:
+        """
+        Avanza el pedido a CONFIRMADO de forma atómica.
+
+        Diseñado para ser invocado desde el servicio del Webhook IPN de MercadoPago
+        DENTRO del gestor de contexto de la Unidad de Trabajo ya abierto por el caller.
+        NO abre un nuevo contexto `with self.uow` — opera sobre la sesión del uow recibido.
+
+        Pre-condición: el pedido DEBE estar en estado PENDIENTE.
+        Post-condición: el pedido queda en CONFIRMADO y se registra en HistorialEstadoPedido.
+
+        Args:
+            order_id: ID del pedido a confirmar.
+            uow: AppUnitOfWork con sesión activa (abierta por el caller).
+
+        Returns:
+            Order actualizada en estado CONFIRMADO.
+
+        Raises:
+            OrderNotFoundException: si el pedido no existe.
+            InvalidStateTransitionException: si el pedido no está en PENDIENTE.
+        """
+        order = uow.orders.get(order_id)
+        if not order:
+            raise OrderNotFoundException()
+
+        # Validar transición FSM: PENDIENTE → CONFIRMADO
+        OrderStateMachine.validate_transition(order.status, OrderStatus.CONFIRMADO)
+
+        order = uow.orders.update(order, status=OrderStatus.CONFIRMADO)
+        self._log(logging.INFO, f"Order {order_id} confirmed via payment webhook.")
+        return order
+

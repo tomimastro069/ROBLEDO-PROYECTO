@@ -18,7 +18,9 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-from app.core.models import SQLModel, Role, User, Category, Product, Order, OrderItem, Payment, Address, ProductIngredient, ProductAllergen
+from app.core.models import SQLModel, Role, User, Category, Product, Payment, Address, ProductIngredient, ProductAllergen
+from orders.models import Order, OrderItem  # noqa: F401 — register Order tables
+from pagos.models import Pago  # noqa: F401 — register Pagos table for autogenerate
 from app.core.config import settings
 
 target_metadata = SQLModel.metadata
