@@ -108,18 +108,31 @@ async def mercadopago_webhook(
             logger.info(f"payment_id={data_id} ya procesado (approved). Respondiendo 200 idempotente.")
             return {"status": "already_processed"}
 
-        # ── Consultar estado real del pago a la API de MP ──
-        try:
-            import mercadopago
-            sdk = mercadopago.SDK(os.getenv("MP_ACCESS_TOKEN", ""))
-            payment_info = sdk.payment().get(data_id)
-            payment_data = payment_info.get("response", {})
-        except Exception as exc:
-            logger.error(f"Error consultando payment {data_id} a MP: {exc}")
-            raise HTTPException(
-                status_code=status.HTTP_502_BAD_GATEWAY,
-                detail="Error consultando MercadoPago API."
-            )
+        # ── Consultar estado real del pago a la API de MP (o simular en Sandbox) ──
+        if data_id.startswith("sandbox-"):
+            # Sandbox bypass: el data_id simulado tiene formato "sandbox-<pedido_id>"
+            try:
+                external_reference = data_id.split("-")[1]
+            except IndexError:
+                external_reference = None
+            
+            payment_data = {
+                "status": "approved",
+                "status_detail": "accredited",
+                "external_reference": external_reference
+            }
+        else:
+            try:
+                import mercadopago
+                sdk = mercadopago.SDK(os.getenv("MP_ACCESS_TOKEN", ""))
+                payment_info = sdk.payment().get(data_id)
+                payment_data = payment_info.get("response", {})
+            except Exception as exc:
+                logger.error(f"Error consultando payment {data_id} a MP: {exc}")
+                raise HTTPException(
+                    status_code=status.HTTP_502_BAD_GATEWAY,
+                    detail="Error consultando MercadoPago API."
+                )
 
         mp_status = payment_data.get("status", "unknown")
         mp_status_detail = payment_data.get("status_detail", "")

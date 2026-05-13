@@ -6,6 +6,7 @@ from pydantic import BaseModel
 
 class PagoCreate(BaseModel):
     pedido_id: int
+    forma_pago_codigo: str = "MERCADOPAGO"
 
 
 class PagoRead(BaseModel):

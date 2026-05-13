@@ -12,6 +12,10 @@ class OrderStatus(str, Enum):
     ENTREGADO = "ENTREGADO"
     CANCELADO = "CANCELADO"
 
+class FormaPago(SQLModel, table=True):
+    __tablename__ = "formas_pago"
+    codigo: str = Field(primary_key=True, max_length=20, index=True)
+    habilitado: bool = Field(default=True)
 class OrderItem(SQLModel, table=True):
     __tablename__ = "order_items"
     id: Optional[int] = Field(default=None, primary_key=True)
@@ -25,11 +29,17 @@ class OrderItem(SQLModel, table=True):
     order: Optional["Order"] = Relationship(back_populates="items")
     product: Optional["Product"] = Relationship(back_populates="order_items")
 
+from sqlalchemy import Column, Enum as SaEnum
+
 class Order(SQLModel, table=True):
     __tablename__ = "orders"
     id: Optional[int] = Field(default=None, primary_key=True)
     user_id: int = Field(foreign_key="user.id", index=True)
-    status: OrderStatus = Field(default=OrderStatus.PENDIENTE, index=True)
+    status: OrderStatus = Field(
+        default=OrderStatus.PENDIENTE,
+        sa_column=Column(SaEnum(OrderStatus, name="pedido_status_enum"), nullable=False, index=True)
+    )
+    forma_pago_codigo: Optional[str] = Field(default=None, foreign_key="formas_pago.codigo")
     total: Decimal
     
     # Snapshot de dirección (para persistencia histórica según US-035)

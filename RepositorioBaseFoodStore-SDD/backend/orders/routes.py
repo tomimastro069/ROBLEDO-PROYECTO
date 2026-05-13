@@ -37,7 +37,9 @@ def create_order(
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail="Error interno al procesar el pedido.")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Error interno: {str(e)}")
 
 @router.get("/", response_model=List[OrderRead])
 def list_my_orders(

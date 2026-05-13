@@ -78,7 +78,35 @@ def crear_pago(
         )
         nuevo_pago = uow.pagos.create(nuevo_pago)
 
-        # 5. Crear preferencia en MercadoPago usando el precio real
+        # 5. Bifurcación por forma de pago
+        forma_pago = data.forma_pago_codigo.upper()
+        
+        if forma_pago in ["EFECTIVO", "TRANSFERENCIA"]:
+            # Retornar 201 inmediatamente, el pago queda pending (o el estado que corresponda)
+            return PagoRead(
+                pedido_id=order.id,
+                preference_id=f"PREF-{forma_pago}-{nuevo_pago.idempotency_key[:8]}",
+                init_point=f"http://localhost:5173/pago/pendiente?forma_pago={forma_pago}",
+                status="pending",
+            )
+
+        # Es MERCADOPAGO
+        # 6. Intercepción Sandbox (Dev Mode Bypass)
+        access_token = os.getenv("MP_ACCESS_TOKEN", "TEST-your-mp-access-token")
+        if access_token.startswith("TEST-"):
+            # Sandbox mode bypass
+            nuevo_pago.preference_id = f"sandbox-{uuid.uuid4()}"
+            nuevo_pago.updated_at = datetime.utcnow()
+            uow.pagos.update_status(nuevo_pago, "pending")
+
+            return PagoRead(
+                pedido_id=order.id,
+                preference_id=nuevo_pago.preference_id,
+                init_point="http://localhost:5173/pago/exito?sandbox=true",
+                status="pending",
+            )
+
+        # 7. Crear preferencia en MercadoPago usando el precio real
         preference_data = {
             "items": [
                 {
@@ -104,7 +132,10 @@ def crear_pago(
 
         try:
             sdk = _get_sdk()
-            response = sdk.preference().create(preference_data, {"X-Idempotency-Key": nuevo_pago.idempotency_key})
+            from mercadopago.config.request_options import RequestOptions
+            request_options = RequestOptions()
+            request_options.custom_headers = {"X-Idempotency-Key": nuevo_pago.idempotency_key}
+            response = sdk.preference().create(preference_data, request_options)
             result = response.get("response", {})
             if not result.get("id"):
                 raise HTTPException(
@@ -112,7 +143,7 @@ def crear_pago(
                     detail="No se pudo crear la preferencia en MercadoPago.",
                 )
 
-            # 6. Actualizar el registro con el preference_id retornado por MP
+            # 8. Actualizar el registro con el preference_id retornado por MP
             nuevo_pago.preference_id = result.get("id")
             nuevo_pago.updated_at = datetime.utcnow()
             uow.pagos.update_status(nuevo_pago, "pending")
@@ -131,6 +162,7 @@ def crear_pago(
                 status_code=status.HTTP_502_BAD_GATEWAY,
                 detail=f"Error al conectar con MercadoPago: {str(exc)}",
             )
+
 
 
 @router.get("/pedido/{pedido_id}", response_model=PagoRead, status_code=status.HTTP_200_OK)

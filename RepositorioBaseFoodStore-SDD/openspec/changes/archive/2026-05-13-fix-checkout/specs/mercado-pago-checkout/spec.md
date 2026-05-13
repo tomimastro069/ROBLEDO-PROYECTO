@@ -1,6 +1,4 @@
-# MercadoPago Checkout Specifications
-
-## Functional Requirements
+## MODIFIED Requirements
 
 ### Requirement: Procesamiento de Checkout con MercadoPago
 El sistema MUST permitir la creación de preferencias de pago e integrar el SDK de MercadoPago en el cliente bajo cumplimiento PCI DSS SAQ-A, incorporando un modo Sandbox local cuando se detecten tokens de prueba.

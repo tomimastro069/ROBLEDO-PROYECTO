@@ -2,7 +2,7 @@ import os
 from sqlmodel import Session, select
 from app.core.database import engine
 from app.core.models import Role, User, Category, Product, Ingrediente, Address, Payment
-from orders.models import Order, OrderItem, OrderStatus
+from orders.models import Order, OrderItem, OrderStatus, FormaPago
 from auth.utils import pwd_context
 from decimal import Decimal
 
@@ -64,6 +64,15 @@ def seed_ingredients(session: Session):
         if not session.exec(statement).first():
             print(f"Creating ingredient: {ing_data['nombre']}")
             session.add(Ingrediente(**ing_data))
+    session.commit()
+
+def seed_formas_pago(session: Session):
+    formas = ["MERCADOPAGO", "EFECTIVO", "TRANSFERENCIA"]
+    for codigo in formas:
+        statement = select(FormaPago).where(FormaPago.codigo == codigo)
+        if not session.exec(statement).first():
+            print(f"Creating forma de pago: {codigo}")
+            session.add(FormaPago(codigo=codigo, habilitado=True))
     session.commit()
 
 def seed_products(session: Session):
@@ -172,6 +181,7 @@ def run_seed():
         seed_roles(session)
         seed_categories(session)
         seed_ingredients(session)
+        seed_formas_pago(session)
         seed_products(session)
         seed_product_ingredients(session) # Nueva llamada
         seed_users_and_orders(session)

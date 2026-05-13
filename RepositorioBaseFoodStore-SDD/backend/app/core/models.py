@@ -67,13 +67,6 @@ class Product(Base, table=True):
     order_items: List["OrderItem"] = Relationship(back_populates="product")
     deleted_at: Optional[datetime] = Field(default=None, description="Soft delete timestamp")
 
-class OrderStatus(str, Enum):
-    PENDING = "PENDING"
-    PAID = "PAID"
-    PREPARING = "PREPARING"
-    SHIPPED = "SHIPPED"
-    DELIVERED = "DELIVERED"
-
 # Eliminadas para evitar conflicto con backend/orders/models.py
 
 class Payment(Base, table=True):
