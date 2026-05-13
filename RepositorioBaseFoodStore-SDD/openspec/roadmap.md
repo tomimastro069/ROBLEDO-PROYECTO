@@ -18,6 +18,7 @@ Generado a partir de `knowledge-base/` el 2026-05-12.
 | 7 | `us-006-pagos` | MercadoPago Checkout + webhook IPN | US-055 a US-062 | `us-005-pedidos` | La orden de cobro se asocia unívocamente a la cabecera de un pedido |
 | 8 | `us-007-admin` | Panel admin + métricas | US-065 a US-072 | `us-006-pagos` | Gráficos y reportes consumen historiales de pedidos y estados de pago |
 | 9 | `us-008-direcciones` | Direcciones de entrega del cliente | US-075 a US-076 | `us-001-auth` | Independiente de pedidos pero requiere la existencia de cuentas de usuario |
+| 10 | `admin-dashboard-crud` | Panel admin CRUD (Categorías, Ingredientes, Productos, Pedidos) | — | `us-002-categorias`, `us-003-productos` | Consume endpoints CRUD ya implementados del backend |
 
 ---
 
@@ -146,6 +147,18 @@ Generado a partir de `knowledge-base/` el 2026-05-12.
 **Justificación**: Es un módulo altamente independiente del flujo de pedidos directo, pero requiere obligatoriamente la existencia previa de la tabla `Usuario` para establecer la clave foránea de pertenencia.
 
 **Riesgos / preguntas abiertas**: Ver pregunta abierta 3 en `10_preguntas_abiertas.md` sobre la posible integración futura con servicios de geocodificación para calcular tarifas de envío dinámicas.
+
+---
+
+### 10. `admin-dashboard-crud` ✅
+
+**Funcionalidad**: Panel de administración dedicado bajo la ruta `/admin` con sidebar de navegación por rol. Incluye páginas CRUD completas para Categorías, Ingredientes y Productos, junto con el panel de gestión de Pedidos ya existente. Implementa una capa de hooks reutilizables (`useFormModal`, `useConfirmDialog`, `usePagination`) y componentes base (`HelpButton`, `PageContainer`) siguiendo la skill `dashboard-crud-page`. Además agrega el campo `phone` al registro de usuario en frontend y backend.
+
+**Depende de**: `us-002-categorias`, `us-003-productos` (endpoints del backend operativos).
+
+**Justificación**: El panel consume directamente las APIs ya disponibles del backend. No requiere cambios de backend adicionales más allá del campo `phone` en el registro.
+
+**Nota**: Implementado fuera de la metodología SDD estricta, documentado y archivado retroactivamente.
 
 ---
 

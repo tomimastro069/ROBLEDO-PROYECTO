@@ -147,6 +147,15 @@
 
 ---
 
+## 🖥️ PANEL DE ADMINISTRACIÓN
+
+### 22. `admin-dashboard-crud` [X]
+
+- Funcionalidad: Panel admin dedicado `/admin` con sidebar por rol. CRUDs de Categorías, Ingredientes, Productos y vista de Pedidos. Hooks base reutilizables (`useFormModal`, `useConfirmDialog`, `usePagination`). Campo `phone` en registro de usuario.
+- Dependencias: `categories-api`, `products-api`, `auth-service`
+
+---
+
 ## ✔ Estado final
 
 - Total changes: 21
