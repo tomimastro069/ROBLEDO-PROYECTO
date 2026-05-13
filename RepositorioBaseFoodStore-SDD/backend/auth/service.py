@@ -26,7 +26,8 @@ class AuthService:
             new_user = User(
                 email=user_in.email,
                 hashed_password=hashed_password,
-                name=user_in.name
+                name=user_in.name,
+                phone=user_in.phone
             )
             
             uow.users.add(new_user)

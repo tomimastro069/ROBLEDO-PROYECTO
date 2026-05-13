@@ -5,6 +5,7 @@ import { useRegister } from '@/features/auth/hooks/useRegister';
 
 export const RegisterPage = () => {
   const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { isAuthenticated } = useAuthStore();
@@ -14,12 +15,12 @@ export const RegisterPage = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    register({ name, email, password });
+    register({ name, email, password, phone: phone || undefined });
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="w-full max-w-md bg-white rounded-xl shadow-md p-8">
+      <div className="w-full max-w-md bg-white rounded-xl shadow-md p-8 mt-10">
         <h1 className="text-2xl font-bold text-gray-800 mb-6 text-center">Crear cuenta</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -29,6 +30,16 @@ export const RegisterPage = () => {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Tu nombre"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
+            <input
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="Tu número (opcional)"
               className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400"
             />
           </div>
