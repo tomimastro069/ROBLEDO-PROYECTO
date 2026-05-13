@@ -42,10 +42,10 @@ export const MainLayout = () => {
                 </>
               )}
               {isAuth && isGestorPedidos && (
-                <NavLink to="/gestor-pedidos" className={navLinkClass}>Panel pedidos</NavLink>
+                <NavLink to="/admin/pedidos" className={navLinkClass}>Panel pedidos</NavLink>
               )}
               {isAuth && isGestorStock && (
-                <NavLink to="/catalogo" className={navLinkClass}>Gestión catálogo</NavLink>
+                <NavLink to="/admin" className={navLinkClass}>Dashboard</NavLink>
               )}
             </nav>
 
@@ -104,7 +104,10 @@ export const MainLayout = () => {
               </>
             )}
             {isAuth && isGestorPedidos && (
-              <NavLink to="/gestor-pedidos" className={({ isActive }) => `block py-1 ${navLinkClass({ isActive })}`} onClick={() => setMobileMenuOpen(false)}>Panel pedidos</NavLink>
+              <NavLink to="/admin/pedidos" className={({ isActive }) => `block py-1 ${navLinkClass({ isActive })}`} onClick={() => setMobileMenuOpen(false)}>Panel pedidos</NavLink>
+            )}
+            {isAuth && isGestorStock && (
+              <NavLink to="/admin" className={({ isActive }) => `block py-1 ${navLinkClass({ isActive })}`} onClick={() => setMobileMenuOpen(false)}>Dashboard</NavLink>
             )}
             {isAuth && (
               <NavLink to="/perfil" className={({ isActive }) => `block py-1 ${navLinkClass({ isActive })}`} onClick={() => setMobileMenuOpen(false)}>Mi perfil</NavLink>

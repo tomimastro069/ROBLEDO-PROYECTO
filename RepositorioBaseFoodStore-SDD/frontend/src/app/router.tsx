@@ -1,4 +1,4 @@
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 
 import { MainLayout } from './layout/MainLayout';
 import { ProtectedRoute } from '@/shared/ui/ProtectedRoute';
@@ -24,6 +24,8 @@ import { PagoPendientePage } from '@pages/pago/ui/PagoPendientePage';
 
 import { PerfilPage } from '@pages/perfil/ui/PerfilPage';
 import { GestorPedidosPage } from '@pages/gestor-pedidos/ui/GestorPedidosPage';
+import { AdminLayout } from './layout/AdminLayout';
+import { CategoriesAdminPage } from '@/pages/admin/categories/ui/CategoriesAdminPage';
 
 const CLIENTE = ['cliente'];
 const GESTOR_PEDIDOS = ['gestor_pedidos', 'admin'];
@@ -71,11 +73,22 @@ const router = createBrowserRouter([
         element: <ProtectedRoute allowedRoles={AUTHENTICATED}><PerfilPage /></ProtectedRoute>,
       },
 
-      // Gestor de pedidos
+      // Gestor de pedidos (público) - deprecated, movido a /admin
       {
         path: 'gestor-pedidos',
-        element: <ProtectedRoute allowedRoles={GESTOR_PEDIDOS}><GestorPedidosPage /></ProtectedRoute>,
+        element: <ProtectedRoute allowedRoles={GESTOR_PEDIDOS}><Navigate to="/admin/pedidos" replace /></ProtectedRoute>,
       },
+    ],
+  },
+  {
+    path: '/admin',
+    element: <ProtectedRoute allowedRoles={['admin', 'gestor_pedidos', 'gestor_stock']}><AdminLayout /></ProtectedRoute>,
+    children: [
+      { index: true, element: <Navigate to="categorias" replace /> },
+      { path: 'categorias', element: <CategoriesAdminPage /> },
+      { path: 'pedidos', element: <GestorPedidosPage /> },
+      { path: 'ingredientes', element: <div className="p-8"><h1>En construcción</h1></div> },
+      { path: 'productos', element: <div className="p-8"><h1>En construcción</h1></div> },
     ],
   },
 ]);

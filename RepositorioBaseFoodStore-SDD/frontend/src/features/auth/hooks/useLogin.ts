@@ -21,7 +21,11 @@ export const useLogin = () => {
       const me = await authApi.me();
       setAuth(me, tokenData.access_token, tokenData.refresh_token);
 
-      navigate('/');
+      if (me.role === 'admin' || me.role === 'gestor_pedidos' || me.role === 'gestor_stock') {
+        navigate('/admin');
+      } else {
+        navigate('/');
+      }
     },
   });
 };
