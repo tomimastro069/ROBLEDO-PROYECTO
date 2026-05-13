@@ -26,6 +26,8 @@ import { PerfilPage } from '@pages/perfil/ui/PerfilPage';
 import { GestorPedidosPage } from '@pages/gestor-pedidos/ui/GestorPedidosPage';
 import { AdminLayout } from './layout/AdminLayout';
 import { CategoriesAdminPage } from '@/pages/admin/categories/ui/CategoriesAdminPage';
+import { IngredientesAdminPage } from '@/pages/admin/ingredientes/ui/IngredientesAdminPage';
+import { ProductsAdminPage } from '@/pages/admin/products/ui/ProductsAdminPage';
 
 const CLIENTE = ['cliente'];
 const GESTOR_PEDIDOS = ['gestor_pedidos', 'admin'];
@@ -87,8 +89,8 @@ const router = createBrowserRouter([
       { index: true, element: <Navigate to="categorias" replace /> },
       { path: 'categorias', element: <CategoriesAdminPage /> },
       { path: 'pedidos', element: <GestorPedidosPage /> },
-      { path: 'ingredientes', element: <div className="p-8"><h1>En construcción</h1></div> },
-      { path: 'productos', element: <div className="p-8"><h1>En construcción</h1></div> },
+      { path: 'ingredientes', element: <IngredientesAdminPage /> },
+      { path: 'productos', element: <ProductsAdminPage /> },
     ],
   },
 ]);
