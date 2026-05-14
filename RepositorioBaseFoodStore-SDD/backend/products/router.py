@@ -117,6 +117,7 @@ def update_product(
         name=product_in.name,
         description=product_in.description,
         price=product_in.price,
+        stock=product_in.stock,
         category_id=product_in.category_id,
     )
 

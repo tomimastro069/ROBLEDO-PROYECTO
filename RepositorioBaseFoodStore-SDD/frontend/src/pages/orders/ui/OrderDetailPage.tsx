@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ordersApi, type OrderStatus } from '@/shared/api/ordersApi';
+import { pagosApi } from '@/shared/api/pagosApi';
 
 const STATUS_LABELS: Record<OrderStatus, string> = {
   PENDIENTE: 'Pendiente de pago',
@@ -34,6 +35,22 @@ export const OrderDetailPage = () => {
   const cancelMutation = useMutation({
     mutationFn: () => ordersApi.cancel(Number(id), 'Cancelado por el cliente'),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['order', id] }),
+  });
+
+  const payMutation = useMutation({
+    mutationFn: () => pagosApi.crear({ pedido_id: Number(id) }),
+    onSuccess: (data) => {
+      console.log('Pago creado:', data);
+      if (data.init_point) {
+        window.location.href = data.init_point;
+      } else {
+        alert('Error: No se recibió URL de pago');
+      }
+    },
+    onError: (err: any) => {
+      console.error('Error al crear pago:', err);
+      alert('Error al procesar el pago: ' + (err.response?.data?.detail || err.message));
+    }
   });
 
   if (isLoading) return <div className="p-8 text-gray-500">Cargando...</div>;
@@ -86,10 +103,11 @@ export const OrderDetailPage = () => {
         <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-5 mb-4">
           <p className="text-sm text-yellow-700 mb-3">Tu pedido está esperando el pago.</p>
           <button
-            onClick={() => navigate(`/pago/iniciar/${order.id}`)}
-            className="bg-orange-500 hover:bg-orange-600 text-white px-5 py-2 rounded-lg text-sm font-semibold transition"
+            onClick={() => payMutation.mutate()}
+            disabled={payMutation.isPending}
+            className="bg-orange-500 hover:bg-orange-600 text-white px-5 py-2 rounded-lg text-sm font-semibold transition disabled:opacity-50"
           >
-            Pagar ahora
+            {payMutation.isPending ? 'Redirigiendo...' : 'Pagar ahora'}
           </button>
         </div>
       )}

@@ -112,6 +112,7 @@ class ProductsService:
 
     def update(self, product_id: int, name: Optional[str] = None,
               description: Optional[str] = None, price: Optional[Decimal] = None,
+              stock: Optional[int] = None,
               category_id: Optional[int] = None) -> Product:
         """Update product fields.
         
@@ -143,6 +144,8 @@ class ProductsService:
                 product.description = description
             if price is not None:
                 product.price = price
+            if stock is not None:
+                product.stock = stock
             if category_id is not None:
                 product.category_id = category_id
             

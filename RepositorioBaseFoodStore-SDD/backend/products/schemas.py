@@ -28,6 +28,7 @@ class ProductUpdate(BaseModel):
     name: Optional[str] = Field(None, min_length=1, max_length=200)
     description: Optional[str] = Field(None, max_length=1000)
     price: Optional[Decimal] = Field(None, decimal_places=2)
+    stock: Optional[int] = Field(None, ge=0)
     category_id: Optional[int] = None
 
 

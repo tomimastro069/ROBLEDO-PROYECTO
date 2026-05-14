@@ -1,4 +1,4 @@
-import { api } from './baseApi';
+import api from './axios';
 
 export interface PagoCreatePayload {
   pedido_id: number;
