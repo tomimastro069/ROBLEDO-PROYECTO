@@ -19,7 +19,7 @@ export const MainLayout = () => {
   const isAuth = isAuthenticated;
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
-    `text-sm font-medium transition-colors ${isActive ? 'text-orange-500' : 'text-gray-600 hover:text-orange-500'}`;
+    `text-sm font-medium transition-colors ${isActive ? 'text-[#d32f2f]' : 'text-gray-600 hover:text-[#d32f2f]'}`;
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -27,7 +27,6 @@ export const MainLayout = () => {
       <header className="bg-white border-b border-gray-200 sticky top-0 z-40 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            {/* Logo */}
             {/* Logo */}
             <Link to="/" className="text-xl font-bold text-[#d32f2f] tracking-tighter uppercase flex items-center gap-2">
               <span className="border-2 border-[#d32f2f] px-1">FOOD</span> 
@@ -126,7 +125,7 @@ export const MainLayout = () => {
             ) : (
               <div className="flex gap-3 pt-1">
                 <Link to="/login" className="text-sm text-gray-600 font-medium" onClick={() => setMobileMenuOpen(false)}>Ingresar</Link>
-                <Link to="/register" className="text-sm text-orange-500 font-medium" onClick={() => setMobileMenuOpen(false)}>Registrarse</Link>
+                <Link to="/register" className="text-sm text-red-600 font-medium" onClick={() => setMobileMenuOpen(false)}>Registrarse</Link>
               </div>
             )}
           </div>

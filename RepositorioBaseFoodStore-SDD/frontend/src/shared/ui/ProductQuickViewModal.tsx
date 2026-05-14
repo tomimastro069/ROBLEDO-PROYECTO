@@ -71,9 +71,9 @@ export const ProductQuickViewModal = ({ productId, onClose }: Props) => {
           </button>
 
           {/* Imagen / Hero side */}
-          <div className="md:w-1/2 bg-gradient-to-br from-orange-100 via-rose-50 to-orange-200 relative p-12 flex items-center justify-center">
+          <div className="md:w-1/2 bg-gradient-to-br from-red-50 via-white to-red-100 relative p-12 flex items-center justify-center">
             <div className="absolute top-12 left-12">
-               <span className="text-[10px] font-black tracking-[0.4em] text-orange-500/50 uppercase">FoodStore / Premium</span>
+               <span className="text-[10px] font-black tracking-[0.4em] text-red-600/30 uppercase">FoodStore / Premium</span>
             </div>
             <span className="text-9xl drop-shadow-2xl transform hover:scale-110 transition-transform duration-500 cursor-default">
                {product?.category_id === 1 ? '🍔' : product?.category_id === 2 ? '🍕' : '🍽️'}
@@ -81,12 +81,12 @@ export const ProductQuickViewModal = ({ productId, onClose }: Props) => {
           </div>
 
           {/* Info side */}
-          <div className="md:w-1/2 p-8 md:p-12 overflow-y-auto bg-white/80">
+          <div className="md:w-1/2 p-8 md:p-12 overflow-y-auto bg-white/95">
             {isLoading || !product ? (
               <div className="space-y-6 animate-pulse">
                 <div className="h-4 bg-gray-100 rounded-full w-24" />
                 <div className="h-10 bg-gray-200 rounded-2xl w-3/4" />
-                <div className="h-6 bg-orange-100 rounded-full w-1/3" />
+                <div className="h-6 bg-red-50 rounded-full w-1/3" />
                 <div className="space-y-3 pt-4">
                    <div className="h-4 bg-gray-100 rounded-full w-full" />
                    <div className="h-4 bg-gray-100 rounded-full w-5/6" />
@@ -95,14 +95,14 @@ export const ProductQuickViewModal = ({ productId, onClose }: Props) => {
             ) : (
               <div className="flex flex-col h-full">
                 <div className="mb-8">
-                  <span className="inline-block text-[10px] font-bold text-orange-600 uppercase tracking-widest bg-orange-50 px-3 py-1 rounded-lg mb-4">
+                  <span className="inline-block text-[10px] font-bold text-red-600 uppercase tracking-widest bg-red-50 px-3 py-1 rounded-lg mb-4">
                     Detalle del Producto
                   </span>
                   <h2 className="text-4xl font-bold text-gray-900 tracking-tight leading-none mb-3">
                     {product.name}
                   </h2>
                   <div className="flex items-baseline gap-4">
-                    <p className="text-3xl font-bold text-orange-600">
+                    <p className="text-3xl font-bold text-[#d32f2f]">
                       ${Number(product.price).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                     </p>
                     <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-md ${product.stock > 0 ? 'text-emerald-500 bg-emerald-50' : 'text-rose-500 bg-rose-50'}`}>
@@ -135,14 +135,14 @@ export const ProductQuickViewModal = ({ productId, onClose }: Props) => {
                   )}
 
                   {allergens.length > 0 && (
-                    <div className="p-4 bg-rose-50/50 border border-rose-100 rounded-[1.5rem]">
-                      <h4 className="text-[10px] font-black text-rose-500 uppercase tracking-[0.2em] mb-3 flex items-center gap-2">
+                    <div className="p-4 bg-red-50/50 border border-red-100 rounded-2xl">
+                      <h4 className="text-[10px] font-black text-red-600 uppercase tracking-[0.2em] mb-3 flex items-center gap-2">
                         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" /></svg>
                         Alérgenos
                       </h4>
                       <div className="flex flex-wrap gap-2">
                         {allergens.map((a) => (
-                          <span key={a.id} className="px-3 py-1 bg-white text-rose-600 rounded-lg text-xs font-bold border border-rose-100 shadow-sm">
+                          <span key={a.id} className="px-3 py-1 bg-white text-red-600 rounded-lg text-xs font-bold border border-red-100 shadow-sm">
                             {a.nombre}
                           </span>
                         ))}
@@ -162,7 +162,7 @@ export const ProductQuickViewModal = ({ productId, onClose }: Props) => {
                   <Link
                     to={`/producto/${product.id}`}
                     onClick={onClose}
-                    className="flex-1 flex items-center justify-center bg-white border-2 border-gray-100 text-gray-900 font-bold rounded-[1.5rem] hover:bg-gray-50 transition-all active:scale-95 text-sm"
+                    className="flex-1 flex items-center justify-center bg-white border border-gray-200 text-gray-900 font-bold rounded-xl hover:bg-gray-50 transition-all active:scale-95 text-xs uppercase tracking-widest"
                   >
                     Detalles
                   </Link>

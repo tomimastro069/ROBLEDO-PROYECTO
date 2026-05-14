@@ -67,7 +67,7 @@ export const IngredientesAdminPage = () => {
               </thead>
               <tbody className="divide-y divide-gray-50">
                 {ingredientes?.map(ing => (
-                  <tr key={ing.id} className="hover:bg-orange-50/30 transition-colors group">
+                  <tr key={ing.id} className="hover:bg-red-50/30 transition-colors group">
                     <td className="px-8 py-5 font-bold text-gray-900">{ing.nombre}</td>
                     <td className="px-8 py-5">
                       {ing.es_alergeno ? (
@@ -80,7 +80,7 @@ export const IngredientesAdminPage = () => {
                     </td>
                     <td className="px-8 py-5 text-right">
                       <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onClick={() => modal.openEdit(ing, { nombre: ing.nombre, es_alergeno: ing.es_alergeno })} className="bg-white border border-gray-200 text-gray-600 hover:text-orange-600 hover:border-orange-200 px-4 py-1.5 rounded-xl text-xs font-bold transition-all">
+                        <button onClick={() => modal.openEdit(ing, { nombre: ing.nombre, es_alergeno: ing.es_alergeno })} className="bg-white border border-gray-200 text-gray-600 hover:text-red-600 hover:border-red-200 px-4 py-1.5 rounded-xl text-xs font-bold transition-all">
                           Editar
                         </button>
                         <button onClick={() => deleteDialog.open(ing)} className="bg-white border border-gray-200 text-rose-400 hover:text-rose-600 hover:border-rose-200 px-4 py-1.5 rounded-xl text-xs font-bold transition-all">
@@ -116,8 +116,8 @@ export const IngredientesAdminPage = () => {
                 <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Nombre del Ingrediente</label>
                 <input required type="text" value={modal.formData.nombre} onChange={e => modal.setFormData(prev => ({ ...prev, nombre: e.target.value }))} className="input-premium" placeholder="Ej: Cheddar" />
               </div>
-              <div className="flex items-center gap-3 p-4 bg-orange-50/50 border border-orange-100 rounded-2xl group cursor-pointer" onClick={() => modal.setFormData(f => ({ ...f, es_alergeno: !f.es_alergeno }))}>
-                <div className={`w-10 h-6 rounded-full p-1 transition-colors duration-300 ${modal.formData.es_alergeno ? 'bg-orange-500' : 'bg-gray-200'}`}>
+              <div className="flex items-center gap-3 p-4 bg-red-50/50 border border-red-100 rounded-2xl group cursor-pointer" onClick={() => modal.setFormData(f => ({ ...f, es_alergeno: !f.es_alergeno }))}>
+                <div className={`w-10 h-6 rounded-full p-1 transition-colors duration-300 ${modal.formData.es_alergeno ? 'bg-red-600' : 'bg-gray-200'}`}>
                    <div className={`w-4 h-4 bg-white rounded-full transition-transform duration-300 ${modal.formData.es_alergeno ? 'translate-x-4' : 'translate-x-0'}`} />
                 </div>
                 <label className="text-sm font-bold text-gray-700 cursor-pointer">Marcar como alérgeno</label>
