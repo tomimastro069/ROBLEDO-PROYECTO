@@ -52,99 +52,124 @@ export const ProductsAdminPage = () => {
 
   return (
     <PageContainer
-      title="Gestión de Productos"
-      description="Administra el catálogo, precios y stock."
-      helpContent={helpContent.products}
+      title="Productos"
+      description="Administrá tu catálogo, precios y disponibilidad."
       actions={
-        <button onClick={() => modal.openCreate()} className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg font-medium transition shadow-md shadow-orange-200">
+        <button onClick={() => modal.openCreate()} className="btn-premium py-2 px-6 text-sm">
           + Nuevo Producto
         </button>
       }
     >
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="glass-card rounded-[2rem] border-white/60 overflow-hidden shadow-xl">
         {isLoading ? (
-          <div className="p-8 text-center text-gray-400 animate-pulse">Cargando...</div>
+          <div className="p-12 text-center text-gray-400 animate-pulse font-medium">Cargando productos...</div>
         ) : (
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-gray-50 border-b border-gray-100">
-                <th className="px-6 py-4 font-semibold text-gray-600 text-sm">Nombre</th>
-                <th className="px-6 py-4 font-semibold text-gray-600 text-sm">Categoría</th>
-                <th className="px-6 py-4 font-semibold text-gray-600 text-sm text-right">Precio</th>
-                <th className="px-6 py-4 font-semibold text-gray-600 text-sm text-right">Stock</th>
-                <th className="px-6 py-4 font-semibold text-gray-600 text-sm text-right">Acciones</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {paginatedItems.map(prod => (
-                <tr key={prod.id} className="hover:bg-gray-50 transition">
-                  <td className="px-6 py-4 font-medium text-gray-800">{prod.name}</td>
-                  <td className="px-6 py-4 text-gray-500">{categories?.find(c => c.id === prod.category_id)?.name || '-'}</td>
-                  <td className="px-6 py-4 text-gray-800 font-medium text-right">${Number(prod.price).toFixed(2)}</td>
-                  <td className="px-6 py-4 text-right">
-                    <span className={`px-2 py-1 rounded-md text-xs font-bold ${prod.stock > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                      {prod.stock}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <button onClick={() => modal.openEdit(prod, { name: prod.name, description: prod.description || '', price: prod.price, stock: prod.stock, category_id: prod.category_id })} className="text-orange-500 hover:bg-orange-50 p-2 rounded-lg transition mr-2">Editar</button>
-                    <button onClick={() => deleteDialog.open(prod)} className="text-red-500 hover:bg-red-50 p-2 rounded-lg transition">Borrar</button>
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-gray-50/50 border-b border-gray-100">
+                  <th className="px-8 py-5 font-black text-[10px] text-gray-400 uppercase tracking-[0.2em]">Producto</th>
+                  <th className="px-8 py-5 font-black text-[10px] text-gray-400 uppercase tracking-[0.2em]">Categoría</th>
+                  <th className="px-8 py-5 font-black text-[10px] text-gray-400 uppercase tracking-[0.2em] text-right">Precio</th>
+                  <th className="px-8 py-5 font-black text-[10px] text-gray-400 uppercase tracking-[0.2em] text-right">Stock</th>
+                  <th className="px-8 py-5 font-black text-[10px] text-gray-400 uppercase tracking-[0.2em] text-right">Acciones</th>
                 </tr>
-              ))}
-              {paginatedItems.length === 0 && (
-                <tr><td colSpan={5} className="px-6 py-8 text-center text-gray-400">No hay productos.</td></tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {paginatedItems.map(prod => (
+                  <tr key={prod.id} className="hover:bg-orange-50/30 transition-colors group">
+                    <td className="px-8 py-5">
+                      <div className="font-bold text-gray-900">{prod.name}</div>
+                      <div className="text-[10px] text-gray-400 truncate max-w-[200px]">{prod.description || 'Sin descripción'}</div>
+                    </td>
+                    <td className="px-8 py-5">
+                      <span className="text-xs font-bold text-gray-500 bg-gray-100/50 px-2 py-1 rounded-lg">
+                        {categories?.find(c => c.id === prod.category_id)?.name || 'Sin categoría'}
+                      </span>
+                    </td>
+                    <td className="px-8 py-5 text-right font-black text-gray-900">${Number(prod.price).toLocaleString('es-AR', { minimumFractionDigits: 2 })}</td>
+                    <td className="px-8 py-5 text-right">
+                      <span className={`inline-block px-3 py-1 rounded-xl text-[10px] font-black uppercase tracking-wider ${prod.stock > 0 ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-rose-50 text-rose-600 border border-rose-100'}`}>
+                        {prod.stock > 0 ? `${prod.stock} disp.` : 'Agotado'}
+                      </span>
+                    </td>
+                    <td className="px-8 py-5 text-right">
+                      <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button onClick={() => modal.openEdit(prod, { name: prod.name, description: prod.description || '', price: prod.price, stock: prod.stock, category_id: prod.category_id })} className="bg-white border border-gray-200 text-gray-600 hover:text-orange-600 hover:border-orange-200 px-4 py-1.5 rounded-xl text-xs font-bold transition-all">
+                          Editar
+                        </button>
+                        <button onClick={() => deleteDialog.open(prod)} className="bg-white border border-gray-200 text-rose-400 hover:text-rose-600 hover:border-rose-200 px-4 py-1.5 rounded-xl text-xs font-bold transition-all">
+                          Borrar
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 
       {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2 mt-6">
-          <button onClick={() => setCurrentPage(currentPage - 1)} disabled={currentPage === 1} className="px-4 py-2 border border-gray-200 rounded-lg text-sm disabled:opacity-40">Anterior</button>
-          <span className="text-sm text-gray-600">{currentPage} / {totalPages}</span>
-          <button onClick={() => setCurrentPage(currentPage + 1)} disabled={currentPage === totalPages} className="px-4 py-2 border border-gray-200 rounded-lg text-sm disabled:opacity-40">Siguiente</button>
+        <div className="flex items-center justify-center gap-4 mt-10">
+          <button onClick={() => setCurrentPage(currentPage - 1)} disabled={currentPage === 1} className="w-10 h-10 flex items-center justify-center bg-white border border-gray-200 rounded-xl text-gray-500 hover:bg-gray-50 disabled:opacity-30 transition-all font-bold">
+            &larr;
+          </button>
+          <div className="bg-white border border-gray-200 px-4 py-2 rounded-xl text-sm font-black text-gray-900 shadow-sm">
+            {currentPage} <span className="text-gray-300 mx-1">/</span> {totalPages}
+          </div>
+          <button onClick={() => setCurrentPage(currentPage + 1)} disabled={currentPage === totalPages} className="w-10 h-10 flex items-center justify-center bg-white border border-gray-200 rounded-xl text-gray-500 hover:bg-gray-50 disabled:opacity-30 transition-all font-bold">
+            &rarr;
+          </button>
         </div>
       )}
 
       {/* Modal Form */}
       {modal.isOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md animate-in fade-in zoom-in-95 duration-200">
-            <div className="flex justify-between items-center p-6 border-b border-gray-100">
-              <h3 className="text-xl font-bold">{modal.selectedItem ? 'Editar Producto' : 'Nuevo Producto'}</h3>
-              <button type="button" onClick={modal.close} className="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-in fade-in duration-300">
+          <div className="glass-card rounded-[2.5rem] w-full max-w-lg border-white/60 shadow-2xl animate-in zoom-in-95 duration-300 overflow-hidden">
+            <div className="flex justify-between items-center p-8 border-b border-gray-100 bg-white/50">
+              <h3 className="text-2xl font-bold text-gray-900">{modal.selectedItem ? 'Editar Producto' : 'Nuevo Producto'}</h3>
+              <button onClick={modal.close} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition-colors">&times;</button>
             </div>
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
-              <div className="flex items-center gap-2 mb-2 bg-blue-50 text-blue-800 p-3 rounded-lg text-sm">
-                <HelpButton size="sm" content={<p>Define el producto, su precio y stock. Si el stock llega a 0, no se podrá comprar.</p>} />
-                <span>Datos del producto.</span>
+            <form onSubmit={handleSubmit} className="p-8 space-y-6 bg-white/30">
+              <div className="space-y-2">
+                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Nombre del Producto</label>
+                <input required type="text" value={modal.formData.name} onChange={e => modal.setFormData(prev => ({ ...prev, name: e.target.value }))} className="input-premium" placeholder="Ej: Hamburguesa VIP" />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
-                <input required type="text" value={modal.formData.name} onChange={e => modal.setFormData(prev => ({ ...prev, name: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2" />
-              </div>
+              
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Precio ($)</label>
-                  <input required type="number" min="0" step="0.01" value={modal.formData.price} onChange={e => modal.setFormData(prev => ({ ...prev, price: parseFloat(e.target.value) || 0 }))} className="w-full border border-gray-300 rounded-lg px-3 py-2" />
+                <div className="space-y-2">
+                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Precio ($)</label>
+                  <input required type="number" min="0" step="0.01" value={modal.formData.price} onChange={e => modal.setFormData(prev => ({ ...prev, price: parseFloat(e.target.value) || 0 }))} className="input-premium" />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Stock</label>
-                  <input required type="number" min="0" value={modal.formData.stock} onChange={e => modal.setFormData(prev => ({ ...prev, stock: parseInt(e.target.value) || 0 }))} className="w-full border border-gray-300 rounded-lg px-3 py-2" />
+                <div className="space-y-2">
+                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Stock Inicial</label>
+                  <input required type="number" min="0" value={modal.formData.stock} onChange={e => modal.setFormData(prev => ({ ...prev, stock: parseInt(e.target.value) || 0 }))} className="input-premium" />
                 </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
-                <select value={modal.formData.category_id || ''} onChange={e => modal.setFormData(prev => ({ ...prev, category_id: e.target.value ? parseInt(e.target.value) : null }))} className="w-full border border-gray-300 rounded-lg px-3 py-2">
+
+              <div className="space-y-2">
+                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Categoría</label>
+                <select value={modal.formData.category_id || ''} onChange={e => modal.setFormData(prev => ({ ...prev, category_id: e.target.value ? parseInt(e.target.value) : null }))} className="input-premium appearance-none">
                   <option value="">Sin categoría</option>
                   {categories?.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </select>
               </div>
-              <div className="pt-4 flex gap-3">
-                <button type="button" onClick={modal.close} className="flex-1 bg-gray-100 text-gray-700 py-2 rounded-lg font-medium hover:bg-gray-200">Cancelar</button>
-                <button type="submit" disabled={createMutation.isPending || updateMutation.isPending} className="flex-1 bg-orange-500 text-white py-2 rounded-lg font-medium hover:bg-orange-600 disabled:opacity-50">Guardar</button>
+
+              <div className="space-y-2">
+                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Descripción</label>
+                <textarea value={modal.formData.description} onChange={e => modal.setFormData(prev => ({ ...prev, description: e.target.value }))} className="input-premium h-24 resize-none" placeholder="Ingredientes, peso, etc..." />
+              </div>
+
+              <div className="pt-4 flex gap-4">
+                <button type="submit" disabled={createMutation.isPending || updateMutation.isPending} className="flex-[2] btn-premium py-3">
+                  {modal.selectedItem ? 'Guardar Cambios' : 'Crear Producto'}
+                </button>
+                <button type="button" onClick={modal.close} className="flex-1 bg-white border border-gray-200 text-gray-500 font-bold py-3 rounded-2xl hover:bg-gray-50 transition-all">
+                  Cancelar
+                </button>
               </div>
             </form>
           </div>
@@ -153,14 +178,18 @@ export const ProductsAdminPage = () => {
 
       {/* Delete Dialog */}
       {deleteDialog.isOpen && deleteDialog.item && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-sm p-6 text-center animate-in zoom-in-95">
-            <div className="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">⚠️</div>
-            <h3 className="text-xl font-bold mb-2">¿Eliminar producto?</h3>
-            <p className="text-gray-500 mb-6">Vas a borrar "{deleteDialog.item.name}". Esta acción no se puede deshacer.</p>
-            <div className="flex gap-3">
-              <button onClick={deleteDialog.close} className="flex-1 bg-gray-100 text-gray-700 py-2 rounded-lg font-medium">Cancelar</button>
-              <button onClick={() => deleteMutation.mutate(deleteDialog.item!.id)} disabled={deleteMutation.isPending} className="flex-1 bg-red-500 text-white py-2 rounded-lg font-medium hover:bg-red-600">Eliminar</button>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-in fade-in duration-300">
+          <div className="glass-card rounded-[2.5rem] w-full max-w-sm p-10 text-center border-white/60 shadow-2xl animate-in zoom-in-95 duration-300">
+            <div className="w-20 h-20 bg-rose-50 text-rose-500 rounded-3xl flex items-center justify-center mx-auto mb-6 text-4xl shadow-inner italic">!</div>
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">¿Eliminar producto?</h3>
+            <p className="text-gray-500 font-medium mb-8 leading-relaxed">Vas a borrar <span className="text-gray-900 font-bold">"{deleteDialog.item.name}"</span>. Esta acción no se puede deshacer.</p>
+            <div className="flex gap-4">
+              <button onClick={() => deleteMutation.mutate(deleteDialog.item!.id)} disabled={deleteMutation.isPending} className="flex-1 bg-rose-500 hover:bg-rose-600 text-white py-3 rounded-2xl font-bold transition-all active:scale-95 shadow-lg shadow-rose-100">
+                Eliminar
+              </button>
+              <button onClick={deleteDialog.close} className="flex-1 bg-gray-100 text-gray-500 py-3 rounded-2xl font-bold hover:bg-gray-200 transition-all">
+                Cancelar
+              </button>
             </div>
           </div>
         </div>

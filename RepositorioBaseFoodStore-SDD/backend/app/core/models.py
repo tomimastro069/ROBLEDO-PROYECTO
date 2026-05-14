@@ -24,18 +24,13 @@ class User(Base, table=True):
     addresses: List["Address"] = Relationship(back_populates="user")
     payments: List["Payment"] = Relationship(back_populates="user")
 
-class ProductCategoryLink(SQLModel, table=True):
-    __tablename__ = "product_category_link"
-    product_id: Optional[int] = Field(default=None, foreign_key="product.id", primary_key=True)
-    category_id: Optional[int] = Field(default=None, foreign_key="category.id", primary_key=True)
-
 class Category(Base, table=True):
     name: str
     description: Optional[str] = None
     parent_id: Optional[int] = Field(default=None, foreign_key="category.id")
     parent: Optional["Category"] = Relationship(back_populates="subcategories", sa_relationship_kwargs=dict(remote_side="Category.id"))
     subcategories: List["Category"] = Relationship(back_populates="parent")
-    products: List["Product"] = Relationship(back_populates="categories", link_model=ProductCategoryLink)
+    products: List["Product"] = Relationship(back_populates="category")
     deleted_at: Optional[datetime] = Field(default=None, description="Soft delete timestamp")
 
 class Ingrediente(Base, table=True):
@@ -64,7 +59,8 @@ class Product(Base, table=True):
     description: Optional[str] = None
     price: Decimal
     stock: int = Field(default=0)
-    categories: List[Category] = Relationship(back_populates="products", link_model=ProductCategoryLink)
+    category_id: Optional[int] = Field(default=None, foreign_key="category.id")
+    category: Optional[Category] = Relationship(back_populates="products")
     ingredients: List[ProductIngredient] = Relationship(back_populates="product")
     allergens: List[ProductAllergen] = Relationship(back_populates="product")
     ingredientes: List["ProductIngrediente"] = Relationship(back_populates="product")
