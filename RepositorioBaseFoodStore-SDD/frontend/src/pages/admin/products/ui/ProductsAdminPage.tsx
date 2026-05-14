@@ -77,15 +77,26 @@ export const ProductsAdminPage = () => {
               </thead>
               <tbody className="divide-y divide-gray-50">
                 {paginatedItems.map(prod => (
-                  <tr key={prod.id} className="hover:bg-orange-50/30 transition-colors group">
+                  <tr key={prod.id} className="hover:bg-red-50/30 transition-colors group">
                     <td className="px-8 py-5">
                       <div className="font-bold text-gray-900">{prod.name}</div>
                       <div className="text-[10px] text-gray-400 truncate max-w-[200px]">{prod.description || 'Sin descripción'}</div>
                     </td>
                     <td className="px-8 py-5">
-                      <span className="text-xs font-bold text-gray-500 bg-gray-100/50 px-2 py-1 rounded-lg">
-                        {categories?.find(c => c.id === prod.category_id)?.name || 'Sin categoría'}
-                      </span>
+                      {prod.category_id ? (
+                        <div className="flex flex-col">
+                          <span className="text-[10px] font-black uppercase tracking-widest text-[#d32f2f]">
+                            {categories?.find(c => c.id === prod.category_id)?.name}
+                          </span>
+                          {categories?.find(c => c.id === prod.category_id)?.parent_id && (
+                            <span className="text-[8px] font-bold text-gray-400 uppercase tracking-tighter">
+                              En: {categories.find(c => c.id === categories.find(sub => sub.id === prod.category_id)?.parent_id)?.name}
+                            </span>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-[10px] font-bold text-gray-300 uppercase tracking-widest">Sin categoría</span>
+                      )}
                     </td>
                     <td className="px-8 py-5 text-right font-black text-gray-900">${Number(prod.price).toLocaleString('es-AR', { minimumFractionDigits: 2 })}</td>
                     <td className="px-8 py-5 text-right">
@@ -95,7 +106,7 @@ export const ProductsAdminPage = () => {
                     </td>
                     <td className="px-8 py-5 text-right">
                       <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onClick={() => modal.openEdit(prod, { name: prod.name, description: prod.description || '', price: prod.price, stock: prod.stock, category_id: prod.category_id })} className="bg-white border border-gray-200 text-gray-600 hover:text-orange-600 hover:border-orange-200 px-4 py-1.5 rounded-xl text-xs font-bold transition-all">
+                        <button onClick={() => modal.openEdit(prod, { name: prod.name, description: prod.description || '', price: prod.price, stock: prod.stock, category_id: prod.category_id })} className="bg-white border border-gray-200 text-gray-600 hover:text-red-600 hover:border-red-200 px-4 py-1.5 rounded-xl text-xs font-bold transition-all">
                           Editar
                         </button>
                         <button onClick={() => deleteDialog.open(prod)} className="bg-white border border-gray-200 text-rose-400 hover:text-rose-600 hover:border-rose-200 px-4 py-1.5 rounded-xl text-xs font-bold transition-all">

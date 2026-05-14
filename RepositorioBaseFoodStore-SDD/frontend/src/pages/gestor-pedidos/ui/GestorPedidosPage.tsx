@@ -83,7 +83,7 @@ export const GestorPedidosPage = () => {
           onClick={() => setShowCancelled(!showCancelled)}
           className={`text-[10px] font-black uppercase tracking-[0.2em] px-6 py-2.5 rounded-xl border-2 transition-all active:scale-95 ${showCancelled
             ? 'bg-rose-50 border-rose-200 text-rose-600'
-            : 'bg-white border-gray-100 text-gray-400 hover:border-orange-200 hover:text-orange-500'
+            : 'bg-white border-gray-100 text-gray-400 hover:border-red-200 hover:text-red-600'
             }`}
         >
           {showCancelled ? 'Ocultando Cancelados' : 'Mostrar Cancelados'}
@@ -139,7 +139,7 @@ export const GestorPedidosPage = () => {
                     const nextStatus = NEXT_STATUS[order.status];
                     const canCancel = ['PENDIENTE', 'CONFIRMADO', 'EN_PREPARACION'].includes(order.status);
                     return (
-                      <tr key={order.id} className="hover:bg-orange-50/30 transition-colors group">
+                      <tr key={order.id} className="hover:bg-red-50/30 transition-colors group">
                         <td className="px-8 py-5 font-black text-gray-900">#{order.id}</td>
                         <td className="px-8 py-5">
                           <div className="text-xs font-bold text-gray-800">
@@ -162,7 +162,7 @@ export const GestorPedidosPage = () => {
                             {order.forma_pago_codigo ? (PAYMENT_LABELS[order.forma_pago_codigo] || order.forma_pago_codigo) : 'N/A'}
                           </span>
                         </td>
-                        <td className="px-8 py-5 text-right font-black text-orange-600 text-lg">
+                        <td className="px-8 py-5 text-right font-black text-[#d32f2f] text-lg">
                           ${Number(order.total).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                         </td>
                         <td className="px-8 py-5">
@@ -176,7 +176,7 @@ export const GestorPedidosPage = () => {
                               <button
                                 onClick={() => advanceMutation.mutate({ id: order.id, status: nextStatus })}
                                 disabled={advanceMutation.isPending}
-                                className="bg-gray-900 text-white text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-xl hover:bg-orange-600 transition-all active:scale-95"
+                                className="bg-gray-900 text-white text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-xl hover:bg-red-600 transition-all active:scale-95"
                               >
                                 {NEXT_LABELS[order.status]}
                               </button>
@@ -227,7 +227,7 @@ export const GestorPedidosPage = () => {
                       <span className="text-[10px] font-black uppercase tracking-widest bg-gray-100/50 px-2 py-1 rounded-lg text-gray-500">
                         {order.forma_pago_codigo ? (PAYMENT_LABELS[order.forma_pago_codigo] || order.forma_pago_codigo) : 'N/A'}
                       </span>
-                      <span className="font-black text-orange-600 text-xl">
+                      <span className="font-black text-[#d32f2f] text-xl">
                         ${Number(order.total).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                       </span>
                     </div>
@@ -236,7 +236,7 @@ export const GestorPedidosPage = () => {
                   <div className="flex gap-2">
                     {nextStatus && (
                       <button onClick={() => advanceMutation.mutate({ id: order.id, status: nextStatus })}
-                        className="flex-1 bg-gray-900 text-white text-[10px] font-black uppercase tracking-widest py-3 rounded-2xl hover:bg-orange-600 transition-all">
+                        className="flex-1 bg-gray-900 text-white text-[10px] font-black uppercase tracking-widest py-3 rounded-2xl hover:bg-red-600 transition-all">
                         {NEXT_LABELS[order.status]}
                       </button>
                     )}

@@ -10,9 +10,13 @@ import { handleError } from '@/shared/utils/logger';
 
 export const CategoriesAdminPage = () => {
   const queryClient = useQueryClient();
-  const { data: categories, isLoading } = useQuery({ queryKey: ['categories'], queryFn: categoriesApi.list });
+  const { data: categories = [], isLoading } = useQuery({ queryKey: ['categories'], queryFn: categoriesApi.list });
 
-  const modal = useFormModal<{ name: string; description: string }, Category>({ name: '', description: '' });
+  const modal = useFormModal<{ name: string; description: string; parent_id: number | null }, Category>({ 
+    name: '', 
+    description: '',
+    parent_id: null 
+  });
   const deleteDialog = useConfirmDialog<Category>();
 
   const createMutation = useMutation({
@@ -35,17 +39,27 @@ export const CategoriesAdminPage = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const payload = {
+      ...modal.formData,
+      parent_id: modal.formData.parent_id === 0 ? null : modal.formData.parent_id
+    };
+    
     if (modal.selectedItem) {
-      updateMutation.mutate({ id: modal.selectedItem.id, payload: modal.formData });
+      updateMutation.mutate({ id: modal.selectedItem.id, payload });
     } else {
-      createMutation.mutate(modal.formData);
+      createMutation.mutate(payload);
     }
+  };
+
+  const getParentName = (parentId: number | null) => {
+    if (!parentId) return null;
+    return categories.find(c => c.id === parentId)?.name;
   };
 
   return (
     <PageContainer
       title="Categorías"
-      description="Organizá tu catálogo de productos."
+      description="Organizá tu catálogo de productos y jerarquías."
       actions={
         <button onClick={() => modal.openCreate()} className="btn-premium py-2 px-6 text-sm">
           + Nueva Categoría
@@ -61,18 +75,37 @@ export const CategoriesAdminPage = () => {
               <thead>
                 <tr className="bg-gray-50/50 border-b border-gray-100">
                   <th className="px-8 py-5 font-black text-[10px] text-gray-400 uppercase tracking-[0.2em]">Nombre</th>
+                  <th className="px-8 py-5 font-black text-[10px] text-gray-400 uppercase tracking-[0.2em]">Jerarquía</th>
                   <th className="px-8 py-5 font-black text-[10px] text-gray-400 uppercase tracking-[0.2em]">Descripción</th>
                   <th className="px-8 py-5 font-black text-[10px] text-gray-400 uppercase tracking-[0.2em] text-right">Acciones</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
-                {categories?.map(cat => (
-                  <tr key={cat.id} className="hover:bg-orange-50/30 transition-colors group">
+                {categories.map(cat => (
+                  <tr key={cat.id} className="hover:bg-red-50/30 transition-colors group">
                     <td className="px-8 py-5 font-bold text-gray-900">{cat.name}</td>
+                    <td className="px-8 py-5">
+                      {cat.parent_id ? (
+                        <span className="text-[10px] font-black uppercase tracking-widest text-red-600 bg-red-50 px-3 py-1 rounded-lg border border-red-100">
+                          Sub de: {getParentName(cat.parent_id)}
+                        </span>
+                      ) : (
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400 bg-gray-50 px-3 py-1 rounded-lg">
+                          Principal
+                        </span>
+                      )}
+                    </td>
                     <td className="px-8 py-5 text-gray-500 font-medium">{cat.description || '—'}</td>
                     <td className="px-8 py-5 text-right">
                       <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onClick={() => modal.openEdit(cat, { name: cat.name, description: cat.description || '' })} className="bg-white border border-gray-200 text-gray-600 hover:text-orange-600 hover:border-orange-200 px-4 py-1.5 rounded-xl text-xs font-bold transition-all">
+                        <button 
+                          onClick={() => modal.openEdit(cat, { 
+                            name: cat.name, 
+                            description: cat.description || '',
+                            parent_id: cat.parent_id 
+                          })} 
+                          className="bg-white border border-gray-200 text-gray-600 hover:text-red-600 hover:border-red-200 px-4 py-1.5 rounded-xl text-xs font-bold transition-all"
+                        >
                           Editar
                         </button>
                         <button onClick={() => deleteDialog.open(cat)} className="bg-white border border-gray-200 text-rose-400 hover:text-rose-600 hover:border-rose-200 px-4 py-1.5 rounded-xl text-xs font-bold transition-all">
@@ -82,9 +115,9 @@ export const CategoriesAdminPage = () => {
                     </td>
                   </tr>
                 ))}
-                {categories?.length === 0 && (
+                {categories.length === 0 && (
                   <tr>
-                    <td colSpan={3} className="px-8 py-20 text-center">
+                    <td colSpan={4} className="px-8 py-20 text-center">
                       <p className="text-gray-400 font-bold uppercase tracking-widest text-xs">No hay categorías registradas</p>
                     </td>
                   </tr>
@@ -108,10 +141,29 @@ export const CategoriesAdminPage = () => {
                 <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Nombre</label>
                 <input required type="text" value={modal.formData.name} onChange={e => modal.setFormData(prev => ({ ...prev, name: e.target.value }))} className="input-premium" placeholder="Ej: Hamburguesas" />
               </div>
+
+              <div className="space-y-2">
+                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Categoría Superior (Opcional)</label>
+                <select 
+                  value={modal.formData.parent_id || ''} 
+                  onChange={e => modal.setFormData(prev => ({ ...prev, parent_id: e.target.value ? Number(e.target.value) : null }))}
+                  className="input-premium uppercase tracking-widest text-[10px] font-black"
+                >
+                  <option value="">-- CATEGORÍA PRINCIPAL --</option>
+                  {categories
+                    .filter(c => c.id !== modal.selectedItem?.id) // Evitar circularidad
+                    .map(c => (
+                      <option key={c.id} value={c.id}>{c.name.toUpperCase()}</option>
+                    ))
+                  }
+                </select>
+              </div>
+
               <div className="space-y-2">
                 <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Descripción</label>
                 <textarea value={modal.formData.description} onChange={e => modal.setFormData(prev => ({ ...prev, description: e.target.value }))} className="input-premium h-24 resize-none" placeholder="Breve descripción..." />
               </div>
+
               <div className="pt-4 flex gap-4">
                 <button type="submit" disabled={createMutation.isPending || updateMutation.isPending} className="flex-[2] btn-premium py-3">
                   {modal.selectedItem ? 'Guardar Cambios' : 'Crear Categoría'}

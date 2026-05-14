@@ -45,7 +45,7 @@ export const OrdersPage = () => {
       ) : orders?.length === 0 ? (
         <div className="text-center py-20 bg-white rounded-xl border border-gray-100">
           <p className="text-gray-400 text-lg mb-3">Todavía no realizaste ningún pedido.</p>
-          <Link to="/catalogo" className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg text-sm font-medium transition inline-block">
+          <Link to="/catalogo" className="bg-[#d32f2f] hover:bg-[#b71c1c] text-white px-6 py-2 rounded-lg text-sm font-medium transition inline-block">
             Ver catálogo
           </Link>
         </div>
@@ -73,7 +73,7 @@ export const OrdersPage = () => {
                       {new Date(order.created_at).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' })}
                     </td>
                     <td className="px-6 py-4 text-gray-600">{order.items?.length ?? 0}</td>
-                    <td className="px-6 py-4 font-bold text-orange-500">${Number(order.total).toFixed(2)}</td>
+                    <td className="px-6 py-4 font-bold text-[#d32f2f]">${Number(order.total).toFixed(2)}</td>
                     <td className="px-6 py-4 text-xs text-gray-600 font-medium">
                       {order.forma_pago_codigo ? PAYMENT_LABELS[order.forma_pago_codigo] || order.forma_pago_codigo : 'N/A'}
                     </td>
@@ -83,7 +83,7 @@ export const OrdersPage = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <Link to={`/pedidos/${order.id}`} className="text-orange-500 hover:underline text-xs font-medium">
+                      <Link to={`/pedidos/${order.id}`} className="text-[#d32f2f] hover:underline text-xs font-medium">
                         Ver detalle →
                       </Link>
                     </td>
@@ -97,7 +97,7 @@ export const OrdersPage = () => {
           <div className="md:hidden space-y-3">
             {orders?.map((order) => (
               <Link key={order.id} to={`/pedidos/${order.id}`}
-                className="block bg-white border border-gray-200 rounded-xl p-4 hover:border-orange-300 transition">
+                className="block bg-white border border-gray-200 rounded-xl p-4 hover:border-red-300 transition">
                 <div className="flex justify-between items-start mb-2">
                   <p className="font-semibold text-gray-800">Pedido #{order.id}</p>
                   <span className={`text-xs font-medium px-2 py-1 rounded-full ${STATUS_COLORS[order.status]}`}>
@@ -108,7 +108,7 @@ export const OrdersPage = () => {
                 <div className="flex justify-between mt-2">
                   <span className="text-sm text-gray-500">{order.items?.length ?? 0} ítems</span>
                   <div className="flex items-center gap-2">
-                    <span className="font-bold text-orange-500">${Number(order.total).toFixed(2)}</span>
+                    <span className="font-bold text-[#d32f2f]">${Number(order.total).toFixed(2)}</span>
                     {order.forma_pago_codigo && (
                       <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md">
                         {PAYMENT_LABELS[order.forma_pago_codigo] || order.forma_pago_codigo}
