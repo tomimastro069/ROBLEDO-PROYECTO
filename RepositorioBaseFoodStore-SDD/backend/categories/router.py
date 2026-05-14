@@ -85,11 +85,11 @@ def get_category(
     response_model=CategoryRead,
     status_code=status.HTTP_201_CREATED,
     summary="Create new category",
-    description="Create a new category. Requires Admin role."
+    description="Create a new category. Requires Admin or Stock Manager role."
 )
 def create_category(
     category_in: CategoryCreate,
-    current_user: TokenData = Depends(require_role(Role.ADMIN)),
+    current_user: TokenData = Depends(require_role(Role.ADMIN, Role.GESTOR_STOCK)),
     categories_service: CategoriesService = Depends(get_categories_service),
 ):
     """
@@ -149,11 +149,11 @@ def update_category(
     "/{category_id}",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Delete category",
-    description="Soft-delete a category by ID (mark as deleted). Requires Admin role."
+    description="Soft-delete a category by ID. Requires Admin or Stock Manager role."
 )
 def delete_category(
     category_id: int,
-    current_user: TokenData = Depends(require_role(Role.ADMIN)),
+    current_user: TokenData = Depends(require_role(Role.ADMIN, Role.GESTOR_STOCK)),
     categories_service: CategoriesService = Depends(get_categories_service),
 ):
     """

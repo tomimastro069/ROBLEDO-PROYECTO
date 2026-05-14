@@ -2,31 +2,35 @@
 @tailwind components;
 @tailwind utilities;
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  --chef-red: #d32f2f;
+  --chef-red-dark: #b71c1c;
+  --chef-white: #ffffff;
+  --chef-cream: #fdfdfd;
+  --chef-black: #1a1a1a;
+  --chef-gray: #f5f5f5;
+  
+  font-family: 'Outfit', 'Inter', system-ui, sans-serif;
 }
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-
-html,
 body {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  min-height: 100vh;
-  background-color: #f9fafb;
-  color: #111827;
+  background-color: var(--chef-cream);
+  color: var(--chef-black);
 }
 
-#root {
-  width: 100%;
-  min-height: 100vh;
+.btn-primary {
+  @apply bg-[#d32f2f] hover:bg-[#b71c1c] text-white font-bold py-2 px-6 rounded-none transition-all duration-200 uppercase tracking-wider text-sm;
+}
+
+.card-cooking {
+  @apply bg-white border-t-4 border-[#d32f2f] shadow-sm hover:shadow-md transition-shadow duration-300;
+}
+
+/* Remove default focus rings and use custom one */
+*:focus-visible {
+  @apply outline-none ring-2 ring-[#d32f2f] ring-offset-2;
 }

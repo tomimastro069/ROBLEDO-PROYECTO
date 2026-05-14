@@ -23,26 +23,25 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ open, onClose }) => {
       {/* Panel del carrito (a la derecha) */}
       <div className="relative w-full max-w-md h-full bg-white shadow-2xl flex flex-col animate-slide-in-right">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-          <h2 className="text-xl font-bold text-gray-800">Carrito 🛒</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-red-500 text-3xl">&times;</button>
+        <div className="px-6 py-6 border-b-2 border-[#d32f2f] flex justify-between items-center bg-white">
+          <h2 className="text-sm font-black text-gray-900 uppercase tracking-[0.3em]">Carrito de Compras</h2>
+          <button onClick={onClose} className="text-gray-400 hover:text-[#d32f2f] transition-colors text-2xl font-light">&times;</button>
         </div>
 
         {/* Lista de items */}
-        <div className="flex-1 overflow-y-auto px-6 py-4">
+        <div className="flex-1 overflow-y-auto px-6 py-4 bg-white">
           {items.length === 0 ? (
-            <div className="h-full flex flex-col items-center justify-center text-gray-400">
-              <span className="text-4xl mb-2">🛍️</span>
-              <p>Tu carrito está vacío</p>
+            <div className="h-full flex flex-col items-center justify-center text-gray-300">
+              <p className="text-[10px] font-bold uppercase tracking-[0.4em]">Sin productos seleccionados</p>
             </div>
           ) : (
-            <ul className="divide-y divide-gray-100">
+            <ul className="divide-y divide-gray-50">
               {items.map(item => (
-                <li key={item.id} className="py-4">
+                <li key={item.id} className="py-6">
                   <CartItemUI
                     item={item}
                     actions={
-                      <div className="flex justify-between items-center w-full mt-3 bg-gray-50 p-2 rounded-lg">
+                      <div className="flex justify-between items-center w-full mt-4 border border-gray-100 p-2">
                         <QuantityControls itemId={item.id} quantity={item.quantity} />
                         <RemoveButton itemId={item.id} />
                       </div>
@@ -56,23 +55,23 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ open, onClose }) => {
 
         {/* Footer */}
         {items.length > 0 && (
-          <div className="border-t border-gray-200 p-6 bg-gray-50">
-            <div className="flex justify-between text-lg font-bold text-gray-900 mb-4">
-              <span>Total</span>
-              <span className="text-orange-500">${Number(total).toFixed(2)}</span>
+          <div className="border-t border-gray-100 p-8 bg-gray-50">
+            <div className="flex justify-between items-end mb-8">
+              <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Total</span>
+              <span className="text-3xl font-black text-[#d32f2f]">${Number(total).toFixed(2)}</span>
             </div>
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-3">
               <button
                 onClick={() => { onClose(); navigate('/checkout'); }}
-                className="w-full bg-orange-500 text-white font-bold py-3 rounded-lg hover:bg-orange-600 transition shadow-lg shadow-orange-200"
+                className="w-full bg-[#d32f2f] hover:bg-[#b71c1c] text-white font-black py-4 uppercase tracking-[0.2em] text-xs transition"
               >
-                Finalizar Compra
+                Continuar al Pago
               </button>
               <button
                 onClick={clearCart}
-                className="w-full bg-white text-red-500 font-bold py-3 rounded-lg hover:bg-red-50 border border-red-100 transition"
+                className="w-full text-gray-400 font-bold py-2 uppercase tracking-widest text-[8px] hover:text-red-600 transition"
               >
-                Vaciar Carrito
+                [ VACIAR CARRITO ]
               </button>
             </div>
           </div>

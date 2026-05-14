@@ -28,6 +28,7 @@ import { AdminLayout } from './layout/AdminLayout';
 import { CategoriesAdminPage } from '@/pages/admin/categories/ui/CategoriesAdminPage';
 import { IngredientesAdminPage } from '@/pages/admin/ingredientes/ui/IngredientesAdminPage';
 import { ProductsAdminPage } from '@/pages/admin/products/ui/ProductsAdminPage';
+import { UsersAdminPage } from '@/pages/admin/users/ui/UsersAdminPage';
 
 const CLIENTE = ['cliente'];
 const GESTOR_PEDIDOS = ['gestor_pedidos', 'admin'];
@@ -91,6 +92,7 @@ const router = createBrowserRouter([
       { path: 'pedidos', element: <GestorPedidosPage /> },
       { path: 'ingredientes', element: <IngredientesAdminPage /> },
       { path: 'productos', element: <ProductsAdminPage /> },
+      { path: 'usuarios', element: <ProtectedRoute allowedRoles={['admin']}><UsersAdminPage /></ProtectedRoute> },
     ],
   },
 ]);

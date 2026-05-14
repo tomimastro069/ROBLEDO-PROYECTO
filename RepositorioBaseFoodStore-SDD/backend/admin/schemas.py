@@ -20,7 +20,23 @@ class UserAdminUpdate(BaseModel):
     is_active: Optional[bool] = None
 
 
+class UserAdminCreate(BaseModel):
+    email: str
+    password: str
+    name: str
+    role_id: int
+
+
 class MetricasResumen(BaseModel):
     total_usuarios: int
     total_categorias: int
     total_productos: int
+
+
+class RoleRead(BaseModel):
+    id: int
+    name: str
+    description: Optional[str] = None
+
+    class Config:
+        from_attributes = True

@@ -28,48 +28,57 @@ export const MainLayout = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <Link to="/" className="text-xl font-bold text-orange-500 shrink-0">
-              🍔 FoodStore
+            {/* Logo */}
+            <Link to="/" className="text-xl font-bold text-[#d32f2f] tracking-tighter uppercase flex items-center gap-2">
+              <span className="border-2 border-[#d32f2f] px-1">FOOD</span> 
+              <span className="font-light">STORE</span>
             </Link>
 
             {/* Desktop nav */}
-            <nav className="hidden md:flex items-center gap-6">
-              <NavLink to="/catalogo" className={navLinkClass}>Catálogo</NavLink>
+            <nav className="hidden md:flex items-center gap-8">
+              <NavLink to="/catalogo" className={({ isActive }) => 
+                `text-xs font-bold uppercase tracking-widest transition-colors ${isActive ? 'text-[#d32f2f]' : 'text-gray-500 hover:text-[#d32f2f]'}`
+              }>Catálogo</NavLink>
               {isAuth && (isCliente || role === 'admin') && (
                 <>
-                  <NavLink to="/pedidos" className={navLinkClass}>Mis pedidos</NavLink>
-                  <NavLink to="/direcciones" className={navLinkClass}>Direcciones</NavLink>
+                  <NavLink to="/pedidos" className={({ isActive }) => 
+                    `text-xs font-bold uppercase tracking-widest transition-colors ${isActive ? 'text-[#d32f2f]' : 'text-gray-500 hover:text-[#d32f2f]'}`
+                  }>Pedidos</NavLink>
                 </>
               )}
               {isAuth && isGestorPedidos && (
-                <NavLink to="/admin/pedidos" className={navLinkClass}>Panel pedidos</NavLink>
+                <NavLink to="/admin/pedidos" className={({ isActive }) => 
+                  `text-xs font-bold uppercase tracking-widest transition-colors ${isActive ? 'text-[#d32f2f]' : 'text-gray-500 hover:text-[#d32f2f]'}`
+                }>Gestión</NavLink>
               )}
               {isAuth && isGestorStock && (
-                <NavLink to="/admin" className={navLinkClass}>Dashboard</NavLink>
+                <NavLink to="/admin" className={({ isActive }) => 
+                  `text-xs font-bold uppercase tracking-widest transition-colors ${isActive ? 'text-[#d32f2f]' : 'text-gray-500 hover:text-[#d32f2f]'}`
+                }>Admin</NavLink>
               )}
             </nav>
 
             {/* Desktop actions */}
-            <div className="hidden md:flex items-center gap-3">
+            <div className="hidden md:flex items-center gap-5">
               {isAuth ? (
                 <>
                   <CartButton onClick={() => setIsCartOpen(true)} />
-                  <NavLink to="/perfil" className={navLinkClass}>
-                    {user?.name ?? user?.email ?? 'Mi perfil'}
+                  <NavLink to="/perfil" className="text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-[#d32f2f]">
+                    {user?.name ?? 'Perfil'}
                   </NavLink>
                   <button onClick={handleLogout}
-                    className="text-sm text-gray-400 hover:text-red-500 transition">
-                    Salir
+                    className="text-[10px] font-bold uppercase tracking-widest text-gray-400 hover:text-red-600 transition">
+                    [ Salir ]
                   </button>
                 </>
               ) : (
                 <>
-                  <Link to="/login" className="text-sm text-gray-600 hover:text-orange-500 transition font-medium">
+                  <Link to="/login" className="text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-[#d32f2f] transition">
                     Ingresar
                   </Link>
                   <Link to="/register"
-                    className="bg-orange-500 hover:bg-orange-600 text-white text-sm px-4 py-2 rounded-lg font-medium transition">
-                    Registrarse
+                    className="bg-[#d32f2f] hover:bg-[#b71c1c] text-white text-xs px-5 py-2 font-bold uppercase tracking-widest transition">
+                    Unirse
                   </Link>
                 </>
               )}

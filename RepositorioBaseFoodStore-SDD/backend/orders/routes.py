@@ -57,7 +57,7 @@ def get_order_detail(
     current_user: TokenData = Depends(get_current_user)
 ):
     order = service.get_order(order_id)
-    if order.user_id != int(current_user.sub) and current_user.role != Role.ADMIN:
+    if order.user_id != int(current_user.sub) and current_user.role not in [Role.ADMIN, Role.GESTOR_PEDIDOS]:
         raise HTTPException(status_code=403, detail="No autorizado para ver este pedido.")
     return order
 

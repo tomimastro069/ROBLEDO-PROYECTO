@@ -9,6 +9,12 @@ export interface AdminUser {
   role_id: number | null;
 }
 
+export interface Role {
+  id: number;
+  name: string;
+  description: string | null;
+}
+
 export interface MetricasResumen {
   total_usuarios: number;
   total_categorias: number;
@@ -23,6 +29,16 @@ export const adminApi = {
 
   updateUser: async (id: number, payload: { name?: string; role_id?: number; is_active?: boolean }) => {
     const { data } = await axiosInstance.put<AdminUser>(`/admin/usuarios/${id}`, payload);
+    return data;
+  },
+
+  createUser: async (payload: any) => {
+    const { data } = await axiosInstance.post<AdminUser>('/admin/usuarios', payload);
+    return data;
+  },
+
+  listRoles: async () => {
+    const { data } = await axiosInstance.get<Role[]>('/admin/roles');
     return data;
   },
 

@@ -38,72 +38,85 @@ export const CatalogPage = () => {
       <div className="flex flex-col sm:flex-row gap-3 mb-8">
         <input
           type="text"
-          placeholder="Buscar producto..."
+          placeholder="BUSCAR PRODUCTO..."
           value={search}
           onChange={(e) => { setSearch(e.target.value); setPage(0); }}
-          className="border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 sm:w-72"
+          className="border-2 border-gray-100 bg-white px-4 py-2 text-xs font-bold uppercase tracking-widest focus:outline-none focus:border-[#d32f2f] sm:w-72 transition-colors"
         />
         <select
           value={categoryId ?? ''}
           onChange={(e) => { setCategoryId(e.target.value ? Number(e.target.value) : undefined); setPage(0); }}
-          className="border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 sm:w-56"
+          className="border-2 border-gray-100 bg-white px-4 py-2 text-xs font-bold uppercase tracking-widest focus:outline-none focus:border-[#d32f2f] sm:w-56 transition-colors cursor-pointer"
         >
-          <option value="">Todas las categorías</option>
+          <option value="">TODAS LAS CATEGORÍAS</option>
           {categories?.map((c) => (
-            <option key={c.id} value={c.id}>{c.name}</option>
+            <option key={c.id} value={c.id}>{c.name.toUpperCase()}</option>
           ))}
         </select>
         {(search || categoryId) && (
           <button
             onClick={() => { setSearch(''); setCategoryId(undefined); setPage(0); }}
-            className="text-sm text-orange-500 hover:underline self-center"
+            className="text-[10px] font-bold text-[#d32f2f] uppercase tracking-widest hover:underline self-center"
           >
-            Limpiar filtros
+            LIMPIAR FILTROS
           </button>
         )}
       </div>
 
       {isLoading ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-          {Array.from({ length: 12 }).map((_, i) => (
-            <div key={i} className="bg-gray-100 rounded-xl h-64 animate-pulse" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="bg-gray-100 h-80 animate-pulse" />
           ))}
         </div>
       ) : data?.items.length === 0 ? (
-        <div className="text-center py-20">
-          <p className="text-gray-400 text-lg">No se encontraron productos.</p>
-          <button onClick={() => { setSearch(''); setCategoryId(undefined); }} className="mt-3 text-orange-500 hover:underline text-sm">
+        <div className="text-center py-20 border-2 border-dashed border-gray-100">
+          <p className="text-gray-400 text-sm font-bold uppercase tracking-widest">No se encontraron productos.</p>
+          <button onClick={() => { setSearch(''); setCategoryId(undefined); }} className="mt-4 text-[#d32f2f] font-bold uppercase tracking-widest text-xs hover:underline">
             Ver todos
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
           {data?.items.map((product) => (
             <div key={product.id}
-              className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-200 flex flex-col group cursor-pointer"
+              className="bg-white border-b-2 border-transparent hover:border-[#d32f2f] shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group cursor-pointer"
               onClick={() => setSelectedProductId(product.id)}
             >
-              <div className="bg-orange-50 h-36 flex items-center justify-center relative overflow-hidden">
-                <span className="text-5xl transition-transform duration-300 group-hover:scale-110">🍽️</span>
-                <div className="absolute inset-0 bg-orange-500/0 group-hover:bg-orange-500/5 transition-colors duration-200" />
+              <div className="bg-gray-50 h-52 flex items-center justify-center relative overflow-hidden">
+                {/* Imagen del producto o fallback sobrio */}
+                <div className="text-[10px] font-black text-gray-200 uppercase tracking-[0.5em] select-none">
+                  FOOD STORE / PREMIUM
+                </div>
+                <div className="absolute inset-0 bg-[#d32f2f]/0 group-hover:bg-[#d32f2f]/5 transition-colors duration-300" />
               </div>
-              <div className="p-3 flex flex-col flex-1">
-                <p className="font-semibold text-gray-800 group-hover:text-orange-500 text-sm leading-tight line-clamp-2 mb-1 transition-colors">
+              <div className="p-6 flex flex-col flex-1">
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">
+                  {categories?.find(c => c.id === product.category_id)?.name ?? 'General'}
+                </p>
+                <h3 className="font-bold text-[#1a1a1a] text-lg uppercase tracking-tight mb-2 group-hover:text-[#d32f2f] transition-colors">
                   {product.name}
-                </p>
-                <p className="text-orange-500 font-bold text-sm mt-auto">
-                  ${Number(product.price).toFixed(2)}
-                </p>
-                <p className={`text-xs mt-0.5 ${product.stock > 0 ? 'text-gray-400' : 'text-red-400'}`}>
-                  {product.stock > 0 ? `Stock: ${product.stock}` : 'Sin stock'}
-                </p>
-                <button
-                  onClick={(e) => { e.stopPropagation(); handleAdd(product); }}
-                  disabled={product.stock === 0}
-                  className="mt-2 w-full bg-orange-500 hover:bg-orange-600 disabled:bg-gray-200 disabled:text-gray-400 text-white text-xs py-1.5 rounded-lg transition font-medium"
-                >
-                  {product.stock === 0 ? 'Sin stock' : '+ Agregar'}
-                </button>
+                </h3>
+                <div className="flex justify-between items-end mt-auto pt-4 border-t border-gray-50">
+                  <div>
+                    <p className="text-[#d32f2f] font-black text-xl">
+                      ${Number(product.price).toFixed(2)}
+                    </p>
+                    <p className={`text-[10px] font-bold uppercase tracking-widest mt-1 ${product.stock > 0 ? 'text-gray-400' : 'text-red-500'}`}>
+                      {product.stock > 0 ? `In Stock: ${product.stock}` : 'Agotado'}
+                    </p>
+                  </div>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleAdd(product); }}
+                    disabled={product.stock === 0}
+                    className="bg-gray-900 hover:bg-[#d32f2f] disabled:bg-gray-100 disabled:text-gray-300 text-white p-3 transition-colors"
+                    title="Añadir al carrito"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                  </button>
+                </div>
               </div>
             </div>
           ))}
@@ -111,17 +124,19 @@ export const CatalogPage = () => {
       )}
 
       {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2 mt-10">
+        <div className="flex items-center justify-center gap-4 mt-16">
           <button onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0}
-            className="px-4 py-2 border border-gray-200 rounded-lg text-sm disabled:opacity-40 hover:bg-gray-50 transition">
-            ← Anterior
+            className="text-[10px] font-bold uppercase tracking-[0.3em] disabled:opacity-20 hover:text-[#d32f2f] transition-colors">
+            PREV
           </button>
-          <span className="px-4 py-2 text-sm text-gray-600 bg-white border border-gray-200 rounded-lg">
+          <div className="h-4 w-px bg-gray-200" />
+          <span className="text-[10px] font-bold text-gray-400">
             {page + 1} / {totalPages}
           </span>
+          <div className="h-4 w-px bg-gray-200" />
           <button onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))} disabled={page >= totalPages - 1}
-            className="px-4 py-2 border border-gray-200 rounded-lg text-sm disabled:opacity-40 hover:bg-gray-50 transition">
-            Siguiente →
+            className="text-[10px] font-bold uppercase tracking-[0.3em] disabled:opacity-20 hover:text-[#d32f2f] transition-colors">
+            NEXT
           </button>
         </div>
       )}

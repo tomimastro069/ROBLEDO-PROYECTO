@@ -1,7 +1,7 @@
 from typing import List
 from fastapi import APIRouter, Depends, status
 
-from admin.schemas import UserAdminRead, UserAdminUpdate, MetricasResumen
+from admin.schemas import UserAdminRead, UserAdminUpdate, UserAdminCreate, MetricasResumen, RoleRead
 from admin.service import AdminService
 from app.core.uow.unit_of_work import AppUnitOfWork, get_uow
 from auth.dependencies import require_role
@@ -25,6 +25,15 @@ def list_users(
     service: AdminService = Depends(get_admin_service),
 ):
     return service.list_users(skip=skip, limit=limit)
+
+
+@router.post("/usuarios", response_model=UserAdminRead, status_code=status.HTTP_201_CREATED)
+def create_user(
+    data: UserAdminCreate,
+    current_user: TokenData = Depends(require_role(Role.ADMIN)),
+    service: AdminService = Depends(get_admin_service),
+):
+    return service.create_user(data)
 
 
 @router.get("/usuarios/{user_id}", response_model=UserAdminRead, status_code=status.HTTP_200_OK)
@@ -54,6 +63,14 @@ def toggle_user_active(
     service: AdminService = Depends(get_admin_service),
 ):
     return service.toggle_active(user_id, is_active)
+
+
+@router.get("/roles", response_model=List[RoleRead], status_code=status.HTTP_200_OK)
+def list_roles(
+    current_user: TokenData = Depends(require_role(Role.ADMIN)),
+    service: AdminService = Depends(get_admin_service),
+):
+    return service.list_roles()
 
 
 # ── Métricas ──────────────────────────────────────────────────────────────────

@@ -55,23 +55,21 @@ export const CheckoutPage = () => {
   if (createdOrder && formaPago !== "MERCADOPAGO") {
     return (
       <div className="max-w-xl mx-auto px-4 py-20 text-center">
-        <div className="bg-green-50 border border-green-200 rounded-2xl p-8 space-y-6">
-          <div className="w-16 h-16 bg-green-500 text-white rounded-full flex items-center justify-center mx-auto text-2xl font-bold">
-            ✓
+        <div className="bg-white border-2 border-[#d32f2f] p-10 space-y-6">
+          <div className="w-16 h-16 border-4 border-[#d32f2f] text-[#d32f2f] rounded-full flex items-center justify-center mx-auto text-2xl font-black">
+            OK
           </div>
-          <h2 className="text-2xl font-bold text-gray-800">
-            ¡Pedido registrado con éxito!
+          <h2 className="text-3xl font-black text-gray-900 uppercase tracking-tighter">
+            Pedido Confirmado
           </h2>
-          <p className="text-gray-600">
-            Tu pedido <span className="font-semibold">#{createdOrder.id}</span>{" "}
-            ha sido creado para pagar mediante{" "}
-            <span className="font-bold">{formaPago}</span>.
+          <p className="text-gray-500 font-medium uppercase tracking-widest text-xs">
+            Orden <span className="text-[#d32f2f]">#{createdOrder.id}</span> registrada para pago vía {formaPago}.
           </p>
           <button
             onClick={() => navigate(`/pedidos/${createdOrder.id}`)}
-            className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 rounded-xl text-lg transition shadow-md"
+            className="w-full bg-[#d32f2f] hover:bg-[#b71c1c] text-white font-bold py-4 uppercase tracking-widest text-xs transition"
           >
-            Ir al detalle del pedido
+            Ver Detalle de Orden
           </button>
         </div>
       </div>
@@ -80,11 +78,11 @@ export const CheckoutPage = () => {
 
   if (items.length === 0 && !preferenceId && !createdOrder) {
     return (
-      <div className="max-w-xl mx-auto px-4 py-20 text-center">
-        <p className="text-xl text-gray-400">Tu carrito está vacío.</p>
+      <div className="max-w-xl mx-auto px-4 py-20 text-center border-2 border-dashed border-gray-100 mt-10">
+        <p className="text-sm font-bold text-gray-400 uppercase tracking-widest">El carrito está vacío.</p>
         <button
           onClick={() => navigate("/catalogo")}
-          className="mt-4 text-orange-500 hover:underline"
+          className="mt-4 text-[#d32f2f] font-bold uppercase tracking-widest text-xs hover:underline"
         >
           Ir al catálogo
         </button>
@@ -96,7 +94,7 @@ export const CheckoutPage = () => {
 
   const handleConfirm = () => {
     if (!selected) {
-      setError("Seleccioná una dirección de entrega.");
+      setError("SELECCIONÁ UNA DIRECCIÓN DE ENTREGA.");
       return;
     }
     setError(null);
@@ -115,28 +113,28 @@ export const CheckoutPage = () => {
   const displayTotal = orderSnapshot ? orderSnapshot.total : total;
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-8">
-        Confirmar pedido
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <h1 className="text-4xl font-black text-[#1a1a1a] mb-12 uppercase tracking-tighter border-b-4 border-[#d32f2f] inline-block">
+        Finalizar Compra
       </h1>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
         {/* Columna izquierda — Forma de pago + Dirección o MP Wallet */}
-        <div className="space-y-6">
+        <div className="space-y-10">
           {!preferenceId && !createdOrder && (
-            <div className="bg-white border border-gray-200 rounded-xl p-6">
-              <h2 className="font-semibold text-gray-800 text-lg mb-4">
-                Forma de pago
+            <div className="bg-white border-t-4 border-[#d32f2f] p-8 shadow-sm">
+              <h2 className="font-bold text-[#1a1a1a] uppercase tracking-widest text-sm mb-6">
+                1. Método de Pago
               </h2>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 gap-3">
                 {[
-                  { code: "MERCADOPAGO", label: "💳 MP" },
-                  { code: "EFECTIVO", label: "💵 Efectivo" },
-                  { code: "TRANSFERENCIA", label: "🏦 Transf." },
+                  { code: "MERCADOPAGO", label: "MERCADO PAGO" },
+                  { code: "EFECTIVO", label: "EFECTIVO EN LOCAL" },
+                  { code: "TRANSFERENCIA", label: "TRANSFERENCIA BANCARIA" },
                 ].map((fp) => (
                   <label
                     key={fp.code}
-                    className={`flex flex-col items-center justify-center border rounded-xl p-3 cursor-pointer text-center transition ${formaPago === fp.code ? "border-orange-500 bg-orange-50 text-orange-600 font-semibold" : "border-gray-200 text-gray-600 hover:border-gray-300"}`}
+                    className={`flex items-center justify-between border-2 px-6 py-4 cursor-pointer transition ${formaPago === fp.code ? "border-[#d32f2f] bg-gray-50 text-[#d32f2f] font-black" : "border-gray-100 text-gray-500 hover:border-gray-200"}`}
                   >
                     <input
                       type="radio"
@@ -145,7 +143,8 @@ export const CheckoutPage = () => {
                       onChange={() => setFormaPago(fp.code)}
                       className="sr-only"
                     />
-                    <span className="text-sm">{fp.label}</span>
+                    <span className="text-xs uppercase tracking-[0.2em]">{fp.label}</span>
+                    {formaPago === fp.code && <span className="text-xs font-black">●</span>}
                   </label>
                 ))}
               </div>
@@ -153,76 +152,69 @@ export const CheckoutPage = () => {
           )}
 
           {preferenceId ? (
-            <div className="bg-white border border-gray-200 rounded-xl p-6">
-              <h2 className="font-semibold text-gray-800 text-lg mb-4">
-                Realizar Pago Seguro
+            <div className="bg-white border-t-4 border-[#d32f2f] p-8 shadow-sm">
+              <h2 className="font-bold text-[#1a1a1a] uppercase tracking-widest text-sm mb-6">
+                2. Completar Pago
               </h2>
-              <p className="text-sm text-gray-500 mb-4">
-                Estás a un paso de confirmar tu pedido. Por favor, completá el
-                pago de forma segura a través de MercadoPago.
+              <p className="text-xs font-medium text-gray-400 uppercase tracking-widest leading-loose mb-6">
+                ESTÁS A UN PASO. POR FAVOR, COMPLETÁ LA TRANSACCIÓN PARA PROCESAR TU ORDEN.
               </p>
               <Wallet initialization={{ preferenceId }} />
               {createdOrder && (
                 <button
                   onClick={() => navigate(`/pedidos/${createdOrder.id}`)}
-                  className="mt-4 w-full bg-orange-100 hover:bg-orange-200 text-orange-700 font-semibold py-3 rounded-xl text-sm transition"
+                  className="mt-6 w-full border-2 border-gray-100 text-gray-400 hover:text-[#d32f2f] hover:border-[#d32f2f] font-bold py-3 uppercase tracking-widest text-[10px] transition"
                 >
-                  Simular Pago / Ir al Pedido #{createdOrder.id}
+                  Ver Pedido #{createdOrder.id}
                 </button>
               )}
             </div>
           ) : (
-            <div className="bg-white border border-gray-200 rounded-xl p-6">
-              <h2 className="font-semibold text-gray-800 text-lg mb-4">
-                Dirección de entrega
+            <div className="bg-white border-t-4 border-[#d32f2f] p-8 shadow-sm">
+              <h2 className="font-bold text-[#1a1a1a] uppercase tracking-widest text-sm mb-6">
+                2. Dirección de Envío
               </h2>
               {loadingAddr ? (
-                <p className="text-sm text-gray-400">Cargando...</p>
+                <p className="text-xs font-bold text-gray-300 animate-pulse">CARGANDO...</p>
               ) : addresses?.length === 0 ? (
-                <p className="text-sm text-gray-500">
-                  No tenés direcciones.{" "}
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+                  No hay direcciones registradas.{" "}
                   <button
                     onClick={() => navigate("/direcciones")}
-                    className="text-orange-500 hover:underline"
+                    className="text-[#d32f2f] underline"
                   >
-                    Agregar una
+                    AGREGAR
                   </button>
                 </p>
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {addresses?.map((addr) => (
                     <label
                       key={addr.id}
-                      className={`flex items-start gap-3 border rounded-xl p-4 cursor-pointer transition ${selectedAddressId === addr.id ? "border-orange-400 bg-orange-50" : "border-gray-200 hover:border-gray-300"}`}
+                      className={`flex items-start gap-4 border-2 p-6 cursor-pointer transition ${selectedAddressId === addr.id ? "border-[#d32f2f] bg-gray-50" : "border-gray-100 hover:border-gray-200"}`}
                     >
                       <input
                         type="radio"
                         name="address"
                         checked={selectedAddressId === addr.id}
                         onChange={() => setSelectedAddressId(addr.id)}
-                        className="mt-0.5 accent-orange-500"
+                        className="mt-1 accent-[#d32f2f]"
                       />
                       <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-800">
+                        <p className="text-sm font-black text-gray-900 uppercase tracking-tight">
                           {addr.street} {addr.numero}
-                          {addr.piso ? `, piso ${addr.piso}` : ""}
                         </p>
-                        <p className="text-xs text-gray-500 mt-0.5">
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">
                           {addr.city}, {addr.state} — {addr.zip_code}
                         </p>
-                        {addr.is_default && (
-                          <span className="text-xs text-orange-500 font-medium mt-1 inline-block">
-                            ★ Predeterminada
-                          </span>
-                        )}
                       </div>
                     </label>
                   ))}
                   <button
                     onClick={() => navigate("/direcciones")}
-                    className="text-sm text-orange-500 hover:underline mt-1"
+                    className="text-[10px] font-bold text-[#d32f2f] uppercase tracking-[0.2em] mt-2 hover:underline"
                   >
-                    + Agregar nueva dirección
+                    + NUEVA DIRECCIÓN
                   </button>
                 </div>
               )}
@@ -231,64 +223,64 @@ export const CheckoutPage = () => {
         </div>
 
         {/* Columna derecha — Resumen + confirmar */}
-        <div className="space-y-6">
-          <div className="bg-white border border-gray-200 rounded-xl p-6">
-            <h2 className="font-semibold text-gray-800 text-lg mb-4">
-              Resumen del pedido
+        <div className="space-y-8">
+          <div className="bg-gray-900 p-8 text-white">
+            <h2 className="font-bold uppercase tracking-[0.3em] text-[10px] mb-8 text-gray-400 border-b border-gray-800 pb-4">
+              Resumen de Orden
             </h2>
-            <ul className="divide-y divide-gray-100">
+            <ul className="divide-y divide-gray-800">
               {displayItems.map((item) => (
                 <li
                   key={item.id}
-                  className="py-3 flex justify-between items-center"
+                  className="py-4 flex justify-between items-start"
                 >
-                  <div>
-                    <p className="text-sm font-medium text-gray-800">
+                  <div className="max-w-[70%]">
+                    <p className="text-xs font-black uppercase tracking-tight">
                       {item.name}
                     </p>
-                    <p className="text-xs text-gray-400">
-                      x{item.quantity} · ${Number(item.price).toFixed(2)} c/u
+                    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">
+                      {item.quantity} UNIT. × ${Number(item.price).toFixed(2)}
                     </p>
                   </div>
-                  <span className="text-sm font-semibold text-gray-700">
+                  <span className="text-xs font-black">
                     ${(Number(item.price) * item.quantity).toFixed(2)}
                   </span>
                 </li>
               ))}
             </ul>
-            <div className="border-t border-gray-200 pt-4 mt-4 flex justify-between">
-              <span className="font-bold text-gray-800">Total</span>
-              <span className="font-bold text-xl text-orange-500">
+            <div className="pt-8 mt-8 border-t border-gray-800 flex justify-between items-end">
+              <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-400">Total Final</span>
+              <span className="text-3xl font-black text-[#d32f2f]">
                 ${Number(displayTotal).toFixed(2)}
               </span>
             </div>
           </div>
 
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3">
-              <p className="text-sm text-red-600">{error}</p>
+            <div className="bg-red-50 border-l-4 border-red-500 px-6 py-4">
+              <p className="text-[10px] font-bold text-red-600 uppercase tracking-widest">{error}</p>
             </div>
           )}
 
           {!preferenceId && (
-            <>
+            <div className="space-y-4">
               <button
                 onClick={handleConfirm}
                 disabled={createOrder.isPending}
-                className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 rounded-xl text-lg transition disabled:opacity-50 shadow-sm"
+                className="w-full bg-[#d32f2f] hover:bg-[#b71c1c] text-white font-black py-6 uppercase tracking-[0.2em] text-xs transition disabled:opacity-50"
               >
                 {createOrder.isPending
-                  ? "Preparando pago..."
-                  : "Proceder al pago"}
+                  ? "PROCESANDO..."
+                  : "CONFIRMAR Y PAGAR"}
               </button>
 
               <button
                 onClick={() => navigate(-1)}
-                className="w-full text-gray-400 hover:text-gray-600 text-sm transition"
+                className="w-full text-gray-400 hover:text-gray-900 text-[10px] font-bold uppercase tracking-widest transition"
               >
-                ← Volver al carrito
+                [ VOLVER AL CARRITO ]
               </button>
-            </>
+            </div>
           )}
         </div>
       </div>

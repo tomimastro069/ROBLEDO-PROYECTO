@@ -18,56 +18,61 @@ export const AdminLayout = () => {
   };
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
-    `flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium ${
+    `flex items-center gap-3 px-6 py-4 transition-all text-xs font-bold uppercase tracking-widest ${
       isActive
-        ? 'bg-orange-500 text-white shadow-md shadow-orange-200'
-        : 'text-gray-600 hover:bg-orange-50 hover:text-orange-600'
+        ? 'bg-[#d32f2f] text-white'
+        : 'text-gray-500 hover:bg-gray-50 hover:text-[#d32f2f]'
     }`;
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-gray-50 flex font-sans">
       {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-gray-200 flex flex-col fixed inset-y-0 z-10 shadow-sm">
-        <div className="p-6 border-b border-gray-100">
-          <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-            <span className="text-orange-500">⚙️</span> Panel
-          </h1>
-          <p className="text-xs text-gray-400 mt-1 uppercase tracking-wider font-semibold">{role.replace('_', ' ')}</p>
+      <aside className="w-64 bg-white border-r-2 border-gray-100 flex flex-col fixed inset-y-0 z-10">
+        <div className="p-8 border-b-2 border-gray-100">
+          <div className="text-xl font-black text-[#d32f2f] tracking-tighter uppercase mb-1">
+            PANEL <span className="font-light text-gray-400">CONTROL</span>
+          </div>
+          <p className="text-[10px] text-[#d32f2f] font-black uppercase tracking-[0.2em]">{role.replace('_', ' ')}</p>
         </div>
 
-        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+        <nav className="flex-1 py-6 space-y-1 overflow-y-auto">
+          {role === 'admin' && (
+            <NavLink to="/admin/usuarios" className={navLinkClass}>
+              USUARIOS
+            </NavLink>
+          )}
           {(role === 'admin' || role === 'gestor_pedidos') && (
             <NavLink to="/admin/pedidos" className={navLinkClass}>
-              <span>📦</span> Pedidos
+              PEDIDOS
             </NavLink>
           )}
           {(role === 'admin' || role === 'gestor_stock') && (
             <>
               <NavLink to="/admin/categorias" className={navLinkClass}>
-                <span>🗂️</span> Categorías
+                CATEGORÍAS
               </NavLink>
               <NavLink to="/admin/ingredientes" className={navLinkClass}>
-                <span>🥬</span> Ingredientes
+                INGREDIENTES
               </NavLink>
               <NavLink to="/admin/productos" className={navLinkClass}>
-                <span>🍔</span> Productos
+                PRODUCTOS
               </NavLink>
             </>
           )}
         </nav>
 
-        <div className="p-4 border-t border-gray-100">
+        <div className="p-6 border-t-2 border-gray-100 space-y-2">
           <button
             onClick={() => navigate('/')}
-            className="flex items-center gap-3 px-4 py-3 w-full rounded-xl text-gray-600 hover:bg-gray-100 transition-all font-medium mb-2"
+            className="flex items-center justify-center w-full py-3 text-[10px] font-bold uppercase tracking-widest text-gray-400 hover:text-gray-900 transition-colors"
           >
-            <span>🏠</span> Volver a la Tienda
+            [ VOLVER A TIENDA ]
           </button>
           <button
             onClick={handleLogout}
-            className="flex items-center gap-3 px-4 py-3 w-full rounded-xl text-red-500 hover:bg-red-50 transition-all font-medium"
+            className="flex items-center justify-center w-full py-3 bg-gray-100 text-gray-600 hover:bg-red-600 hover:text-white text-[10px] font-bold uppercase tracking-widest transition-all"
           >
-            <span>🚪</span> Salir
+            CERRAR SESIÓN
           </button>
         </div>
       </aside>
