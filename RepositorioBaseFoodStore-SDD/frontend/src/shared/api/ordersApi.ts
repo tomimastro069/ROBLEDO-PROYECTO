@@ -21,6 +21,7 @@ export interface Order {
   created_at: string;
   updated_at: string;
   items: OrderItem[];
+  forma_pago_codigo?: string;
 }
 
 export interface CreateOrderPayload {

@@ -32,6 +32,12 @@ const NEXT_LABELS: Partial<Record<OrderStatus, string>> = {
   EN_CAMINO: 'Entregado',
 };
 
+const PAYMENT_LABELS: Record<string, string> = {
+  MERCADOPAGO: '💳 MP',
+  EFECTIVO: '💵 Efectivo',
+  TRANSFERENCIA: '🏦 Transf.',
+};
+
 export const GestorPedidosPage = () => {
   const qc = useQueryClient();
   const [filterStatus, setFilterStatus] = useState<OrderStatus | ''>('');
@@ -120,6 +126,7 @@ export const GestorPedidosPage = () => {
                   <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase">Fecha</th>
                   <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase">Dirección</th>
                   <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase">Total</th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase">Método Pago</th>
                   <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase">Estado</th>
                   <th className="px-5 py-3 text-xs font-semibold text-gray-500 uppercase text-right">Acciones</th>
                 </tr>
@@ -138,6 +145,9 @@ export const GestorPedidosPage = () => {
                         {order.direccion_calle} {order.direccion_numero}, {order.direccion_ciudad}
                       </td>
                       <td className="px-5 py-4 font-bold text-orange-500">${Number(order.total).toFixed(2)}</td>
+                      <td className="px-5 py-4 text-xs text-gray-600 font-medium">
+                        {order.forma_pago_codigo ? PAYMENT_LABELS[order.forma_pago_codigo] || order.forma_pago_codigo : 'N/A'}
+                      </td>
                       <td className="px-5 py-4">
                         <span className={`text-xs font-medium px-3 py-1 rounded-full ${STATUS_COLORS[order.status]}`}>
                           {STATUS_LABELS[order.status]}
@@ -189,7 +199,14 @@ export const GestorPedidosPage = () => {
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-orange-500">${Number(order.total).toFixed(2)}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-orange-500">${Number(order.total).toFixed(2)}</span>
+                      {order.forma_pago_codigo && (
+                        <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md">
+                          {PAYMENT_LABELS[order.forma_pago_codigo] || order.forma_pago_codigo}
+                        </span>
+                      )}
+                    </div>
                     <div className="flex gap-2">
                       {nextStatus && (
                         <button onClick={() => advanceMutation.mutate({ id: order.id, status: nextStatus })}
