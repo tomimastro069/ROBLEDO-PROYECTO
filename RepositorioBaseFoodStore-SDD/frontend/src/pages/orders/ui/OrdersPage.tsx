@@ -20,6 +20,12 @@ const STATUS_COLORS: Record<OrderStatus, string> = {
   CANCELADO: 'bg-red-100 text-red-700',
 };
 
+const PAYMENT_LABELS: Record<string, string> = {
+  MERCADOPAGO: '💳 MP',
+  EFECTIVO: '💵 Efectivo',
+  TRANSFERENCIA: '🏦 Transf.',
+};
+
 export const OrdersPage = () => {
   const { data: orders, isLoading } = useQuery({
     queryKey: ['orders'],
@@ -54,6 +60,7 @@ export const OrdersPage = () => {
                   <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Fecha</th>
                   <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Ítems</th>
                   <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Total</th>
+                  <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Método Pago</th>
                   <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Estado</th>
                   <th className="px-6 py-3" />
                 </tr>
@@ -67,6 +74,9 @@ export const OrdersPage = () => {
                     </td>
                     <td className="px-6 py-4 text-gray-600">{order.items?.length ?? 0}</td>
                     <td className="px-6 py-4 font-bold text-orange-500">${Number(order.total).toFixed(2)}</td>
+                    <td className="px-6 py-4 text-xs text-gray-600 font-medium">
+                      {order.forma_pago_codigo ? PAYMENT_LABELS[order.forma_pago_codigo] || order.forma_pago_codigo : 'N/A'}
+                    </td>
                     <td className="px-6 py-4">
                       <span className={`text-xs font-medium px-3 py-1 rounded-full ${STATUS_COLORS[order.status]}`}>
                         {STATUS_LABELS[order.status]}
@@ -97,7 +107,14 @@ export const OrdersPage = () => {
                 <p className="text-xs text-gray-400">{new Date(order.created_at).toLocaleDateString('es-AR')}</p>
                 <div className="flex justify-between mt-2">
                   <span className="text-sm text-gray-500">{order.items?.length ?? 0} ítems</span>
-                  <span className="font-bold text-orange-500">${Number(order.total).toFixed(2)}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-orange-500">${Number(order.total).toFixed(2)}</span>
+                    {order.forma_pago_codigo && (
+                      <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md">
+                        {PAYMENT_LABELS[order.forma_pago_codigo] || order.forma_pago_codigo}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </Link>
             ))}

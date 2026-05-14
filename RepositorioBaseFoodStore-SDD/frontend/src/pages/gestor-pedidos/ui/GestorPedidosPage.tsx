@@ -34,6 +34,12 @@ const NEXT_LABELS: Partial<Record<OrderStatus, string>> = {
   EN_CAMINO: 'Entregar',
 };
 
+const PAYMENT_LABELS: Record<string, string> = {
+  MERCADOPAGO: '💳 MP',
+  EFECTIVO: '💵 Efectivo',
+  TRANSFERENCIA: '🏦 Transf.',
+};
+
 export const GestorPedidosPage = () => {
   const qc = useQueryClient();
   const [filterStatus, setFilterStatus] = useState<OrderStatus | ''>('');
@@ -102,29 +108,27 @@ export const GestorPedidosPage = () => {
         </div>
       )}
 
-      <div className="glass-card rounded-[2rem] border-white/60 overflow-hidden shadow-xl">
-        {isLoading ? (
-          <div className="p-12 text-center">
-            <div className="animate-pulse space-y-4">
-              {Array.from({ length: 5 }).map((_, i) => <div key={i} className="bg-gray-100/50 rounded-2xl h-16 w-full" />)}
-            </div>
-          </div>
-        ) : filtered.length === 0 ? (
-          <div className="text-center py-24 bg-white/50">
-             <div className="text-5xl mb-6 opacity-20 italic font-black">?</div>
-             <p className="text-gray-400 font-bold uppercase tracking-[0.2em] text-xs">No hay pedidos disponibles</p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-gray-50/50 border-b border-gray-100">
-                  <th className="px-8 py-5 font-black text-[10px] text-gray-400 uppercase tracking-[0.2em]">ID</th>
-                  <th className="px-8 py-5 font-black text-[10px] text-gray-400 uppercase tracking-[0.2em]">Fecha / Hora</th>
-                  <th className="px-8 py-5 font-black text-[10px] text-gray-400 uppercase tracking-[0.2em]">Cliente / Dirección</th>
-                  <th className="px-8 py-5 font-black text-[10px] text-gray-400 uppercase tracking-[0.2em] text-right">Total</th>
-                  <th className="px-8 py-5 font-black text-[10px] text-gray-400 uppercase tracking-[0.2em]">Estado</th>
-                  <th className="px-8 py-5 font-black text-[10px] text-gray-400 uppercase tracking-[0.2em] text-right">Acciones</th>
+      {isLoading ? (
+        <div className="space-y-3">
+          {Array.from({ length: 5 }).map((_, i) => <div key={i} className="bg-gray-100 rounded-xl h-20 animate-pulse" />)}
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className="text-center py-16 bg-white rounded-xl border border-gray-100">
+          <p className="text-gray-400">No hay pedidos con ese estado.</p>
+        </div>
+      ) : (
+        <>
+          {/* Tabla desktop */}
+          <div className="hidden lg:block bg-white rounded-xl border border-gray-200 overflow-hidden">
+            <table className="w-full text-sm">
+              <thead className="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase">Pedido</th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase">Fecha</th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase">Dirección</th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase">Total</th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase">Estado</th>
+                  <th className="px-5 py-3 text-xs font-semibold text-gray-500 uppercase text-right">Acciones</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
@@ -153,8 +157,9 @@ export const GestorPedidosPage = () => {
                       <td className="px-8 py-5 text-right font-black text-orange-600 text-lg">
                         ${Number(order.total).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                       </td>
-                      <td className="px-8 py-5">
-                        <span className={`inline-block px-3 py-1 rounded-xl text-[10px] font-black uppercase tracking-wider border ${STATUS_COLORS[order.status]}`}>
+                      <td className="px-5 py-4 font-bold text-orange-500">${Number(order.total).toFixed(2)}</td>
+                      <td className="px-5 py-4">
+                        <span className={`text-xs font-medium px-3 py-1 rounded-full ${STATUS_COLORS[order.status]}`}>
                           {STATUS_LABELS[order.status]}
                         </span>
                       </td>
@@ -185,16 +190,44 @@ export const GestorPedidosPage = () => {
               </tbody>
             </table>
           </div>
-        )}
-      </div>
 
-      {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-4 mt-10">
-          <button onClick={() => setCurrentPage(currentPage - 1)} disabled={currentPage === 1} className="w-10 h-10 flex items-center justify-center bg-white border border-gray-200 rounded-xl text-gray-500 hover:bg-gray-50 disabled:opacity-30 transition-all font-bold">
-            &larr;
-          </button>
-          <div className="bg-white border border-gray-200 px-4 py-2 rounded-xl text-sm font-black text-gray-900 shadow-sm">
-            {currentPage} <span className="text-gray-300 mx-1">/</span> {totalPages}
+          {/* Cards mobile/tablet */}
+          <div className="lg:hidden space-y-3">
+            {filtered.map((order) => {
+              const nextStatus = NEXT_STATUS[order.status];
+              const canCancel = ['PENDIENTE', 'CONFIRMADO', 'EN_PREPARACION'].includes(order.status);
+              return (
+                <div key={order.id} className="bg-white border border-gray-200 rounded-xl p-4">
+                  <div className="flex justify-between items-start mb-3">
+                    <div>
+                      <p className="font-bold text-gray-800">Pedido #{order.id}</p>
+                      <p className="text-xs text-gray-400 mt-0.5">{new Date(order.created_at).toLocaleString('es-AR')}</p>
+                      <p className="text-xs text-gray-500 mt-1">{order.direccion_calle} {order.direccion_numero}, {order.direccion_ciudad}</p>
+                    </div>
+                    <span className={`text-xs font-medium px-3 py-1 rounded-full ${STATUS_COLORS[order.status]}`}>
+                      {STATUS_LABELS[order.status]}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-orange-500">${Number(order.total).toFixed(2)}</span>
+                    <div className="flex gap-2">
+                      {nextStatus && (
+                        <button onClick={() => advanceMutation.mutate({ id: order.id, status: nextStatus })}
+                          className="bg-blue-500 hover:bg-blue-600 text-white text-xs px-3 py-1.5 rounded-lg transition">
+                          {NEXT_LABELS[order.status]}
+                        </button>
+                      )}
+                      {canCancel && (
+                        <button onClick={() => { if (confirm('¿Cancelar?')) cancelMutation.mutate({ id: order.id }); }}
+                          className="border border-red-200 text-red-500 text-xs px-3 py-1.5 rounded-lg transition">
+                          Cancelar
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
           <button onClick={() => setCurrentPage(currentPage + 1)} disabled={currentPage === totalPages} className="w-10 h-10 flex items-center justify-center bg-white border border-gray-200 rounded-xl text-gray-500 hover:bg-gray-50 disabled:opacity-30 transition-all font-bold">
             &rarr;

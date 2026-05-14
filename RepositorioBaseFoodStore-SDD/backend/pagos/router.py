@@ -81,6 +81,9 @@ def crear_pago(
         # 5. Bifurcación por forma de pago
         forma_pago = data.forma_pago_codigo.upper()
         
+        # NUEVO: Guardar explícitamente en el pedido
+        uow.orders.update(order, forma_pago_codigo=forma_pago)
+        
         if forma_pago in ["EFECTIVO", "TRANSFERENCIA"]:
             # Al ser efectivo/transferencia, confirmamos el pedido inmediatamente para que entre a cocina
             from orders.service import OrderService

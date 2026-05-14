@@ -36,6 +36,9 @@ class OrderRead(BaseModel):
     direccion_numero: str
     direccion_ciudad: str
     
+    # Pago
+    forma_pago_codigo: Optional[str] = None
+    
     model_config = ConfigDict(from_attributes=True)
 
 class OrderAdminRead(OrderRead):
