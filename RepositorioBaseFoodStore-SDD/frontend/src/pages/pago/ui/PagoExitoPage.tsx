@@ -1,21 +1,54 @@
+import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { pagosApi } from '@/shared/api/pagosApi';
 
 export const PagoExitoPage = () => {
   const [params] = useSearchParams();
   const orderId = params.get('external_reference');
+  const [verifying, setVerifying] = useState(true);
+
+  useEffect(() => {
+    if (orderId) {
+      pagosApi.verificar(Number(orderId))
+        .finally(() => setVerifying(false));
+    } else {
+      setVerifying(false);
+    }
+  }, [orderId]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="bg-white rounded-xl shadow-md p-10 max-w-md text-center">
-        <div className="text-6xl mb-4">✅</div>
-        <h1 className="text-2xl font-bold text-green-600 mb-2">¡Pago exitoso!</h1>
-        <p className="text-gray-600 mb-6">Tu pago fue aprobado. El pedido está siendo procesado.</p>
-        {orderId && (
-          <Link to={`/pedidos/${orderId}`} className="block mb-3 bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg font-medium transition">
-            Ver pedido #{orderId}
-          </Link>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 font-sans">
+      <div className="bg-white p-10 max-w-md text-center shadow-sm border border-gray-100">
+        <div className="text-6xl mb-6">✅</div>
+        <h1 className="text-3xl font-black text-[#1a1a1a] tracking-tighter uppercase mb-4">
+          ¡PAGO <span className="text-[#d32f2f]">RECIBIDO</span>!
+        </h1>
+        
+        {verifying ? (
+          <p className="text-gray-400 text-xs font-bold uppercase tracking-[0.2em] animate-pulse">
+            Confirmando transacción...
+          </p>
+        ) : (
+          <>
+            <p className="text-gray-500 text-sm font-medium leading-relaxed mb-8 uppercase tracking-wide">
+              Tu pedido ha sido procesado correctamente y ya está en marcha.
+            </p>
+            {orderId && (
+              <Link 
+                to={`/pedidos/${orderId}`} 
+                className="block w-full bg-[#d32f2f] hover:bg-[#b71c1c] text-white py-4 font-bold uppercase tracking-widest text-xs transition-all mb-4"
+              >
+                Ver pedido #{orderId}
+              </Link>
+            )}
+            <Link 
+              to="/pedidos" 
+              className="text-[10px] font-bold text-gray-400 hover:text-[#d32f2f] uppercase tracking-widest transition-colors"
+            >
+              [ Historial de pedidos ]
+            </Link>
+          </>
         )}
-        <Link to="/pedidos" className="text-sm text-gray-500 hover:underline">Ver todos mis pedidos</Link>
       </div>
     </div>
   );

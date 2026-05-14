@@ -27,22 +27,25 @@ const NEXT_STATUS: Partial<Record<OrderStatus, OrderStatus>> = {
 };
 
 const NEXT_LABELS: Partial<Record<OrderStatus, string>> = {
-  CONFIRMADO: '▶ Iniciar preparación',
-  EN_PREPARACION: '🚚 Marcar en camino',
-  EN_CAMINO: '✅ Entregado',
+  CONFIRMADO: 'Iniciar preparación',
+  EN_PREPARACION: 'Marcar en camino',
+  EN_CAMINO: 'Entregado',
 };
 
 export const GestorPedidosPage = () => {
   const qc = useQueryClient();
   const [filterStatus, setFilterStatus] = useState<OrderStatus | ''>('');
+  const [showCancelled, setShowCancelled] = useState(false);
 
   const { data: orders, isLoading } = useQuery({
     queryKey: ['admin-orders'],
     queryFn: () => ordersApi.listAll(),
+    refetchInterval: 15000,
   });
 
   const advanceMutation = useMutation({
-    mutationFn: ({ id, status }: { id: number; status: OrderStatus }) => ordersApi.updateStatus(id, status),
+    mutationFn: ({ id, status }: { id: number; status: OrderStatus }) =>
+      ordersApi.updateStatus(id, status, 'Avance de estado por gestor'),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-orders'] }),
   });
 
@@ -51,7 +54,13 @@ export const GestorPedidosPage = () => {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-orders'] }),
   });
 
-  const filtered = (orders ?? []).filter((o) => !filterStatus || o.status === filterStatus);
+  const filtered = (orders ?? []).filter((o) => {
+    // Si el usuario eligió específicamente un estado en los chips, manda ese
+    if (filterStatus) return o.status === filterStatus;
+
+    // Si está en "Todos", respetamos el botón de mostrar/ocultar cancelados
+    return showCancelled || o.status !== 'CANCELADO';
+  });
 
   const counts = (orders ?? []).reduce<Record<string, number>>((acc, o) => {
     acc[o.status] = (acc[o.status] ?? 0) + 1;
@@ -60,16 +69,28 @@ export const GestorPedidosPage = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-6">Panel de Pedidos</h1>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Panel de Pedidos</h1>
+
+        <button
+          onClick={() => setShowCancelled(!showCancelled)}
+          className={`text-[10px] font-bold uppercase tracking-widest px-4 py-2 border-2 transition-all ${showCancelled
+            ? 'bg-red-50 border-red-200 text-red-600'
+            : 'bg-white border-gray-100 text-gray-400 hover:border-gray-200'
+            }`}
+        >
+          {showCancelled ? '🚫 Ocultando Cancelados' : '👁️ Mostrar Cancelados'}
+        </button>
+      </div>
 
       {/* KPI chips */}
       {!isLoading && (
         <div className="flex flex-wrap gap-2 mb-6">
           <button onClick={() => setFilterStatus('')}
             className={`px-4 py-1.5 rounded-full text-sm font-medium transition border ${filterStatus === '' ? 'bg-gray-800 text-white border-gray-800' : 'border-gray-300 text-gray-600 hover:bg-gray-50'}`}>
-            Todos ({orders?.length ?? 0})
+            Todos ({showCancelled ? orders?.length : (orders?.length ?? 0) - (counts['CANCELADO'] ?? 0)})
           </button>
-          {(['PENDIENTE', 'CONFIRMADO', 'EN_PREPARACION', 'EN_CAMINO'] as OrderStatus[]).map((s) => (
+          {(['PENDIENTE', 'CONFIRMADO', 'EN_PREPARACION', 'EN_CAMINO', 'ENTREGADO', 'CANCELADO'] as OrderStatus[]).map((s) => (
             counts[s] ? (
               <button key={s} onClick={() => setFilterStatus(s)}
                 className={`px-4 py-1.5 rounded-full text-sm font-medium transition border ${filterStatus === s ? 'bg-gray-800 text-white border-gray-800' : `${STATUS_COLORS[s]} border-transparent`}`}>

@@ -82,12 +82,16 @@ def crear_pago(
         forma_pago = data.forma_pago_codigo.upper()
         
         if forma_pago in ["EFECTIVO", "TRANSFERENCIA"]:
-            # Retornar 201 inmediatamente, el pago queda pending (o el estado que corresponda)
+            # Al ser efectivo/transferencia, confirmamos el pedido inmediatamente para que entre a cocina
+            from orders.service import OrderService
+            service = OrderService(uow)
+            service.confirm_by_payment(order.id, uow)
+            
             return PagoRead(
                 pedido_id=order.id,
                 preference_id=f"PREF-{forma_pago}-{nuevo_pago.idempotency_key[:8]}",
                 init_point=f"http://localhost:5173/pago/pendiente?forma_pago={forma_pago}",
-                status="pending",
+                status="approved",  # Lo marcamos como aprobado para que el front lo tome como tal
             )
 
         # Es MERCADOPAGO
@@ -165,27 +169,51 @@ def crear_pago(
 
 
 
-@router.get("/pedido/{pedido_id}", response_model=PagoRead, status_code=status.HTTP_200_OK)
-def consultar_pago(
+@router.post("/verificar/{pedido_id}", status_code=status.HTTP_200_OK)
+def verificar_pago(
     pedido_id: int,
     current_user: TokenData = Depends(get_current_user),
     uow: AppUnitOfWork = Depends(get_uow),
 ):
-    """Consulta el estado del último pago registrado para un pedido."""
+    """
+    Endpoint de contingencia para confirmar el pago desde el frontend.
+    En producción, esto lo haría un Webhook IPN de forma asíncrona.
+    """
+    from orders.service import OrderService
+    
     with uow:
+        # 1. Verificar que el pedido existe y pertenece al usuario
         order = uow.orders.get(pedido_id)
         if not order:
             raise HTTPException(status_code=404, detail="Pedido no encontrado.")
         if order.user_id != int(current_user.sub):
             raise HTTPException(status_code=403, detail="No autorizado.")
 
-        pago = uow.pagos.get_by_pedido_id(pedido_id)
-        if not pago:
-            return PagoRead(pedido_id=pedido_id, preference_id=None, init_point=None, status="not_found")
+        # 2. Si ya está confirmado, no hacemos nada
+        if order.status == OrderStatus.CONFIRMADO:
+            return {"status": "already_confirmed", "order_id": pedido_id}
 
-        return PagoRead(
-            pedido_id=pedido_id,
-            preference_id=pago.preference_id,
-            init_point=None,
-            status=pago.mp_status,
-        )
+        # 3. Actualizar registro de pago (Simulamos que MP respondió OK)
+        pago = uow.pagos.get_by_pedido_id(pedido_id)
+        if pago:
+            uow.pagos.update_status(pago, "approved")
+
+        # 4. Avanzar el pedido a CONFIRMADO usando el servicio de órdenes
+        service = OrderService(uow)
+        try:
+            service.confirm_by_payment(pedido_id, uow)
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=f"No se pudo confirmar el pedido: {str(e)}")
+
+        return {"status": "confirmed", "order_id": pedido_id}
+
+
+@router.post("/notificar")
+async def recibir_notificacion(
+    data: dict,
+    uow: AppUnitOfWork = Depends(get_uow)
+):
+    """Webhook IPN de MercadoPago (Placeholder para producción)."""
+    # En un entorno real, aquí validaríamos el topic y id contra la API de MP
+    # y llamaríamos a OrderService.confirm_by_payment(order_id, uow)
+    return {"status": "received"}

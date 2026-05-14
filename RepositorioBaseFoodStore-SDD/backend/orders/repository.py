@@ -24,14 +24,14 @@ class OrderRepository:
         return result
 
     def list_by_user(self, user_id: int, skip: int = 0, limit: int = 20) -> List[Order]:
-        statement = select(Order).where(Order.user_id == user_id).offset(skip).limit(limit)
+        statement = select(Order).where(Order.user_id == user_id).order_by(Order.id.desc()).offset(skip).limit(limit)
         results = self.session.exec(statement).all()
         for result in results:
             result.items = self.get_items(result.id)
         return results
     
     def list_all(self, skip: int = 0, limit: int = 20) -> List[Order]:
-        statement = select(Order).offset(skip).limit(limit)
+        statement = select(Order).order_by(Order.id.desc()).offset(skip).limit(limit)
         results = self.session.exec(statement).all()
         for result in results:
             result.items = self.get_items(result.id)
@@ -43,6 +43,8 @@ class OrderRepository:
         self.session.add(order)
         self.session.commit()
         self.session.refresh(order)
+        # Cargamos los items para que el response_model no falle
+        order.items = self.get_items(order.id)
         return order
 
     def delete(self, order: Order):

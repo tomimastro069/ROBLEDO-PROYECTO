@@ -44,4 +44,4 @@ class OrderAdminRead(OrderRead):
 
 class StateChangeRequest(BaseModel):
     new_status: Optional[OrderStatus] = None
-    reason: str
+    reason: Optional[str] = "Sin motivo especificado"

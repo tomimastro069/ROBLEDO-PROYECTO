@@ -21,5 +21,9 @@ export const pagosApi = {
     const { data } = await axiosInstance.get(`/pagos/pedido/${pedido_id}`);
     return data;
   },
+  verificar: async (pedido_id: number): Promise<any> => {
+    const { data } = await axiosInstance.post(`/pagos/verificar/${pedido_id}`);
+    return data;
+  },
 };
 
