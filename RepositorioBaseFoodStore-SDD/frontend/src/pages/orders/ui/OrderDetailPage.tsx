@@ -1,24 +1,34 @@
-import { useParams, useNavigate } from 'react-router-dom';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ordersApi, type OrderStatus } from '@/shared/api/ordersApi';
-import { pagosApi } from '@/shared/api/pagosApi';
+import { useParams, useNavigate } from "react-router-dom";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { ordersApi, type OrderStatus } from "@/shared/api/ordersApi";
+import { productsApi } from "@/shared/api/productsApi";
+import { pagosApi } from "@/shared/api/pagosApi";
 
 const STATUS_LABELS: Record<OrderStatus, string> = {
-  PENDIENTE: 'Pendiente de pago',
-  CONFIRMADO: 'Confirmado',
-  EN_PREPARACION: 'En preparación',
-  EN_CAMINO: 'En camino',
-  ENTREGADO: 'Entregado',
-  CANCELADO: 'Cancelado',
+  PENDIENTE: "Pendiente de pago",
+  CONFIRMADO: "Confirmado",
+  EN_PREPARACION: "En preparación",
+  EN_CAMINO: "En camino",
+  ENTREGADO: "Entregado",
+  CANCELADO: "Cancelado",
 };
 
 const STATUS_COLORS: Record<OrderStatus, string> = {
-  PENDIENTE: 'bg-yellow-100 text-yellow-700',
-  CONFIRMADO: 'bg-blue-100 text-blue-700',
-  EN_PREPARACION: 'bg-purple-100 text-purple-700',
-  EN_CAMINO: 'bg-indigo-100 text-indigo-700',
-  ENTREGADO: 'bg-green-100 text-green-700',
-  CANCELADO: 'bg-red-100 text-red-700',
+  PENDIENTE: "bg-yellow-100 text-yellow-700",
+  CONFIRMADO: "bg-blue-100 text-blue-700",
+  EN_PREPARACION: "bg-purple-100 text-purple-700",
+  EN_CAMINO: "bg-indigo-100 text-indigo-700",
+  ENTREGADO: "bg-green-100 text-green-700",
+  CANCELADO: "bg-red-100 text-red-700",
+};
+
+const ProductName = ({ productId }: { productId: number }) => {
+  const { data } = useQuery({
+    queryKey: ["product", productId],
+    queryFn: () => productsApi.getById(productId),
+    staleTime: 1000 * 60 * 5,
+  });
+  return <span>{data ? data.name : `Producto #${productId}`}</span>;
 };
 
 export const OrderDetailPage = () => {
@@ -27,49 +37,85 @@ export const OrderDetailPage = () => {
   const qc = useQueryClient();
 
   const { data: order, isLoading } = useQuery({
-    queryKey: ['order', id],
+    queryKey: ["order", id],
     queryFn: () => ordersApi.getById(Number(id)),
     enabled: !!id,
   });
 
   const cancelMutation = useMutation({
-    mutationFn: () => ordersApi.cancel(Number(id), 'Cancelado por el cliente'),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['order', id] }),
+    mutationFn: () => ordersApi.cancel(Number(id), "Cancelado por el cliente"),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["order", id] }),
+  });
+
+  const pagoMutation = useMutation({
+    mutationFn: () => pagosApi.consultar(Number(id)),
+    onSuccess: (pago) => {
+      if (pago.init_point) {
+        // Redirige al flujo externo de MercadoPago o URL configurada
+        window.location.href = pago.init_point;
+      } else if (pago.preference_id) {
+        alert(
+          "En entorno Sandbox la URL completa init_point podría estar nula, pero la preferencia sí fue creada.",
+        );
+      } else {
+        alert(
+          "Este pedido fue configurado como Efectivo o Transferencia. Tu confirmación ya está registrada en el local.",
+        );
+      }
+    },
+    onError: () =>
+      alert(
+        "Hubo un error al intentar consultar el estado del pago. Es posible que no se haya procesado correctamente.",
+      ),
   });
 
   const payMutation = useMutation({
     mutationFn: () => pagosApi.crear({ pedido_id: Number(id) }),
     onSuccess: (data) => {
-      console.log('Pago creado:', data);
+      console.log("Pago creado:", data);
       if (data.init_point) {
         window.location.href = data.init_point;
       } else {
-        alert('Error: No se recibió URL de pago');
+        alert("Error: No se recibió URL de pago");
       }
     },
     onError: (err: any) => {
-      console.error('Error al crear pago:', err);
-      alert('Error al procesar el pago: ' + (err.response?.data?.detail || err.message));
-    }
+      console.error("Error al crear pago:", err);
+      alert(
+        "Error al procesar el pago: " +
+          (err.response?.data?.detail || err.message),
+      );
+    },
   });
 
   if (isLoading) return <div className="p-8 text-gray-500">Cargando...</div>;
-  if (!order) return <div className="p-8 text-red-500">Pedido no encontrado.</div>;
+  if (!order)
+    return <div className="p-8 text-red-500">Pedido no encontrado.</div>;
 
-  const canCancel = order.status === 'PENDIENTE' || order.status === 'CONFIRMADO';
+  const canCancel =
+    order.status === "PENDIENTE" || order.status === "CONFIRMADO";
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
-      <button onClick={() => navigate('/pedidos')} className="text-sm text-gray-500 hover:text-orange-500 mb-6">
+      <button
+        onClick={() => navigate("/pedidos")}
+        className="text-sm text-gray-500 hover:text-orange-500 mb-6"
+      >
         ← Mis pedidos
       </button>
 
       <div className="flex justify-between items-start mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Pedido #{order.id}</h1>
-          <p className="text-sm text-gray-400 mt-1">{new Date(order.created_at).toLocaleString('es-AR')}</p>
+          <h1 className="text-2xl font-bold text-gray-800">
+            Pedido #{order.id}
+          </h1>
+          <p className="text-sm text-gray-400 mt-1">
+            {new Date(order.created_at).toLocaleString("es-AR")}
+          </p>
         </div>
-        <span className={`text-sm font-medium px-3 py-1 rounded-full ${STATUS_COLORS[order.status]}`}>
+        <span
+          className={`text-sm font-medium px-3 py-1 rounded-full ${STATUS_COLORS[order.status]}`}
+        >
           {STATUS_LABELS[order.status]}
         </span>
       </div>
@@ -80,34 +126,47 @@ export const OrderDetailPage = () => {
         <ul className="divide-y divide-gray-100">
           {order.items?.map((item, i) => (
             <li key={i} className="py-2 flex justify-between text-sm">
-              <span>Producto #{item.product_id} <span className="text-gray-400">x{item.quantity}</span></span>
-              <span className="font-medium">${(Number(item.price_snapshot) * item.quantity).toFixed(2)}</span>
+              <span>
+                <ProductName productId={item.product_id} />{" "}
+                <span className="text-gray-400">x{item.quantity}</span>
+              </span>
+              <span className="font-medium">
+                ${(Number(item.price_snapshot) * item.quantity).toFixed(2)}
+              </span>
             </li>
           ))}
         </ul>
         <div className="border-t pt-3 mt-3 flex justify-between font-bold">
           <span>Total</span>
-          <span className="text-orange-500">${Number(order.total).toFixed(2)}</span>
+          <span className="text-orange-500">
+            ${Number(order.total).toFixed(2)}
+          </span>
         </div>
       </div>
 
       {/* Dirección */}
       <div className="bg-white border border-gray-200 rounded-xl p-5 mb-4">
-        <h2 className="font-semibold text-gray-700 mb-2">Dirección de entrega</h2>
-        <p className="text-sm text-gray-600">{order.direccion_calle} {order.direccion_numero}</p>
+        <h2 className="font-semibold text-gray-700 mb-2">
+          Dirección de entrega
+        </h2>
+        <p className="text-sm text-gray-600">
+          {order.direccion_calle} {order.direccion_numero}
+        </p>
         <p className="text-sm text-gray-500">{order.direccion_ciudad}</p>
       </div>
 
       {/* Pagar si está pendiente */}
-      {order.status === 'PENDIENTE' && (
+      {order.status === "PENDIENTE" && (
         <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-5 mb-4">
-          <p className="text-sm text-yellow-700 mb-3">Tu pedido está esperando el pago.</p>
+          <p className="text-sm text-yellow-700 mb-3">
+            Tu pedido está esperando el pago.
+          </p>
           <button
-            onClick={() => payMutation.mutate()}
-            disabled={payMutation.isPending}
+            onClick={() => pagoMutation.mutate()}
+            disabled={pagoMutation.isPending}
             className="bg-orange-500 hover:bg-orange-600 text-white px-5 py-2 rounded-lg text-sm font-semibold transition disabled:opacity-50"
           >
-            {payMutation.isPending ? 'Redirigiendo...' : 'Pagar ahora'}
+            {pagoMutation.isPending ? "Procesando..." : "Pagar ahora"}
           </button>
         </div>
       )}
@@ -115,11 +174,13 @@ export const OrderDetailPage = () => {
       {/* Cancelar */}
       {canCancel && (
         <button
-          onClick={() => { if (confirm('¿Cancelar este pedido?')) cancelMutation.mutate(); }}
+          onClick={() => {
+            if (confirm("¿Cancelar este pedido?")) cancelMutation.mutate();
+          }}
           disabled={cancelMutation.isPending}
           className="w-full border border-red-300 text-red-500 hover:bg-red-50 py-2 rounded-lg text-sm transition mt-2"
         >
-          {cancelMutation.isPending ? 'Cancelando...' : 'Cancelar pedido'}
+          {cancelMutation.isPending ? "Cancelando..." : "Cancelar pedido"}
         </button>
       )}
     </div>

@@ -1,7 +1,8 @@
-import api from './axios';
+import axiosInstance from './axios';
 
 export interface PagoCreatePayload {
   pedido_id: number;
+  forma_pago_codigo?: string;
 }
 
 export interface PagoResponse {
@@ -13,11 +14,12 @@ export interface PagoResponse {
 
 export const pagosApi = {
   crear: async (payload: PagoCreatePayload): Promise<PagoResponse> => {
-    const { data } = await api.post('/pagos/crear', payload);
+    const { data } = await axiosInstance.post('/pagos/crear', payload);
     return data;
   },
   consultar: async (pedido_id: number): Promise<PagoResponse> => {
-    const { data } = await api.get(`/pagos/pedido/${pedido_id}`);
+    const { data } = await axiosInstance.get(`/pagos/pedido/${pedido_id}`);
     return data;
   },
 };
+
