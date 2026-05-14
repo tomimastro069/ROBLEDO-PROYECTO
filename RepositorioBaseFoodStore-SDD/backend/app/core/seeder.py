@@ -12,8 +12,7 @@ ROLES = [
     {"name": RoleEnum.ADMIN.value, "description": "Administrador del sistema"},
     {"name": RoleEnum.CLIENTE.value, "description": "Cliente final"},
     {"name": RoleEnum.GESTOR_STOCK.value, "description": "Encargado de inventario"},
-    {"name": RoleEnum.GESTOR_PEDIDOS.value, "description": "Encargado de preparar pedidos"},
-    {"name": RoleEnum.SISTEMA.value, "description": "Usuario del sistema para tareas automatizadas"}
+    {"name": RoleEnum.GESTOR_PEDIDOS.value, "description": "Encargado de preparar pedidos"}
 ]
 
 CATEGORIES = [

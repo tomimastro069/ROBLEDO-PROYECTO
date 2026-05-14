@@ -161,7 +161,9 @@ export const UsersAdminPage = () => {
                 <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Rol del Sistema</label>
                 <select required value={modal.formData.role_id || ''} onChange={e => modal.setFormData(prev => ({ ...prev, role_id: parseInt(e.target.value) }))} className="w-full border-2 border-gray-100 px-4 py-3 text-sm focus:outline-none focus:border-[#d32f2f] transition-colors font-bold uppercase tracking-widest">
                   <option value="">Seleccionar Rol</option>
-                  {roles.map(r => <option key={r.id} value={r.id}>{r.name.replace('_', ' ')}</option>)}
+                  {roles
+                    .filter(r => r.name !== 'sistema')
+                    .map(r => <option key={r.id} value={r.id}>{r.name.replace('_', ' ')}</option>)}
                 </select>
               </div>
               <div className="pt-6 flex gap-4">
