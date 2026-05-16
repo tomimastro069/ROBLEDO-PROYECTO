@@ -33,7 +33,7 @@ class ProductsService:
     # ====================================================================
 
     def create(self, name: str, description: Optional[str], price: Decimal, 
-               stock: int, category_id: Optional[int]) -> Product:
+               stock: int, category_id: Optional[int], ingredient_ids: Optional[List[int]] = None) -> Product:
         """Create a new product.
         
         Args:
@@ -42,12 +42,13 @@ class ProductsService:
             price: Product price (Decimal)
             stock: Initial stock quantity
             category_id: Category ID (optional)
+            ingredient_ids: List of ingredient IDs to associate (optional)
             
         Returns:
             Created product
             
         Raises:
-            HTTPException(400): Invalid category_id
+            HTTPException(404): Invalid category_id or ingredient_id
         """
         with self.uow as uow:
             # Validate: category must exist if specified
@@ -67,6 +68,18 @@ class ProductsService:
                 category_id=category_id
             )
             uow.products.add(product)
+            uow.session.flush()
+
+            if ingredient_ids:
+                for ing_id in ingredient_ids:
+                    ing = uow.ingredientes.get_by_id_active(ing_id)
+                    if not ing:
+                        raise HTTPException(
+                            status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f"Ingredient with id={ing_id} not found.",
+                        )
+                    uow.ingredientes.add_link(product.id, ing_id)
+
             uow.commit()
             return product
 
@@ -113,12 +126,13 @@ class ProductsService:
     def update(self, product_id: int, name: Optional[str] = None,
               description: Optional[str] = None, price: Optional[Decimal] = None,
               stock: Optional[int] = None,
-              category_id: Optional[int] = None) -> Product:
+              category_id: Optional[int] = None,
+              ingredient_ids: Optional[List[int]] = None) -> Product:
         """Update product fields.
         
         Raises:
             HTTPException(404): Product not found
-            HTTPException(404): Invalid category_id
+            HTTPException(404): Invalid category_id or ingredient_id
         """
         with self.uow as uow:
             product = uow.products.get_by_id(product_id)
@@ -150,6 +164,29 @@ class ProductsService:
                 product.category_id = category_id
             
             uow.products.update(product)
+
+            # Reconcile ingredients if specified
+            if ingredient_ids is not None:
+                current_ings = uow.ingredientes.get_por_producto(product_id)
+                current_ids = {ing.id for ing in current_ings}
+                target_ids = set(ingredient_ids)
+
+                # Add new links
+                for ing_id in target_ids:
+                    if ing_id not in current_ids:
+                        ing = uow.ingredientes.get_by_id_active(ing_id)
+                        if not ing:
+                            raise HTTPException(
+                                status_code=status.HTTP_404_NOT_FOUND,
+                                detail=f"Ingredient with id={ing_id} not found.",
+                            )
+                        uow.ingredientes.add_link(product_id, ing_id)
+
+                # Remove old links
+                for ing_id in current_ids:
+                    if ing_id not in target_ids:
+                        uow.ingredientes.remove_link(product_id, ing_id)
+
             uow.commit()
             return product
 

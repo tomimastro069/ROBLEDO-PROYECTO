@@ -20,7 +20,7 @@ class ProductBase(BaseModel):
 
 class ProductCreate(ProductBase):
     """Schema for creating a new product."""
-    pass
+    ingredient_ids: Optional[List[int]] = Field(default=None, description="List of ingredient IDs to associate with this product")
 
 
 class ProductUpdate(BaseModel):
@@ -30,6 +30,7 @@ class ProductUpdate(BaseModel):
     price: Optional[Decimal] = Field(None, decimal_places=2)
     stock: Optional[int] = Field(None, ge=0)
     category_id: Optional[int] = None
+    ingredient_ids: Optional[List[int]] = Field(default=None, description="List of ingredient IDs to reconcile for this product")
 
 
 class ProductRead(ProductBase):

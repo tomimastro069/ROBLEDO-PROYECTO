@@ -24,6 +24,8 @@ def session_fixture():
         connect_args={"check_same_thread": False},
         poolclass=StaticPool,
     )
+    import orders.models
+    import pagos.models
     SQLModel.metadata.create_all(engine)
     with Session(engine) as session:
         yield session
@@ -50,11 +52,13 @@ def service_fixture(session: Session):
             from app.core.repositories.products_repository import ProductsRepository
             from app.core.repositories.product_ingredient_repository import ProductIngredientRepository
             from app.core.repositories.product_allergen_repository import ProductAllergenRepository
+            from app.core.repositories.ingrediente_repository import IngredienteRepository
             self.categories = CategoryRepository(session)
 
             self.products = ProductsRepository(session)
             self.product_ingredients = ProductIngredientRepository(session)
             self.product_allergens = ProductAllergenRepository(session)
+            self.ingredientes = IngredienteRepository(session)
             return self
 
         def __exit__(self, exc_type, exc_val, exc_tb):

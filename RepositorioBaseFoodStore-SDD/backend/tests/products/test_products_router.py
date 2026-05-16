@@ -12,7 +12,7 @@ from sqlmodel.pool import StaticPool
 
 from main import app
 from app.core.uow.unit_of_work import AppUnitOfWork, get_uow
-from app.core.models import Category, Product, ProductIngredient, ProductAllergen
+from app.core.models import Category, Product, Ingrediente, ProductIngrediente
 from auth.dependencies import get_current_user
 from auth.schemas import TokenData
 from auth.roles import Role
@@ -29,6 +29,8 @@ def engine_fixture():
         connect_args={"check_same_thread": False},
         poolclass=StaticPool,
     )
+    import orders.models
+    import pagos.models
     SQLModel.metadata.create_all(engine)
     return engine
 
@@ -45,7 +47,7 @@ def client_fixture(engine):
         return AppUnitOfWork(engine=engine)
 
     app.dependency_overrides[get_uow] = get_uow_override
-    client = TestClient(app, raise_server_exceptions=True)
+    client = TestClient(app, raise_server_exceptions=True, base_url="http://testserver/api/v1")
     yield client
     app.dependency_overrides.clear()
 
@@ -193,8 +195,7 @@ class TestGetProductById:
         data = response.json()
         assert data["id"] == test_product.id
         assert data["name"] == "Tomate"
-        assert "ingredients" in data
-        assert "allergens" in data
+        assert "ingredientes" in data
 
     def test_get_product_not_found(self, client: TestClient):
         response = client.get("/products/9999")
@@ -315,74 +316,63 @@ class TestDeleteProduct:
 
 
 # ============================================================================
-# Tests: /products/{id}/ingredients
+# Tests: Ingredientes atómicos en Producto
 # ============================================================================
 
-class TestProductIngredients:
+class TestProductIngredientsAtomic:
 
-    def test_list_ingredients_public(self, client: TestClient, test_product: Product, session: Session):
-        session.add(ProductIngredient(product_id=test_product.id, name="Agua"))
-        session.commit()
-        response = client.get(f"/products/{test_product.id}/ingredients")
-        assert response.status_code == 200
-        data = response.json()
-        assert len(data) == 1
-        assert data[0]["name"] == "Agua"
-
-    def test_add_ingredient_as_admin(self, client: TestClient, admin_token: TokenData, test_product: Product):
+    def test_create_product_with_ingredients_as_admin(self, client: TestClient, admin_token: TokenData, test_category: Category, session: Session):
         app.dependency_overrides[get_current_user] = lambda: admin_token
-        response = client.post(f"/products/{test_product.id}/ingredients", json={"name": "Sal"})
+        
+        # Seed ingredients
+        ing1 = Ingrediente(nombre="Tomate", es_alergeno=False)
+        ing2 = Ingrediente(nombre="Mussarela", es_alergeno=True)
+        session.add(ing1)
+        session.add(ing2)
+        session.commit()
+        session.refresh(ing1)
+        session.refresh(ing2)
+
+        payload = {
+            "name": "Pizza Especial",
+            "description": "Pizza con tomate y queso",
+            "price": "10.50",
+            "stock": 40,
+            "category_id": test_category.id,
+            "ingredient_ids": [ing1.id, ing2.id]
+        }
+        
+        response = client.post("/products", json=payload)
         app.dependency_overrides.pop(get_current_user, None)
+        
         assert response.status_code == 201
-        assert response.json()["name"] == "Sal"
-
-    def test_delete_ingredient_as_gestor_stock(self, client: TestClient, gestor_stock_token: TokenData, test_product: Product, session: Session):
-        ing = ProductIngredient(product_id=test_product.id, name="Azucar")
-        session.add(ing)
-        session.commit()
-        session.refresh(ing)
-
-        app.dependency_overrides[get_current_user] = lambda: gestor_stock_token
-        response = client.delete(f"/products/{test_product.id}/ingredients/{ing.id}")
-        app.dependency_overrides.pop(get_current_user, None)
-        assert response.status_code == 204
-
-    def test_add_ingredient_product_not_found(self, client: TestClient, admin_token: TokenData):
-        app.dependency_overrides[get_current_user] = lambda: admin_token
-        response = client.post("/products/9999/ingredients", json={"name": "Sal"})
-        app.dependency_overrides.pop(get_current_user, None)
-        assert response.status_code == 404
-
-
-# ============================================================================
-# Tests: /products/{id}/allergens
-# ============================================================================
-
-class TestProductAllergens:
-
-    def test_list_allergens_public(self, client: TestClient, test_product: Product, session: Session):
-        session.add(ProductAllergen(product_id=test_product.id, name="Gluten"))
-        session.commit()
-        response = client.get(f"/products/{test_product.id}/allergens")
-        assert response.status_code == 200
         data = response.json()
-        assert len(data) == 1
-        assert data[0]["name"] == "Gluten"
+        assert data["name"] == "Pizza Especial"
+        assert len(data["ingredientes"]) == 2
+        assert any(i["nombre"] == "Tomate" for i in data["ingredientes"])
+        assert any(i["nombre"] == "Mussarela" for i in data["ingredientes"])
 
-    def test_add_allergen_as_admin(self, client: TestClient, admin_token: TokenData, test_product: Product):
+    def test_update_product_ingredients_as_admin(self, client: TestClient, admin_token: TokenData, test_product: Product, session: Session):
         app.dependency_overrides[get_current_user] = lambda: admin_token
-        response = client.post(f"/products/{test_product.id}/allergens", json={"name": "Lactosa"})
-        app.dependency_overrides.pop(get_current_user, None)
-        assert response.status_code == 201
-        assert response.json()["name"] == "Lactosa"
-
-    def test_delete_allergen_as_gestor_stock(self, client: TestClient, gestor_stock_token: TokenData, test_product: Product, session: Session):
-        alg = ProductAllergen(product_id=test_product.id, name="Maní")
-        session.add(alg)
+        
+        ing1 = Ingrediente(nombre="Tomate", es_alergeno=False)
+        ing2 = Ingrediente(nombre="Panceta", es_alergeno=False)
+        session.add(ing1)
+        session.add(ing2)
         session.commit()
-        session.refresh(alg)
+        session.refresh(ing1)
+        session.refresh(ing2)
 
-        app.dependency_overrides[get_current_user] = lambda: gestor_stock_token
-        response = client.delete(f"/products/{test_product.id}/allergens/{alg.id}")
+        # Update and link only ing1
+        response = client.put(f"/products/{test_product.id}", json={"ingredient_ids": [ing1.id]})
+        assert response.status_code == 200
+        assert len(response.json()["ingredientes"]) == 1
+
+        # Reconcile: remove ing1, add ing2
+        response2 = client.put(f"/products/{test_product.id}", json={"ingredient_ids": [ing2.id]})
         app.dependency_overrides.pop(get_current_user, None)
-        assert response.status_code == 204
+
+        assert response2.status_code == 200
+        data = response2.json()
+        assert len(data["ingredientes"]) == 1
+        assert data["ingredientes"][0]["nombre"] == "Panceta"

@@ -4,7 +4,7 @@ import pytest
 from decimal import Decimal
 from fastapi import HTTPException
 
-from app.core.models import Product, ProductIngredient, ProductAllergen
+from app.core.models import Product, Ingrediente
 from products.service import ProductsService
 
 
@@ -85,85 +85,71 @@ class TestProductsCRUD:
 
 
 class TestProductIngredients:
-    """Test ingredient management."""
+    """Test modular ingredient management and atomic assignment."""
     
-    def test_add_ingredient(self, service: ProductsService, test_product):
-        """Test adding an ingredient to a product."""
-        ingredient = service.add_ingredient(test_product.id, "Flour")
-        
-        assert ingredient.id is not None
-        assert ingredient.product_id == test_product.id
-        assert ingredient.name == "Flour"
-    
-    def test_add_duplicate_ingredient_raises_error(self, service: ProductsService, test_product):
-        """Test adding duplicate ingredient raises error."""
-        service.add_ingredient(test_product.id, "Sugar")
-        
-        with pytest.raises(HTTPException) as exc_info:
-            service.add_ingredient(test_product.id, "Sugar")
-        
-        assert exc_info.value.status_code == 400
-    
-    def test_get_ingredients(self, service: ProductsService, test_product):
-        """Test retrieving ingredients for a product."""
-        service.add_ingredient(test_product.id, "Eggs")
-        service.add_ingredient(test_product.id, "Milk")
-        
-        ingredients = service.get_ingredients(test_product.id)
-        
+    def test_create_product_with_ingredients(self, service: ProductsService, test_category, session):
+        """Test creating a product with ingredients atomically."""
+        ing1 = Ingrediente(nombre="Tomate", es_alergeno=False)
+        ing2 = Ingrediente(nombre="Queso", es_alergeno=True)
+        session.add(ing1)
+        session.add(ing2)
+        session.commit()
+
+        product = service.create(
+            name="Pizza Margarita",
+            description="Classic pizza",
+            price=Decimal("12.50"),
+            stock=10,
+            category_id=test_category.id,
+            ingredient_ids=[ing1.id, ing2.id]
+        )
+
+        assert product.id is not None
+        ingredients = service.get_ingredients(product.id)
         assert len(ingredients) == 2
-        assert any(i.name == "Eggs" for i in ingredients)
-        assert any(i.name == "Milk" for i in ingredients)
-    
-    def test_remove_ingredient(self, service: ProductsService, test_product):
-        """Test removing an ingredient from a product."""
-        ingredient = service.add_ingredient(test_product.id, "Butter")
-        
-        service.remove_ingredient(test_product.id, ingredient.id)
-        
-        ingredients = service.get_ingredients(test_product.id)
-        assert len(ingredients) == 0
+        assert any(i.nombre == "Tomate" for i in ingredients)
+        assert any(i.nombre == "Queso" for i in ingredients)
 
-
-class TestProductAllergens:
-    """Test allergen management."""
-    
-    def test_add_allergen(self, service: ProductsService, test_product):
-        """Test adding an allergen to a product."""
-        allergen = service.add_allergen(test_product.id, "peanuts")
-        
-        assert allergen.id is not None
-        assert allergen.product_id == test_product.id
-        assert allergen.name == "peanuts"
-    
-    def test_add_duplicate_allergen_raises_error(self, service: ProductsService, test_product):
-        """Test adding duplicate allergen raises error."""
-        service.add_allergen(test_product.id, "gluten")
-        
+    def test_create_product_with_invalid_ingredient(self, service: ProductsService, test_category):
+        """Test creating a product with a non-existent ingredient raises 404."""
         with pytest.raises(HTTPException) as exc_info:
-            service.add_allergen(test_product.id, "gluten")
-        
-        assert exc_info.value.status_code == 400
-    
-    def test_get_allergens(self, service: ProductsService, test_product):
-        """Test retrieving allergens for a product."""
-        service.add_allergen(test_product.id, "dairy")
-        service.add_allergen(test_product.id, "shellfish")
-        
-        allergens = service.get_allergens(test_product.id)
-        
-        assert len(allergens) == 2
-        assert any(a.name == "dairy" for a in allergens)
-        assert any(a.name == "shellfish" for a in allergens)
-    
-    def test_remove_allergen(self, service: ProductsService, test_product):
-        """Test removing an allergen from a product."""
-        allergen = service.add_allergen(test_product.id, "tree nuts")
-        
-        service.remove_allergen(test_product.id, allergen.id)
-        
-        allergens = service.get_allergens(test_product.id)
-        assert len(allergens) == 0
+            service.create(
+                name="Pizza Margarita",
+                description="Classic pizza",
+                price=Decimal("12.50"),
+                stock=10,
+                category_id=test_category.id,
+                ingredient_ids=[9999]
+            )
+        assert exc_info.value.status_code == 404
+        assert "Ingredient with id=9999 not found" in exc_info.value.detail
+
+    def test_update_product_ingredients(self, service: ProductsService, test_product, session):
+        """Test updating product ingredients with reconciliation (add/remove)."""
+        ing1 = Ingrediente(nombre="Mussarela", es_alergeno=True)
+        ing2 = Ingrediente(nombre="Orégano", es_alergeno=False)
+        ing3 = Ingrediente(nombre="Tomate", es_alergeno=False)
+        session.add_all([ing1, ing2, ing3])
+        session.commit()
+
+        # Initial link ing1 & ing2
+        service.update(test_product.id, ingredient_ids=[ing1.id, ing2.id])
+        current_ings = service.get_ingredients(test_product.id)
+        assert len(current_ings) == 2
+
+        # Reconcile: keep ing1, remove ing2, add ing3
+        service.update(test_product.id, ingredient_ids=[ing1.id, ing3.id])
+        updated_ings = service.get_ingredients(test_product.id)
+        assert len(updated_ings) == 2
+        assert any(i.nombre == "Mussarela" for i in updated_ings)
+        assert any(i.nombre == "Tomate" for i in updated_ings)
+        assert not any(i.nombre == "Orégano" for i in updated_ings)
+
+    def test_update_product_with_invalid_ingredient(self, service: ProductsService, test_product):
+        """Test updating a product with a non-existent ingredient raises 404."""
+        with pytest.raises(HTTPException) as exc_info:
+            service.update(test_product.id, ingredient_ids=[9999])
+        assert exc_info.value.status_code == 404
 
 
 class TestStockManagement:

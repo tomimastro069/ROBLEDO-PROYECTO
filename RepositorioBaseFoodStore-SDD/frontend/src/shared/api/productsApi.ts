@@ -7,6 +7,7 @@ export interface Product {
   price: number;
   stock: number;
   category_id: number | null;
+  ingredient_ids?: number[];
 }
 
 export interface Ingrediente {

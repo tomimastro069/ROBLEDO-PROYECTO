@@ -82,7 +82,7 @@ def get_product(
 
 @router.post(
     "",
-    response_model=ProductRead,
+    response_model=ProductWithIngredients,
     status_code=status.HTTP_201_CREATED,
     summary="Create product",
 )
@@ -91,18 +91,24 @@ def create_product(
     current_user: TokenData = Depends(require_role(*_WRITE_ROLES)),
     service: ProductsService = Depends(get_products_service),
 ):
-    return service.create(
+    product = service.create(
         name=product_in.name,
         description=product_in.description,
         price=product_in.price,
         stock=product_in.stock,
         category_id=product_in.category_id,
+        ingredient_ids=product_in.ingredient_ids,
+    )
+    ingredientes = service.get_ingredients(product.id)
+    return ProductWithIngredients(
+        **product.model_dump(),
+        ingredientes=ingredientes,
     )
 
 
 @router.put(
     "/{product_id}",
-    response_model=ProductRead,
+    response_model=ProductWithIngredients,
     status_code=status.HTTP_200_OK,
     summary="Update product",
 )
@@ -112,13 +118,19 @@ def update_product(
     current_user: TokenData = Depends(require_role(*_WRITE_ROLES)),
     service: ProductsService = Depends(get_products_service),
 ):
-    return service.update(
+    product = service.update(
         product_id=product_id,
         name=product_in.name,
         description=product_in.description,
         price=product_in.price,
         stock=product_in.stock,
         category_id=product_in.category_id,
+        ingredient_ids=product_in.ingredient_ids,
+    )
+    ingredientes = service.get_ingredients(product.id)
+    return ProductWithIngredients(
+        **product.model_dump(),
+        ingredientes=ingredientes,
     )
 
 

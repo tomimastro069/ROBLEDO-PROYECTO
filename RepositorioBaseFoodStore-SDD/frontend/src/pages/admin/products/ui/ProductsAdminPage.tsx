@@ -7,6 +7,7 @@ import { useConfirmDialog } from '@/shared/hooks/useConfirmDialog';
 import { usePagination } from '@/shared/hooks/usePagination';
 import { productsApi, Product } from '@/shared/api/productsApi';
 import { categoriesApi } from '@/shared/api/categoriesApi';
+import { ingredientesApi } from '@/shared/api/ingredientesApi';
 import { HelpButton } from '@/shared/ui/HelpButton';
 import { handleError } from '@/shared/utils/logger';
 
@@ -14,14 +15,33 @@ export const ProductsAdminPage = () => {
   const queryClient = useQueryClient();
   const { data: productsData, isLoading } = useQuery({ queryKey: ['products-admin'], queryFn: () => productsApi.list({ limit: 100 }) });
   const { data: categories } = useQuery({ queryKey: ['categories'], queryFn: categoriesApi.list });
+  const { data: ingredients } = useQuery({ queryKey: ['ingredients'], queryFn: ingredientesApi.list });
 
   const products = productsData?.items || [];
   const { paginatedItems, currentPage, totalPages, setCurrentPage } = usePagination(products, 10);
 
-  const modal = useFormModal<{ name: string; description: string; price: number; stock: number; category_id: number | null }, Product>({
-    name: '', description: '', price: 0, stock: 0, category_id: null
+  const modal = useFormModal<{
+    name: string;
+    description: string;
+    price: number;
+    stock: number;
+    category_id: number | null;
+    ingredient_ids: number[];
+  }, Product>({
+    name: '', description: '', price: 0, stock: 0, category_id: null, ingredient_ids: []
   });
   const deleteDialog = useConfirmDialog<Product>();
+
+  const [ingredienteSearch, setIngredienteSearch] = React.useState('');
+  const searchInputRef = React.useRef<HTMLInputElement>(null);
+
+  const sugerencias = React.useMemo(() => {
+    if (!ingredienteSearch.trim()) return [];
+    return (ingredients || []).filter(ing =>
+      ing.nombre.toLowerCase().includes(ingredienteSearch.toLowerCase()) &&
+      !modal.formData.ingredient_ids.includes(ing.id)
+    );
+  }, [ingredienteSearch, ingredients, modal.formData.ingredient_ids]);
 
   const createMutation = useMutation({
     mutationFn: productsApi.create,
@@ -47,6 +67,22 @@ export const ProductsAdminPage = () => {
       updateMutation.mutate({ id: modal.selectedItem.id, payload: modal.formData });
     } else {
       createMutation.mutate(modal.formData);
+    }
+  };
+
+  const handleOpenEdit = async (prod: Product) => {
+    try {
+      const detail = await productsApi.getById(prod.id);
+      modal.openEdit(prod, {
+        name: detail.name,
+        description: detail.description || '',
+        price: detail.price,
+        stock: detail.stock,
+        category_id: detail.category_id,
+        ingredient_ids: detail.ingredientes ? detail.ingredientes.map(i => i.id) : []
+      });
+    } catch (err) {
+      alert(handleError(err, 'Cargar Detalles de Producto'));
     }
   };
 
@@ -106,7 +142,7 @@ export const ProductsAdminPage = () => {
                     </td>
                     <td className="px-8 py-5 text-right">
                       <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onClick={() => modal.openEdit(prod, { name: prod.name, description: prod.description || '', price: prod.price, stock: prod.stock, category_id: prod.category_id })} className="bg-white border border-gray-200 text-gray-600 hover:text-red-600 hover:border-red-200 px-4 py-1.5 rounded-xl text-xs font-bold transition-all">
+                        <button onClick={() => handleOpenEdit(prod)} className="bg-white border border-gray-200 text-gray-600 hover:text-red-600 hover:border-red-200 px-4 py-1.5 rounded-xl text-xs font-bold transition-all">
                           Editar
                         </button>
                         <button onClick={() => deleteDialog.open(prod)} className="bg-white border border-gray-200 text-rose-400 hover:text-rose-600 hover:border-rose-200 px-4 py-1.5 rounded-xl text-xs font-bold transition-all">
@@ -167,6 +203,91 @@ export const ProductsAdminPage = () => {
                   <option value="">Sin categoría</option>
                   {categories?.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </select>
+              </div>
+
+              <div className="space-y-2 relative">
+                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Ingredientes</label>
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  value={ingredienteSearch}
+                  onChange={e => setIngredienteSearch(e.target.value)}
+                  className="input-premium"
+                  placeholder="Buscar y agregar ingrediente... (ej: Cheddar)"
+                />
+                
+                {/* Floating Suggestions List */}
+                {sugerencias.length > 0 && (
+                  <div className="absolute left-0 right-0 mt-1 bg-white/95 border border-gray-150 rounded-2xl z-[150] shadow-lg max-h-32 overflow-y-auto divide-y divide-gray-50/50 backdrop-blur-sm animate-in fade-in slide-in-from-top-2 duration-150">
+                    {sugerencias.map(ing => (
+                      <button
+                        key={ing.id}
+                        type="button"
+                        onClick={() => {
+                          modal.setFormData(prev => ({
+                            ...prev,
+                            ingredient_ids: [...prev.ingredient_ids, ing.id]
+                          }));
+                          setIngredienteSearch('');
+                          setTimeout(() => searchInputRef.current?.focus(), 0);
+                        }}
+                        className="w-full text-left px-4 py-2 hover:bg-red-50/50 text-xs font-bold text-gray-700 transition-colors flex items-center justify-between"
+                      >
+                        <span className="truncate flex-1">{ing.nombre}</span>
+                        <div className="flex items-center gap-2">
+                          {ing.es_alergeno && (
+                            <span className="text-[10px] text-amber-500 font-black uppercase tracking-tighter bg-amber-50 px-2 py-0.5 rounded border border-amber-100 flex items-center gap-1">
+                              ⚠️ Alérgeno
+                            </span>
+                          )}
+                          <span className="text-[9px] text-[#d32f2f] uppercase tracking-wider font-black">
+                            + Agregar
+                          </span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Selected Ingredients Badges */}
+              <div className="space-y-2">
+                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Ingredientes Seleccionados</label>
+                <div className="flex flex-wrap gap-2 p-3.5 bg-gray-50/50 border border-gray-100 rounded-2xl max-h-24 overflow-y-auto shadow-inner">
+                  {modal.formData.ingredient_ids.length > 0 ? (
+                    modal.formData.ingredient_ids.map(id => {
+                      const ing = ingredients?.find(i => i.id === id);
+                      if (!ing) return null;
+                      return (
+                        <div
+                          key={ing.id}
+                          className="flex items-center gap-1.5 px-3 py-1 bg-red-50 text-red-700 hover:bg-red-100/50 border border-red-100 rounded-full text-xs font-black transition-all select-none shadow-sm"
+                        >
+                          <span className="truncate max-w-[120px]">{ing.nombre}</span>
+                          {ing.es_alergeno && (
+                            <span className="text-[9px] text-amber-500" title="Contiene alérgenos">⚠️</span>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              modal.setFormData(prev => ({
+                                ...prev,
+                                ingredient_ids: prev.ingredient_ids.filter(x => x !== id)
+                              }));
+                            }}
+                            className="w-4 h-4 flex items-center justify-center rounded-full hover:bg-red-200 text-red-500 hover:text-red-700 text-[10px] transition-colors font-black"
+                          >
+                            &times;
+                          </button>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <div className="w-full text-center py-2 text-xs font-semibold text-gray-400 italic">
+                      Ningún ingrediente seleccionado.
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="space-y-2">
