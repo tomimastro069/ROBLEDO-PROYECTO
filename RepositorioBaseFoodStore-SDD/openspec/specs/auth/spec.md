@@ -7,13 +7,14 @@ This specification defines the core authentication business rules and behaviors 
 ## Requirements
 
 ### R1: User Registration
-The system MUST allow users to register by hashing their password and persisting the new user using the Unit of Work.
+The system MUST allow users to register by hashing their password, assigning the default 'cliente' role from the database, and persisting the new user using the Unit of Work.
 
 #### Scenario: Successful registration
 - GIVEN a valid `UserCreate` payload with a unique email
 - WHEN the `AuthService.register` method is called
 - THEN the system hashes the password
-- AND the system creates a new user record in the database using the `uow.users` repository
+- AND the system retrieves the 'cliente' role from the `uow.roles` repository
+- AND the system creates a new user record in the database using the `uow.users` repository with the correct `role_id`
 - AND the transaction is committed via `uow.commit()`
 - AND the method returns the created user (without password hash)
 
@@ -31,7 +32,8 @@ The system MUST authenticate users by verifying their credentials against the ha
 - WHEN the `AuthService.login` method is called
 - THEN the system retrieves the user using `uow.users.get_by_email`
 - AND verifies the password against the stored hash
-- AND generates an access JWT and a refresh JWT
+- AND extracts the user's role from the database record
+- AND generates an access JWT and a refresh JWT containing the user's role
 - AND returns a `Token` payload
 
 #### Scenario: Invalid credentials
@@ -48,7 +50,8 @@ The system MUST allow issuing a new access token using a valid refresh token.
 - WHEN the `AuthService.refresh` method is called
 - THEN the system decodes and validates the refresh token
 - AND retrieves the associated user via `uow.users.get_by_email` or ID
-- AND issues a new access token
+- AND extracts the user's role from the database record
+- AND issues a new access token containing the correct role
 - AND returns a `Token` payload
 
 ### R4: REST API Endpoints

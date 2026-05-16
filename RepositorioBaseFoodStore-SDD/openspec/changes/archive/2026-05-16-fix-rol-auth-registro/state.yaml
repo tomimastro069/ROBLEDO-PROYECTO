@@ -1,0 +1,10 @@
+title: "Fix Auth Registration Role"
+date: "2026-05-16"
+author: "Antigravity"
+status: "archived"
+summary: "Fixed inconsistency where new users were not assigned a database role, causing discrepancies with JWT tokens."
+artifacts:
+  proposal: "proposal.md"
+  spec: "spec.md"
+  design: "design.md"
+  tasks: "tasks.md"

@@ -5,6 +5,7 @@ from auth.schemas import UserCreate, UserLogin, Token
 from auth.utils import get_password_hash, verify_password, create_access_token, create_refresh_token, SECRET_KEY, ALGORITHM
 from app.core.uow.unit_of_work import AppUnitOfWork
 from app.core.models import User
+from auth.roles import Role
 
 class AuthService:
     def __init__(self, uow: AppUnitOfWork):
@@ -19,19 +20,26 @@ class AuthService:
                     detail="Email already registered"
                 )
             
-            # Retrieve default role (e.g. 'user') if possible
-            # role = uow.roles.get_by_name("user") # Omitted to simplify, will just use role_id=None or whatever is default
+            # 1. Buscar el rol de cliente en la base de datos
+            role = uow.roles.get_by_name(Role.CLIENTE.value)
+            if not role:
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail="Error de configuración: El rol 'cliente' no existe en la base de datos."
+                )
 
+            # 2. Crear el usuario con el role_id asignado
             hashed_password = get_password_hash(user_in.password)
             new_user = User(
                 email=user_in.email,
                 hashed_password=hashed_password,
                 name=user_in.name,
-                phone=user_in.phone
+                phone=user_in.phone,
+                role_id=role.id,
+                is_active=True
             )
             
             uow.users.add(new_user)
-            # uow.commit() called implicitly upon exit of 'with', but specs say "AND the transaction is committed via uow.commit()"
             uow.commit() 
             return new_user
 
@@ -46,7 +54,8 @@ class AuthService:
                 )
             
             # we need user.role but role might be None. we assume user.role.name for the token if role is loaded
-            role_name = user.role.name if user.role else "cliente"
+            # Al tener el rol en DB, ya no dependemos de fallbacks manuales
+            role_name = user.role.name if user.role else Role.CLIENTE.value
 
             access_token = create_access_token(
                 data={"sub": str(user.id), "email": user.email, "role": role_name}
@@ -81,7 +90,7 @@ class AuthService:
             if user is None:
                 raise credentials_exception
             
-            role_name = user.role.name if user.role else "cliente"
+            role_name = user.role.name if user.role else Role.CLIENTE.value
             
             access_token = create_access_token(
                 data={"sub": str(user.id), "email": user.email, "role": role_name}
