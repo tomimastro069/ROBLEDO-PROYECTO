@@ -189,11 +189,11 @@ export const ProductsAdminPage = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Precio ($)</label>
-                  <input required type="number" min="0" step="0.01" value={modal.formData.price} onChange={e => modal.setFormData(prev => ({ ...prev, price: parseFloat(e.target.value) || 0 }))} className="input-premium" />
+                  <input required type="number" min="0" step="0.01" value={modal.formData.price} onChange={e => modal.setFormData(prev => ({ ...prev, price: parseFloat(e.target.value) || 0 }))} onFocus={e => e.target.select()} className="input-premium" />
                 </div>
                 <div className="space-y-2">
                   <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Stock Inicial</label>
-                  <input required type="number" min="0" value={modal.formData.stock} onChange={e => modal.setFormData(prev => ({ ...prev, stock: parseInt(e.target.value) || 0 }))} className="input-premium" />
+                  <input required type="number" min="0" value={modal.formData.stock} onChange={e => modal.setFormData(prev => ({ ...prev, stock: parseInt(e.target.value) || 0 }))} onFocus={e => e.target.select()} className="input-premium" />
                 </div>
               </div>
 
