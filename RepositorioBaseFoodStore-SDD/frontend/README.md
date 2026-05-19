@@ -1,31 +1,28 @@
 # Food Store — Frontend
 
-## Visión General
-Food Store es un sistema de comercio electrónico diseñado para la venta de productos alimenticios. Esta interfaz de usuario (frontend) proporciona la plataforma para que los clientes exploren el catálogo, gestionen su carrito y realicen compras de forma intuitiva. Además, ofrece interfaces especializadas para la administración: gestión de inventarios, procesamiento de pedidos y visualización de métricas (diseñado para perfiles Admin, Gestor de Stock y Gestor de Pedidos).
+## Setup & Development
 
-## Stack Tecnológico
-El frontend sigue la arquitectura **Feature-Sliced Design (FSD)**, separando estrictamente el estado del servidor y del cliente, y está construido con:
-- **React + TypeScript**: Base de la aplicación para un desarrollo robusto y tipado.
-- **Vite**: Bundler y entorno de desarrollo ultra rápido.
-- **Zustand**: Gestión del estado puramente del cliente (carrito, sesión persistida en localStorage, UI).
-- **TanStack Query**: Gestión y sincronización del estado del servidor (caching, fetching asíncrono).
-- **Tailwind CSS**: Sistema de estilos basado en utilidades y diseño responsivo.
-- **MercadoPago.js**: Tokenización segura de tarjetas en el cliente (cumplimiento PCI DSS SAQ-A).
+Para instalar y ejecutar el entorno de desarrollo local del frontend, asegúrate de tener Node.js instalado.
 
----
+```bash
+# 1. Instalar dependencias
+npm install
 
-## 🤖 Desarrollo Guiado por IA (Metodología)
+# 2. Configurar variables de entorno
+cp .env.example .env
 
-Este proyecto no se construyó bajo el paradigma tradicional de escritura manual de código, sino que está desarrollado utilizando **Inteligencia Artificial** bajo la metodología **SDD (Spec-Driven Development)** mediante herramientas de orquestación (`opsx`).
+# 3. Levantar el servidor de desarrollo
+npm run dev
 
-Todo el ciclo de vida del código está estructurado en flujos guiados:
-1. **Explore**: Investigación profunda y diseño arquitectónico del problema.
-2. **Propose**: Definición explícita de intención, alcance y diseño de los cambios requeridos.
-3. **Apply**: Implementación guiada, atómica y trazable de las tareas definidas.
-4. **Archive**: Cierre del ciclo y persistencia del cambio en el historial del proyecto.
+# 4. Construir para producción
+npm run build
+```
 
-### Ecosistema IA del Repositorio
-Para que este desarrollo autónomo y cooperativo sea posible, el repositorio hace uso de un entorno específico de persistencia y configuración:
-- **`.claude` / `.opencode`**: Contienen las configuraciones, skills e instrucciones del sistema de los agentes orquestadores.
-- **`engram`**: Motor de memoria persistente que la IA consulta para recuperar el contexto entre sesiones, evitando pérdida de información y garantizando decisiones coherentes a lo largo del tiempo.
-- **`openspec`**: Directorio donde residen absolutamente todas las especificaciones (`specs`) y el historial completo de cambios (`changes`) archivados. Es la fuente de la verdad para el ciclo de vida del desarrollo.
+## Arquitectura y Convenciones
+
+> **⚠️ IMPORTANTE:**
+> Este proyecto sigue una arquitectura estricta (Feature-Sliced Design) dictada por un enfoque de desarrollo guiado por IA (Spec-Driven Development).
+> 
+> Para conocer la jerarquía de directorios permitida, las librerías a usar (Zustand, React nativo para formularios, Axios, Recharts), y los patrones de desarrollo que debe seguir el equipo y los agentes, **por favor consulta la documentación central en:**
+> - `docs/AGENTS.md` (Para arquitectura FSD, convenciones frontend y reglas de orquestación)
+> - `docs/Integrador.txt` (Para especificaciones técnicas y requerimientos de dominio)
